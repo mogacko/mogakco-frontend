@@ -16,25 +16,30 @@ class MogackoLogo extends StatelessWidget {
   /// 정사각 심볼. 스플래시·아이콘처럼 정중앙에 놓을 때 쓴다.
   const MogackoLogo.square({super.key, required this.size, this.color})
     : _asset = 'assets/logos/mogakco-logo-square.svg',
-      _aspectRatio = 1;
+      _aspectRatio = 1,
+      chapter = null;
 
   /// 가로형 워드마크. 화면 상단 헤더용.
   const MogackoLogo.horizontal({super.key, required this.size, this.color})
     : _asset = 'assets/logos/mogakco-logo.svg',
-      _aspectRatio = 214 / 72;
+      _aspectRatio = 214 / 72,
+      chapter = null;
 
   /// 지역 챕터 워드마크.
   // 에셋 경로를 [Chapter]에서 꺼내 오므로 컴파일 타임 상수가 될 수 없다.
   // ignore: prefer_const_constructors_in_immutables
   MogackoLogo.chapter({
     super.key,
-    required Chapter chapter,
+    required Chapter this.chapter,
     required this.size,
     this.color,
   }) : _asset = chapter.logoAsset,
        _aspectRatio = 304 / 72;
 
   final String _asset;
+
+  /// 챕터 워드마크일 때 그 지역. 다른 형태에서는 null이다.
+  final Chapter? chapter;
 
   /// 원본 SVG의 가로/세로 비율. [size]를 높이로 두고 폭을 계산한다.
   final double _aspectRatio;

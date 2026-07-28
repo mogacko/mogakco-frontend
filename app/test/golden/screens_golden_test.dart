@@ -52,6 +52,23 @@ void main() {
       await expectGolden(tester, const AppShell(), 'home_light');
     });
 
+    testWidgets('홈 지역 메뉴', (tester) async {
+      tester.view
+        ..physicalSize = const Size(390, 844)
+        ..devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpScreen(const AppShell());
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('images/home_menu_light.png'),
+      );
+    });
+
     testWidgets('스플래시', (tester) async {
       await expectGolden(tester, const SplashScreen(), 'splash_light');
       await tester.pumpAndSettle(const Duration(seconds: 2));

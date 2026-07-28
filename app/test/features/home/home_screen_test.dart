@@ -50,6 +50,11 @@ void main() {
   });
 
   group('HomeScreen', () {
+    // 카드 배경에도 로고가 깔려 있어 챕터 워드마크만 따로 골라낸다.
+    final chapterLogos = find.byWidgetPredicate(
+      (w) => w is MogackoLogo && w.chapter != null,
+    );
+
     testWidgets('현재 지역의 모임만 보여준다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
@@ -103,45 +108,58 @@ void main() {
       expect(find.text('6 / 8'), findsNothing);
     });
 
-    testWidgets('헤더의 화살표를 누르면 지역 목록이 펼쳐진다', (tester) async {
+    testWidgets('화살표를 누르면 지역 메뉴가 뜬다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      // 닫힌 상태에서는 헤더의 워드마크 하나뿐이다.
+      expect(chapterLogos, findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+
+      // 헤더 1 + 열린 지역 2
+      expect(chapterLogos, findsNWidgets(3));
+      expect(find.byType(PopupMenuItem<Chapter>), findsNWidgets(2));
+    });
+
+    testWidgets('메뉴 항목은 지역명 대신 워드마크로 보여준다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
       expect(find.text('서울'), findsNothing);
-
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-      await tester.pumpAndSettle();
-
-      expect(find.text('서울'), findsOneWidget);
-      expect(find.text('부산'), findsOneWidget);
+      expect(find.text('부산'), findsNothing);
     });
 
-    testWidgets('지역을 바꾸면 헤더 로고와 목록이 함께 바뀐다', (tester) async {
+    testWidgets('메뉴에서 지역을 고르면 헤더와 목록이 함께 바뀐다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('서울'));
+
+      // 메뉴 항목 순서는 Chapter.open 과 같다. 첫 번째가 서울이다.
+      await tester.tap(find.byType(PopupMenuItem<Chapter>).first);
       await tester.pumpAndSettle();
 
       expect(find.text('카페 그리다'), findsOneWidget);
       expect(find.text('모모스커피 온천장'), findsNothing);
 
-      // 헤더 워드마크도 서울 것으로 교체돼야 한다.
-      final logo = tester.widget<MogackoLogo>(find.byType(MogackoLogo).first);
-      expect(logo.key, isNull);
+      final header = tester.widget<MogackoLogo>(chapterLogos.first);
+      expect(header.chapter, Chapter.seoul);
     });
 
-    testWidgets('열지 않은 지역은 목록에 없다', (tester) async {
+    testWidgets('열지 않은 지역은 메뉴에 없다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
-      expect(find.text('대구'), findsNothing);
-      expect(find.text('제주'), findsNothing);
+      expect(find.byType(PopupMenuItem<Chapter>), findsNWidgets(2));
     });
   });
 

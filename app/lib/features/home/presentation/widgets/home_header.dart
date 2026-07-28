@@ -10,8 +10,8 @@ import '../../../../shared/widgets/mogacko_logo.dart';
 /// 홈 상단 바.
 ///
 /// 현재 지역의 워드마크를 왼쪽에 두고, 그 옆 화살표로 지역을 바꾼다.
-/// 목록은 헤더 바로 아래로 밀려 내려온다. 한 손으로 쓰는 화면이라
-/// 별도 다이얼로그를 띄우는 대신 제자리에서 펼치고 접는다.
+/// 목록은 화면을 가로지르지 않고 로고 바로 아래에 메뉴로 뜬다.
+/// 항목도 지역명 대신 워드마크라 지금 무엇을 고르는지가 그대로 보인다.
 class HomeHeader extends ConsumerStatefulWidget {
   const HomeHeader({super.key});
 
@@ -19,15 +19,13 @@ class HomeHeader extends ConsumerStatefulWidget {
   ConsumerState<HomeHeader> createState() => _HomeHeaderState();
 }
 
-class _HomeHeaderState extends ConsumerState<HomeHeader>
-    with SingleTickerProviderStateMixin {
-  bool _expanded = false;
-
-  void _toggle() => setState(() => _expanded = !_expanded);
+class _HomeHeaderState extends ConsumerState<HomeHeader> {
+  /// 화살표 방향을 메뉴 상태에 맞추기 위해 따로 들고 있는다.
+  bool _menuOpen = false;
 
   void _select(Chapter chapter) {
     ref.read(currentChapterProvider.notifier).change(chapter);
-    setState(() => _expanded = false);
+    setState(() => _menuOpen = false);
   }
 
   @override
@@ -41,13 +39,17 @@ class _HomeHeaderState extends ConsumerState<HomeHeader>
         Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.screenHorizontal,
-            vertical: AppSpacing.md,
+            vertical: AppSpacing.sm,
           ),
           child: Row(
             children: [
-              // 워드마크에 지역명이 들어 있어 현재 지역이 곧 로고로 드러난다.
-              MogackoLogo.chapter(chapter: current, size: 24),
-              _ChevronButton(expanded: _expanded, onTap: _toggle),
+              _ChapterMenu(
+                current: current,
+                open: _menuOpen,
+                onOpened: () => setState(() => _menuOpen = true),
+                onDismissed: () => setState(() => _menuOpen = false),
+                onSelected: _select,
+              ),
               const Spacer(),
               IconButton(
                 onPressed: () {},
@@ -60,82 +62,69 @@ class _HomeHeaderState extends ConsumerState<HomeHeader>
             ],
           ),
         ),
-        // 접혀 있을 때 높이 0으로 줄어 본문이 위로 붙는다.
-        AnimatedSize(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter,
-          child: _expanded
-              ? _ChapterList(current: current, onSelect: _select)
-              : const SizedBox(width: double.infinity),
-        ),
-        Divider(color: colors.border, height: 1),
+        Divider(color: colors.border, height: 0.5, thickness: 0.5),
       ],
     );
   }
 }
 
-class _ChevronButton extends StatelessWidget {
-  const _ChevronButton({required this.expanded, required this.onTap});
+/// 워드마크 + 화살표를 누르면 지역 목록이 바로 아래에 뜬다.
+class _ChapterMenu extends StatelessWidget {
+  const _ChapterMenu({
+    required this.current,
+    required this.open,
+    required this.onOpened,
+    required this.onDismissed,
+    required this.onSelected,
+  });
 
-  final bool expanded;
-  final VoidCallback onTap;
+  final Chapter current;
+  final bool open;
+  final VoidCallback onOpened;
+  final VoidCallback onDismissed;
+  final ValueChanged<Chapter> onSelected;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Semantics(
-      button: true,
-      label: '지역 바꾸기',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xs),
-          child: AnimatedRotation(
-            turns: expanded ? 0.5 : 0,
-            duration: const Duration(milliseconds: 220),
+    return PopupMenuButton<Chapter>(
+      // 앵커 바로 아래에 붙여 어디서 나온 메뉴인지 드러낸다.
+      offset: const Offset(0, 34),
+      onOpened: onOpened,
+      onCanceled: onDismissed,
+      onSelected: onSelected,
+      tooltip: '지역 바꾸기',
+      color: colors.surface,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.18),
+      menuPadding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        side: BorderSide(color: colors.border, width: 0.5),
+      ),
+      itemBuilder: (context) => [
+        for (final chapter in Chapter.open)
+          PopupMenuItem<Chapter>(
+            value: chapter,
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: _MenuRow(chapter: chapter, selected: chapter == current),
+          ),
+      ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MogackoLogo.chapter(chapter: current, size: 24),
+          const SizedBox(width: AppSpacing.xs),
+          AnimatedRotation(
+            turns: open ? 0.5 : 0,
+            duration: const Duration(milliseconds: 200),
             child: Icon(
               Icons.keyboard_arrow_down,
               size: AppSize.iconMd,
               color: colors.textSecondary,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChapterList extends StatelessWidget {
-  const _ChapterList({required this.current, required this.onSelect});
-
-  final Chapter current;
-  final ValueChanged<Chapter> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Container(
-      width: double.infinity,
-      color: colors.surfaceAlt,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Column(
-        children: [
-          for (final chapter in Chapter.open)
-            _ChapterRow(
-              chapter: chapter,
-              selected: chapter == current,
-              onTap: () => onSelect(chapter),
-            ),
-          Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.sm,
-              bottom: AppSpacing.xs,
-            ),
-            child: Text('다른 지역도 순차적으로 열립니다', style: context.texts.labelSmall),
           ),
         ],
       ),
@@ -143,43 +132,27 @@ class _ChapterList extends StatelessWidget {
   }
 }
 
-class _ChapterRow extends StatelessWidget {
-  const _ChapterRow({
-    required this.chapter,
-    required this.selected,
-    required this.onTap,
-  });
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({required this.chapter, required this.selected});
 
   final Chapter chapter;
   final bool selected;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenHorizontal,
-          vertical: AppSpacing.md,
+    return Row(
+      children: [
+        // 선택되지 않은 지역은 한 톤 죽여 현재 지역이 먼저 눈에 들어오게 한다.
+        Opacity(
+          opacity: selected ? 1 : 0.55,
+          child: MogackoLogo.chapter(chapter: chapter, size: 22),
         ),
-        child: Row(
-          children: [
-            Text(
-              chapter.label,
-              style: context.texts.bodyLarge?.copyWith(
-                color: selected ? colors.primary : colors.textPrimary,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-            const Spacer(),
-            if (selected)
-              Icon(Icons.check, size: AppSize.iconMd, color: colors.primary),
-          ],
-        ),
-      ),
+        const SizedBox(width: AppSpacing.lg),
+        if (selected)
+          Icon(Icons.check, size: AppSize.iconSm, color: colors.primary),
+      ],
     );
   }
 }
