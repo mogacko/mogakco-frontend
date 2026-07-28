@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/mogacko_logo.dart';
+import '../../../../shared/widgets/user_avatar.dart';
 import '../../domain/meetup.dart';
 import '../meetup_provider.dart';
 import 'join_confirm_dialog.dart';
@@ -38,7 +39,9 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
 
   /// 1보다 작게 둬야 양옆 카드가 걸쳐 보인다. 첫 장에서도 왼쪽에 이전 카드
   /// 끝자락이 남아 목록이 이어진다는 게 드러난다.
-  static const _viewportFraction = 0.82;
+  ///
+  /// 이웃 카드는 '더 있다'만 알리면 되므로 끝자락만 남기고 본 카드를 넓게 쓴다.
+  static const _viewportFraction = 0.9;
 
   /// 끝없이 넘기는 것처럼 보이게 하려고 몇 바퀴 앞선 자리에서 시작한다.
   ///
@@ -204,21 +207,30 @@ class _MeetupCard extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  // 결정 버튼은 엄지가 닿는 오른쪽 아래에 둔다.
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: _JoinButton(
-                      session: session,
-                      onTap: () async {
-                        final ok = await confirmJoinChange(
-                          context,
-                          meetup: meetup,
-                          session: session,
-                          now: now,
-                        );
-                        if (ok) onToggle();
-                      },
-                    ),
+                  // 아래 줄은 누가 열었는지와 결정 버튼이 나눠 갖는다.
+                  // 버튼은 엄지가 닿는 오른쪽에 둔다.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _Host(
+                          name: meetup.host,
+                          avatarUrl: meetup.hostAvatarUrl,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      _JoinButton(
+                        session: session,
+                        onTap: () async {
+                          final ok = await confirmJoinChange(
+                            context,
+                            meetup: meetup,
+                            session: session,
+                            now: now,
+                          );
+                          if (ok) onToggle();
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -254,6 +266,42 @@ class _Place extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: context.texts.bodyMedium?.copyWith(
             color: Colors.white.withValues(alpha: 0.82),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 카드 좌측 하단의 모임장
+class _Host extends StatelessWidget {
+  const _Host({required this.name, this.avatarUrl});
+
+  final String name;
+  final String? avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        UserAvatar(
+          name: name,
+          imageUrl: avatarUrl,
+          size: 24,
+          // 카드가 파란 그라디언트라 흰 반투명 원이 배경 위에서 도드라진다.
+          background: Colors.white.withValues(alpha: 0.24),
+          foreground: Colors.white,
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Flexible(
+          child: Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.texts.labelMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
           ),
         ),
       ],

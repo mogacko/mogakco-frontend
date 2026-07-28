@@ -37,6 +37,7 @@ MeetupOnDay _entry({String id = 'a', MeetupSession? session}) {
       chapter: Chapter.busan,
       placeName: '카페 오리진',
       address: '부산광역시 해운대구 우동',
+      host: 'evan',
       sessions: [s],
     ),
     session: s,
@@ -70,6 +71,18 @@ void main() {
       expect(find.text('해운대구 우동'), findsOneWidget);
       expect(find.text('내일 10:00'), findsOneWidget);
       expect(find.text('3 / 8'), findsOneWidget);
+    });
+
+    testWidgets('누가 열었는지 보여준다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(
+          meetups: [_entry()],
+          now: _now,
+          onToggleSession: (_, _) {},
+        ),
+      );
+
+      expect(find.text('evan'), findsOneWidget);
     });
 
     testWidgets('오늘 열리는 날은 오늘로 적는다', (tester) async {

@@ -23,6 +23,7 @@ void main() {
         chapter: chapter,
         placeName: '카페',
         address: address,
+        host: 'evan',
         sessions:
             sessions ??
             [

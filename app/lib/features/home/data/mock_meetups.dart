@@ -19,6 +19,7 @@ abstract final class MockMeetups {
     return [
       Meetup(
         id: 'busan-1',
+        host: '재현',
         chapter: Chapter.busan,
         placeName: '모모스커피 온천장',
         address: '부산광역시 동래구 온천동',
@@ -40,6 +41,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'busan-2',
+        host: '수민',
         chapter: Chapter.busan,
         placeName: '웨이브온 커피',
         address: '부산광역시 기장군 일광면',
@@ -54,6 +56,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'busan-3',
+        host: 'evan',
         chapter: Chapter.busan,
         placeName: '카페 오리진',
         address: '부산광역시 해운대구 우동',
@@ -76,6 +79,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'busan-4',
+        host: '도윤',
         chapter: Chapter.busan,
         placeName: '초량1941',
         address: '부산광역시 동구 초량동',
@@ -90,6 +94,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'seoul-1',
+        host: '하늘',
         chapter: Chapter.seoul,
         placeName: '카페 그리다',
         address: '서울특별시 강남구 역삼동',
@@ -111,6 +116,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'seoul-2',
+        host: '지우',
         chapter: Chapter.seoul,
         placeName: '스터디홀 합정',
         address: '서울특별시 마포구 합정동',
@@ -126,6 +132,7 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'seoul-3',
+        host: '민준',
         chapter: Chapter.seoul,
         placeName: '언플러그드 성수',
         address: '서울특별시 성동구 성수동',

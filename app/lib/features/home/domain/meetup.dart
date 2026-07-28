@@ -77,7 +77,9 @@ class Meetup {
     required this.chapter,
     required this.placeName,
     required this.address,
+    required this.host,
     required this.sessions,
+    this.hostAvatarUrl,
     this.isRecurring = false,
   });
 
@@ -89,6 +91,15 @@ class Meetup {
 
   /// 시·도를 포함한 전체 주소
   final String address;
+
+  /// 모임을 연 사람의 닉네임.
+  ///
+  /// 누가 모으는지가 참여를 정하는 데 꽤 크게 작용한다. 아는 사람이면
+  /// 마음이 놓이고, 모르는 사람이라도 익명 모임보다는 덜 낯설다.
+  final String host;
+
+  /// 모임장 프로필 사진. 없으면 닉네임 첫 글자로 대신한다.
+  final String? hostAvatarUrl;
 
   /// 이 주에 열리는 날들. 이른 날부터 담는다.
   final List<MeetupSession> sessions;
@@ -193,6 +204,8 @@ class Meetup {
       chapter: chapter,
       placeName: placeName,
       address: address,
+      host: host,
+      hostAvatarUrl: hostAvatarUrl,
       sessions: sessions ?? this.sessions,
       isRecurring: isRecurring,
     );
