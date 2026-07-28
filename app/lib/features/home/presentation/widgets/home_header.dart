@@ -10,8 +10,8 @@ import '../../../../shared/widgets/mogacko_logo.dart';
 /// 홈 상단 바.
 ///
 /// 현재 지역의 워드마크를 왼쪽에 두고, 그 옆 화살표로 지역을 바꾼다.
-/// 목록은 화면을 가로지르지 않고 로고 바로 아래에 메뉴로 뜬다.
-/// 항목도 지역명 대신 워드마크라 지금 무엇을 고르는지가 그대로 보인다.
+/// 메뉴는 로고 바로 아래에 뜨고 지금 지역은 빼고 보여준다.
+/// 어디에 있는지는 헤더가 이미 말하고 있어 목록에 또 둘 이유가 없다.
 class HomeHeader extends ConsumerStatefulWidget {
   const HomeHeader({super.key});
 
@@ -103,13 +103,14 @@ class _ChapterMenu extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         side: BorderSide(color: colors.border, width: 0.5),
       ),
+      // 지금 지역은 헤더 워드마크가 이미 보여주므로 목록에서 뺀다.
       itemBuilder: (context) => [
-        for (final chapter in Chapter.open)
+        for (final chapter in Chapter.open.where((c) => c != current))
           PopupMenuItem<Chapter>(
             value: chapter,
             height: 44,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: _MenuRow(chapter: chapter, selected: chapter == current),
+            child: MogackoLogo.chapter(chapter: chapter, size: 22),
           ),
       ],
       child: Row(
@@ -128,31 +129,6 @@ class _ChapterMenu extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MenuRow extends StatelessWidget {
-  const _MenuRow({required this.chapter, required this.selected});
-
-  final Chapter chapter;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Row(
-      children: [
-        // 선택되지 않은 지역은 한 톤 죽여 현재 지역이 먼저 눈에 들어오게 한다.
-        Opacity(
-          opacity: selected ? 1 : 0.55,
-          child: MogackoLogo.chapter(chapter: chapter, size: 22),
-        ),
-        const SizedBox(width: AppSpacing.lg),
-        if (selected)
-          Icon(Icons.check, size: AppSize.iconSm, color: colors.primary),
-      ],
     );
   }
 }

@@ -114,7 +114,6 @@ class _MeetupCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _StatusChip(meetup: meetup),
                   const Spacer(),
                   Text(
                     meetup.placeName,
@@ -145,36 +144,6 @@ class _MeetupCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 카드 상단의 모집 상태
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.meetup});
-
-  final Meetup meetup;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = meetup.isFull ? '모집 마감' : '${meetup.remaining}자리 남음';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.20),
-        borderRadius: BorderRadius.circular(AppRadius.full),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 1,
-      ),
-      child: Text(
-        label,
-        style: context.texts.labelSmall?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );

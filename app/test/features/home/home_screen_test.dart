@@ -79,6 +79,16 @@ void main() {
       expect(find.text('5 / 8'), findsOneWidget);
     });
 
+    testWidgets('섹션 제목 없이 카드만 보여준다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      // 카드가 스스로 설명하므로 제목·부연 문구를 두지 않는다.
+      expect(find.text('지금 모집 중'), findsNothing);
+      expect(find.text('자리 잡고 같이 앉을 사람들'), findsNothing);
+      expect(find.text('모모스커피 온천장'), findsOneWidget);
+    });
+
     testWidgets('참여 신청을 누르면 인원이 늘고 취소 버튼으로 바뀐다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
@@ -118,9 +128,27 @@ void main() {
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
-      // 헤더 1 + 열린 지역 2
-      expect(chapterLogos, findsNWidgets(3));
-      expect(find.byType(PopupMenuItem<Chapter>), findsNWidgets(2));
+      // 헤더 1 + 현재 지역을 뺀 나머지 1
+      expect(chapterLogos, findsNWidgets(2));
+      expect(find.byType(PopupMenuItem<Chapter>), findsOneWidget);
+    });
+
+    testWidgets('메뉴에 현재 지역은 넣지 않는다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+
+      final items = tester
+          .widgetList<PopupMenuItem<Chapter>>(
+            find.byType(PopupMenuItem<Chapter>),
+          )
+          .map((e) => e.value)
+          .toList();
+
+      expect(items, isNot(contains(Chapter.busan))); // 지금 지역
+      expect(items, contains(Chapter.seoul));
     });
 
     testWidgets('메뉴 항목은 지역명 대신 워드마크로 보여준다', (tester) async {
@@ -159,7 +187,13 @@ void main() {
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
-      expect(find.byType(PopupMenuItem<Chapter>), findsNWidgets(2));
+      final items = tester
+          .widgetList<PopupMenuItem<Chapter>>(
+            find.byType(PopupMenuItem<Chapter>),
+          )
+          .map((e) => e.value);
+
+      expect(items, everyElement(isIn(Chapter.open)));
     });
   });
 

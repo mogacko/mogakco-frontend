@@ -1,16 +1,27 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 
 /// 하단 탭 정의.
+///
+/// 아이콘은 SF Symbols를 옮겨온 [CupertinoIcons]를 쓴다. Material 아이콘은
+/// 획이 두껍고 형태가 달라 iOS 탭 바처럼 보이지 않는다.
 enum AppTab {
-  home('홈', Icons.home_outlined, Icons.home),
-  community('커뮤니티', Icons.forum_outlined, Icons.forum),
-  meetup('모임', Icons.groups_outlined, Icons.groups),
-  profile('내 정보', Icons.person_outline, Icons.person);
+  home('홈', CupertinoIcons.house, CupertinoIcons.house_fill),
+  community(
+    '커뮤니티',
+    CupertinoIcons.bubble_left_bubble_right,
+    CupertinoIcons.bubble_left_bubble_right_fill,
+  ),
+  meetup('모임', CupertinoIcons.person_2, CupertinoIcons.person_2_fill),
+  profile(
+    '내 정보',
+    CupertinoIcons.person_crop_circle,
+    CupertinoIcons.person_crop_circle_fill,
+  );
 
   const AppTab(this.label, this.icon, this.activeIcon);
 
@@ -107,8 +118,8 @@ class _TabItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? tab.activeIcon : tab.icon, size: 25, color: color),
-            const SizedBox(height: AppSpacing.xs - 2),
+            Icon(selected ? tab.activeIcon : tab.icon, size: 27, color: color),
+            const SizedBox(height: 2),
             Text(
               tab.label,
               style: TextStyle(

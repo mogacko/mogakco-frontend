@@ -27,12 +27,7 @@ class HomeScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: AppSpacing.huge),
                 children: [
-                  const SizedBox(height: AppSpacing.xl),
-                  const _SectionTitle(
-                    title: '지금 모집 중',
-                    subtitle: '자리 잡고 같이 앉을 사람들',
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.xxl),
                   MeetupCarousel(
                     meetups: meetups,
                     onToggleJoin: (id) =>
@@ -43,37 +38,6 @@ class HomeScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screenHorizontal,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: context.texts.headlineMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            subtitle,
-            style: context.texts.bodyMedium?.copyWith(
-              color: colors.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }

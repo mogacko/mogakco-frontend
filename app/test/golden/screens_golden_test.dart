@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +26,7 @@ void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     await _loadPretendard();
+    await _loadIconFonts();
   });
 
   Future<void> expectGolden(
@@ -181,6 +184,28 @@ void main() {
       );
     });
   });
+}
+
+/// 아이콘 폰트를 등록한다.
+///
+/// 등록하지 않으면 골든에서 아이콘이 전부 네모로 찍혀 실제 모습을 볼 수 없다.
+/// rootBundle에는 없어서 테스트 에셋 디렉터리에서 직접 읽는다.
+Future<void> _loadIconFonts() async {
+  // fontPackage가 붙은 아이콘은 'packages/<패키지>/<패밀리>'로 등록해야 잡힌다.
+  const fonts = {
+    'MaterialIcons': 'build/unit_test_assets/fonts/MaterialIcons-Regular.otf',
+    'packages/cupertino_icons/CupertinoIcons':
+        'build/unit_test_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf',
+  };
+
+  for (final entry in fonts.entries) {
+    final file = File(entry.value);
+    if (!file.existsSync()) continue;
+    final bytes = await file.readAsBytes();
+    await (FontLoader(
+      entry.key,
+    )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+  }
 }
 
 /// 테스트 환경은 기본 폰트만 알고 있어서 커스텀 폰트를 직접 등록해야 한다.

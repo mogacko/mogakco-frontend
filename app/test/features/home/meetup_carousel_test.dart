@@ -34,12 +34,17 @@ void main() {
       expect(find.text('아직 열린 모임이 없어요'), findsOneWidget);
     });
 
-    testWidgets('남은 자리를 상단에 표시한다', (tester) async {
+    testWidgets('장소·주소·인원만 보여준다', (tester) async {
       await tester.pumpScreen(
         MeetupCarousel(meetups: [_meetup()], onToggleJoin: (_) {}),
       );
 
-      expect(find.text('5자리 남음'), findsOneWidget);
+      expect(find.text('카페 오리진'), findsOneWidget);
+      expect(find.text('해운대구 우동'), findsOneWidget);
+      expect(find.text('3 / 8'), findsOneWidget);
+
+      // 인원이 곧 남은 자리를 말해주므로 따로 안내하지 않는다.
+      expect(find.textContaining('자리 남음'), findsNothing);
     });
 
     testWidgets('정원이 차면 신청 버튼이 잠긴다', (tester) async {
@@ -50,8 +55,9 @@ void main() {
         ),
       );
 
-      expect(find.text('모집 마감'), findsOneWidget);
+      // 마감은 버튼 상태로만 드러낸다.
       expect(find.text('마감'), findsOneWidget);
+      expect(find.text('모집 마감'), findsNothing);
 
       // 잠긴 버튼은 탭해도 콜백이 돌지 않는다.
       var called = false;
