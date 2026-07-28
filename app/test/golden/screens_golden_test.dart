@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/auth/presentation/login_screen.dart';
+import 'package:mogacko/features/shell/presentation/app_shell.dart';
 import 'package:mogacko/features/signup/presentation/chapter_select_screen.dart';
 import 'package:mogacko/features/signup/presentation/profile_setup_screen.dart';
 import 'package:mogacko/features/signup/presentation/signup_complete_screen.dart';
@@ -47,6 +48,10 @@ void main() {
   }
 
   group('라이트 모드', () {
+    testWidgets('홈', (tester) async {
+      await expectGolden(tester, const AppShell(), 'home_light');
+    });
+
     testWidgets('스플래시', (tester) async {
       await expectGolden(tester, const SplashScreen(), 'splash_light');
       await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -86,6 +91,15 @@ void main() {
   });
 
   group('다크 모드', () {
+    testWidgets('홈', (tester) async {
+      await expectGolden(
+        tester,
+        const AppShell(),
+        'home_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
     testWidgets('스플래시', (tester) async {
       await expectGolden(
         tester,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mogacko/features/signup/domain/chapter.dart';
+import 'package:mogacko/shared/domain/chapter.dart';
 import 'package:mogacko/features/signup/presentation/chapter_select_screen.dart';
 import 'package:mogacko/shared/widgets/mogacko_logo.dart';
 

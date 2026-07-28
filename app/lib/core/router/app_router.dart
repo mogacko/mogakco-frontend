@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/shell/presentation/app_shell.dart';
 import '../../features/signup/presentation/chapter_select_screen.dart';
 import '../../features/signup/presentation/profile_setup_screen.dart';
 import '../../features/signup/presentation/signup_complete_screen.dart';
@@ -39,8 +40,7 @@ final appRouter = GoRouter(
       path: AppRoute.signupComplete,
       builder: (_, _) => const SignupCompleteScreen(),
     ),
-    // 홈은 다음 스프린트 범위. 가입 흐름의 종착지만 잡아둔다.
-    GoRoute(path: AppRoute.home, builder: (_, _) => const _HomePlaceholder()),
+    GoRoute(path: AppRoute.home, builder: (_, _) => const AppShell()),
   ],
 );
 
@@ -57,16 +57,4 @@ CustomTransitionPage<void> _fadeThrough(GoRouterState state, Widget child) {
       );
     },
   );
-}
-
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('홈')),
-      body: const Center(child: Text('다음 스프린트 범위')),
-    );
-  }
 }

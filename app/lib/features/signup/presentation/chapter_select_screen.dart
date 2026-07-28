@@ -6,7 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/full_height_scroll_view.dart';
 import '../../../shared/widgets/mogacko_logo.dart';
-import '../domain/chapter.dart';
+import '../../../shared/domain/chapter.dart';
 import 'widgets/signup_progress.dart';
 
 /// 활동 지역 선택.

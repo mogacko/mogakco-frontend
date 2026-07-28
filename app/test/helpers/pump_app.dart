@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mogacko/core/theme/app_theme.dart';
@@ -38,15 +39,22 @@ extension PumpApp on WidgetTester {
           path: '/signup/complete',
           builder: (_, _) => const Scaffold(body: Text('complete-landed')),
         ),
+        GoRoute(
+          path: '/home',
+          builder: (_, _) => const Scaffold(body: Text('home-landed')),
+        ),
       ],
     );
 
     await pumpWidget(
-      MaterialApp.router(
-        theme: brightness == Brightness.dark
-            ? AppTheme.dark()
-            : AppTheme.light(),
-        routerConfig: router,
+      // 홈 화면들이 Riverpod을 쓰므로 항상 감싸 둔다.
+      ProviderScope(
+        child: MaterialApp.router(
+          theme: brightness == Brightness.dark
+              ? AppTheme.dark()
+              : AppTheme.light(),
+          routerConfig: router,
+        ),
       ),
     );
   }
