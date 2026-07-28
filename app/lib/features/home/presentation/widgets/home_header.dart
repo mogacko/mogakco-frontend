@@ -112,6 +112,12 @@ class _ChapterMenu extends StatelessWidget {
   /// 메뉴 항목의 좌우 여백. 메뉴 위치를 맞출 때 같은 값을 되돌려 쓴다.
   static const _itemPadding = AppSpacing.lg;
 
+  /// 화살표 크기.
+  ///
+  /// 워드마크(24)에 딸린 보조 표시라 그보다 확실히 작아야 균형이 맞는다.
+  /// SF Symbols 는 획이 얇아 이 크기에서도 또렷하다.
+  static const _chevronSize = 14.0;
+
   final Chapter current;
   final bool open;
   final VoidCallback onOpened;
@@ -161,10 +167,8 @@ class _ChapterMenu extends StatelessWidget {
             turns: open ? 0.5 : 0,
             duration: const Duration(milliseconds: 200),
             child: Icon(
-              // SF Symbols 계열은 획이 얇아 Material 아이콘보다 작게 둬야
-              // 로고 옆에서 어울린다.
               CupertinoIcons.chevron_down,
-              size: AppSize.iconSm,
+              size: _chevronSize,
               color: colors.textSecondary,
             ),
           ),
