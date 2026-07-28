@@ -9,9 +9,12 @@ extension PumpApp on WidgetTester {
   ///
   /// 화면들이 `context.push`를 쓰기 때문에 GoRouter가 조상에 있어야 한다.
   /// 전역 라우터를 그대로 쓰면 테스트끼리 이동 이력이 섞여서 매번 새로 만든다.
+  /// [animations]를 켜면 반복 애니메이션이 살아난다. 그 경우 pumpAndSettle 이
+  /// 끝나지 않으므로 pump 로 시간을 직접 흘려보내야 한다.
   Future<void> pumpScreen(
     Widget screen, {
     Brightness brightness = Brightness.light,
+    bool animations = false,
   }) async {
     final router = GoRouter(
       initialLocation: '/',
@@ -54,6 +57,12 @@ extension PumpApp on WidgetTester {
               ? AppTheme.dark()
               : AppTheme.light(),
           routerConfig: router,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(disableAnimations: !animations),
+            child: child!,
+          ),
         ),
       ),
     );

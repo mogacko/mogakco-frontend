@@ -44,6 +44,13 @@ class Meetup {
   /// 남은 자리
   int get remaining => (capacity - participantCount).clamp(0, capacity);
 
+  /// 얼마나 찼는지. 0이면 빈 모임, 1이면 정원이 꽉 찬 모임.
+  ///
+  /// 진짜 '급상승'은 시간당 참여 증가율이라 서버 집계가 있어야 한다.
+  /// 그 전까지는 채워진 비율로 인기를 가늠한다. 사람이 몰린 모임일수록
+  /// 앞에 온다는 점은 같고, 프론트에서 바로 계산할 수 있다.
+  double get fillRate => capacity == 0 ? 0 : participantCount / capacity;
+
   Meetup copyWith({bool? isJoined, int? participantCount}) {
     return Meetup(
       id: id,

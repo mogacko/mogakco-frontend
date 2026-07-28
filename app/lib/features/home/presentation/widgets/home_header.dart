@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/domain/chapter.dart';
 import '../../../../shared/providers/current_chapter_provider.dart';
+import '../../../../shared/utils/korean_particle.dart';
 import '../../../../shared/widgets/mogacko_logo.dart';
 
 /// 홈 상단 바.
@@ -25,8 +26,26 @@ class _HomeHeaderState extends ConsumerState<HomeHeader> {
   bool _menuOpen = false;
 
   void _select(Chapter chapter) {
-    ref.read(currentChapterProvider.notifier).change(chapter);
     setState(() => _menuOpen = false);
+
+    // 아직 열지 않은 지역은 왜 안 되는지 알려준다.
+    // 모바일에는 hover가 없어 눌러봐야 이유를 알 수 있다.
+    if (!chapter.isOpen) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              '${chapter.label}${KoreanParticle.topic(chapter.label)} '
+              '아직 준비 중이에요',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      return;
+    }
+
+    ref.read(currentChapterProvider.notifier).change(chapter);
   }
 
   @override
@@ -115,8 +134,8 @@ class _ChapterMenu extends StatelessWidget {
         for (final chapter in Chapter.values.where((c) => c != current))
           PopupMenuItem<Chapter>(
             value: chapter,
-            // 준비 중인 지역은 눌러도 넘어가지 않는다.
-            enabled: chapter.isOpen,
+            // 준비 중인 지역도 누를 수는 있어야 안내를 띄운다.
+            // 지역을 실제로 바꿀지는 onSelected 에서 가른다.
             height: 44,
             padding: const EdgeInsets.symmetric(horizontal: _itemPadding),
             child: _MenuRow(chapter: chapter),
@@ -158,7 +177,7 @@ class _MenuRow extends StatelessWidget {
 
     // Spacer로 양끝에 붙이면 지역명과 표식이 헤더보다 넓게 벌어진다.
     // 필요한 만큼만 차지하고 둘 사이는 좁게 붙여 둔다.
-    return Row(
+    final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -179,6 +198,20 @@ class _MenuRow extends StatelessWidget {
           ),
         ],
       ],
+    );
+
+    if (open) return row;
+
+    // 웹·데스크톱에서는 올려두면, 모바일에서는 길게 누르면 뜬다.
+    // 짧게 누르면 대신 안내가 나온다.
+    return Semantics(
+      hint: '준비 중인 지역',
+      child: Tooltip(
+        message:
+            '${chapter.label}${KoreanParticle.topic(chapter.label)} '
+            '아직 준비 중이에요',
+        child: row,
+      ),
     );
   }
 }

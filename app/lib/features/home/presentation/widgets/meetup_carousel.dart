@@ -12,10 +12,17 @@ class MeetupCarousel extends StatefulWidget {
     super.key,
     required this.meetups,
     required this.onToggleJoin,
+    this.label,
   });
 
   final List<Meetup> meetups;
   final ValueChanged<String> onToggleJoin;
+
+  /// 카드 위에 얹을 라벨.
+  ///
+  /// 카드가 화면 여백이 아니라 뷰포트 비율로 배치돼서, 바깥에서 그리면
+  /// 좌우가 어긋난다. 카드 폭을 아는 이곳에서 같은 자리에 맞춰 그린다.
+  final Widget? label;
 
   @override
   State<MeetupCarousel> createState() => _MeetupCarouselState();
@@ -75,6 +82,12 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
     super.dispose();
   }
 
+  /// 중앙 카드의 왼쪽 가장자리까지의 거리.
+  ///
+  /// 양옆에 남는 공간의 절반에 카드끼리의 간격을 더한 값이다.
+  double _cardInset(double width) =>
+      width * (1 - _viewportFraction) / 2 + AppSpacing.sm;
+
   @override
   Widget build(BuildContext context) {
     if (widget.meetups.isEmpty) return const _EmptyState();
@@ -82,7 +95,22 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
     final count = widget.meetups.length;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.label != null)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final inset = _cardInset(constraints.maxWidth);
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: inset,
+                  right: inset,
+                  bottom: AppSpacing.md,
+                ),
+                child: widget.label,
+              );
+            },
+          ),
         SizedBox(
           height: _cardHeight,
           child: PageView.builder(

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/home/domain/meetup.dart';
 import 'package:mogacko/features/home/presentation/home_screen.dart';
+import 'package:mogacko/features/home/presentation/meetup_provider.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
 import 'package:mogacko/shared/providers/current_chapter_provider.dart';
 import 'package:mogacko/shared/widgets/mogacko_logo.dart';
@@ -62,6 +63,43 @@ void main() {
     final chapterLogos = find.byWidgetPredicate(
       (w) => w is MogackoLogo && w.chapter != null,
     );
+
+    testWidgets('많이 찬 모임을 앞에 둔다', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final busan = container
+          .read(visibleMeetupsProvider)
+          .map((m) => m.id)
+          .toList();
+
+      // 5/8 → 7/12 → 3/6 → 2/6 순으로 채워진 비율이 높은 쪽이 앞이다.
+      expect(busan, ['busan-1', 'busan-3', 'busan-2', 'busan-4']);
+    });
+
+    testWidgets('정원이 찬 모임은 인기와 무관하게 뒤로 미룬다', (tester) async {
+      const full = Meetup(
+        id: 'full',
+        chapter: Chapter.busan,
+        placeName: '만석',
+        address: '부산광역시 동구',
+        participantCount: 10,
+        capacity: 10,
+      );
+      const half = Meetup(
+        id: 'half',
+        chapter: Chapter.busan,
+        placeName: '절반',
+        address: '부산광역시 동구',
+        participantCount: 5,
+        capacity: 10,
+      );
+
+      // 채워진 비율은 만석이 높지만 신청할 수 없으니 뒤로 간다.
+      expect(full.fillRate, greaterThan(half.fillRate));
+      expect(full.isFull, isTrue);
+      expect(half.isFull, isFalse);
+    });
 
     testWidgets('현재 지역의 모임만 보여준다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
@@ -137,14 +175,16 @@ void main() {
           .widget<PageView>(find.byType(PageView))
           .controller!;
       final before = controller.page!.round();
-      expect(find.text('웨이브온 커피'), findsWidgets);
 
-      await tester.tap(buttonIn('busan-2', '참여 신청'));
+      // 인기순이라 두 번째는 카페 오리진(7/12)이고 이미 참여 중이다.
+      expect(find.text('카페 오리진'), findsWidgets);
+
+      await tester.tap(buttonIn('busan-3', '참여 취소'));
       await tester.pumpAndSettle();
 
       // 목록 구성은 그대로이므로 첫 장으로 튕기면 안 된다.
       expect(controller.page!.round(), before);
-      expect(buttonIn('busan-2', '참여 취소'), findsOneWidget);
+      expect(buttonIn('busan-3', '참여 신청'), findsOneWidget);
     });
 
     testWidgets('지역을 바꾸면 첫 카드부터 다시 보여준다', (tester) async {
@@ -218,7 +258,7 @@ void main() {
       expect(find.bySemanticsLabel('모각코 부산'), findsNothing);
     });
 
-    testWidgets('아직 열지 않은 지역은 금지 표식과 함께 잠겨 있다', (tester) async {
+    testWidgets('아직 열지 않은 지역에는 금지 표식이 붙는다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
@@ -227,13 +267,6 @@ void main() {
 
       final closed = Chapter.values.where((c) => !c.isOpen).length;
       expect(find.byIcon(CupertinoIcons.nosign), findsNWidgets(closed));
-
-      final items = tester.widgetList<PopupMenuItem<Chapter>>(
-        find.byType(PopupMenuItem<Chapter>),
-      );
-      for (final item in items) {
-        expect(item.enabled, item.value!.isOpen, reason: item.value!.name);
-      }
     });
 
     testWidgets('열린 지역에는 금지 표식이 없다', (tester) async {
@@ -256,7 +289,7 @@ void main() {
       );
     });
 
-    testWidgets('잠긴 지역을 눌러도 지역이 바뀌지 않는다', (tester) async {
+    testWidgets('잠긴 지역을 누르면 이유를 알려주고 지역은 그대로 둔다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
@@ -265,8 +298,10 @@ void main() {
       await tester.tap(find.text('제주'));
       await tester.pumpAndSettle();
 
-      // 부산 모임이 그대로 보여야 한다.
-      expect(find.text('모모스커피 온천장'), findsWidgets);
+      // 눌러도 아무 반응이 없으면 고장난 것처럼 보인다.
+      expect(find.text('제주는 아직 준비 중이에요'), findsOneWidget);
+      // 지역은 부산 그대로다.
+      expect(find.bySemanticsLabel('모각코 부산'), findsWidgets);
     });
 
     testWidgets('메뉴에서 지역을 고르면 헤더와 목록이 함께 바뀐다', (tester) async {

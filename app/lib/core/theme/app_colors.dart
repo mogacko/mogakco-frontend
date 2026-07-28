@@ -17,6 +17,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.primary,
     required this.primaryForeground,
     required this.danger,
+    required this.hot,
   });
 
   /// 화면 최하단 배경
@@ -43,6 +44,10 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color primaryForeground;
   final Color danger;
 
+  /// 인기·급상승 표시에 쓰는 강조색.
+  /// 오류를 뜻하는 [danger]와 구분해 따로 둔다.
+  final Color hot;
+
   /// 로고 원본(assets/logos/*.svg)이 쓰는 브랜드 컬러.
   static const brandBlue = Color(0xFF4C6EF5);
 
@@ -61,6 +66,7 @@ class AppColors extends ThemeExtension<AppColors> {
     primary: brandBlue,
     primaryForeground: Color(0xFFFFFFFF),
     danger: Color(0xFFDC2626),
+    hot: Color(0xFFF0483E),
   );
 
   static const dark = AppColors(
@@ -74,6 +80,7 @@ class AppColors extends ThemeExtension<AppColors> {
     primary: brandBlueDark,
     primaryForeground: Color(0xFF0F1115),
     danger: Color(0xFFF87171),
+    hot: Color(0xFFFF6B5E),
   );
 
   @override
@@ -88,6 +95,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? primary,
     Color? primaryForeground,
     Color? danger,
+    Color? hot,
   }) {
     return AppColors(
       background: background ?? this.background,
@@ -100,6 +108,7 @@ class AppColors extends ThemeExtension<AppColors> {
       primary: primary ?? this.primary,
       primaryForeground: primaryForeground ?? this.primaryForeground,
       danger: danger ?? this.danger,
+      hot: hot ?? this.hot,
     );
   }
 
@@ -121,6 +130,7 @@ class AppColors extends ThemeExtension<AppColors> {
         t,
       )!,
       danger: Color.lerp(danger, other.danger, t)!,
+      hot: Color.lerp(hot, other.hot, t)!,
     );
   }
 }
