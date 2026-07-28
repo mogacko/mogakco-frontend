@@ -11,7 +11,10 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="모여서 각자 코딩. 모각코 모임을 만들고 참여하세요.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- viewport-fit=cover 를 쓰면 콘텐츠가 안전영역 바깥까지 늘어난다.
+       홈 화면에 추가한 PWA 에서 Flutter 가 그 여백을 제대로 받지 못해
+       그린 위치와 실제 표시가 어긋나고 터치가 밀린다. 기본값으로 둔다. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- 부팅 화면 배경과 맞춰야 주소창까지 한 덩어리로 보인다 -->
   <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
@@ -19,7 +22,9 @@
 
   <!-- iOS 홈 화면 추가 시 적용되는 설정 -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- black-translucent 는 상태바 아래까지 콘텐츠를 밀어 넣는다.
+       위와 같은 이유로 쓰지 않는다. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="모각코">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 

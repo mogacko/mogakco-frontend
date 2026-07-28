@@ -53,9 +53,11 @@ class AppBottomNav extends StatelessWidget {
   /// (홈 인디케이터가 있는 기기는 34pt 안팎) 바 자체는 넉넉히 잡지 않는다.
   static const barHeight = 48.0;
 
-  /// 홈 인디케이터가 없는 기기는 안전영역이 0이라 탭이 화면 바닥에 붙는다.
-  /// 손가락이 닿는 자리라 최소한의 여백만 남긴다.
-  static const _minBottomPadding = 6.0;
+  /// 안전영역이 0으로 잡히는 환경에서 쓰는 여백.
+  ///
+  /// 홈 화면에 추가한 PWA 는 안전영역을 넘겨주지 않아 이 값이 그대로 바닥
+  /// 여백이 된다. 너무 줄이면 탭이 화면 끝에 붙어 답답해 보인다.
+  static const _minBottomPadding = 16.0;
 
   /// 안전영역을 그대로 쓰면 바가 지나치게 두꺼워 보인다.
   ///
