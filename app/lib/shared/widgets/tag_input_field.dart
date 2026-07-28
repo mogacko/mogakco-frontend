@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+
+/// 서버에서 추천어를 가져오는 함수.
+///
+/// 다른 사용자들이 실제로 입력한 값을 집계해 돌려주는 용도다.
+typedef TagSearch = Future<List<String>> Function(String query);
 
 /// 직접 입력해 태그를 붙이는 입력란.
 ///
 /// 목록에 없는 것도 적을 수 있지만, 입력한 값이 [suggestions]에 대소문자만 다른
 /// 형태로 존재하면 목록 쪽 표기로 바꿔 저장한다. 'java'를 쳐도 'Java'로 남아서
 /// 나중에 태그로 사람을 찾을 때 표기가 갈리지 않는다.
+///
+/// [onSearch]를 넘기면 서버 추천이 함께 뜬다. 이때만 [searchDebounce]만큼
+/// 입력이 멎기를 기다렸다가 호출한다. 로컬 [suggestions] 필터는 항상 즉시
+/// 반영되므로 디바운스가 타이핑 반응을 늦추지 않는다.
 class TagInputField extends StatefulWidget {
   const TagInputField({
     super.key,
@@ -17,9 +28,11 @@ class TagInputField extends StatefulWidget {
     required this.onRemove,
     required this.hintText,
     this.maxTags = 10,
+    this.onSearch,
+    this.searchDebounce = const Duration(seconds: 1),
   });
 
-  /// 입력 중 추천으로 띄울 후보
+  /// 입력 중 추천으로 띄울 후보. 앱에 내장된 목록이다.
   final List<String> suggestions;
 
   final Set<String> selected;
@@ -30,6 +43,12 @@ class TagInputField extends StatefulWidget {
   /// 태그가 많아지면 화면이 무너져서 상한을 둔다.
   final int maxTags;
 
+  /// 서버 추천. null이면 로컬 목록만 쓴다.
+  final TagSearch? onSearch;
+
+  /// [onSearch] 호출 전 대기 시간. 타이핑 한 글자마다 요청이 나가지 않게 한다.
+  final Duration searchDebounce;
+
   @override
   State<TagInputField> createState() => _TagInputFieldState();
 }
@@ -37,16 +56,57 @@ class TagInputField extends StatefulWidget {
 class _TagInputFieldState extends State<TagInputField> {
   final _controller = TextEditingController();
 
+  Timer? _debounce;
+
+  /// 서버에서 받아온 추천
+  List<String> _remote = const [];
+
+  /// 늦게 도착한 응답이 최신 결과를 덮어쓰지 않도록 요청 순번을 센다.
+  int _requestId = 0;
+
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(_onChanged);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _debounce?.cancel();
+    _controller
+      ..removeListener(_onChanged)
+      ..dispose();
     super.dispose();
+  }
+
+  void _onChanged() {
+    // 로컬 필터는 지연 없이 바로 반영한다.
+    setState(() {});
+
+    final search = widget.onSearch;
+    if (search == null) return;
+
+    _debounce?.cancel();
+    if (_query.isEmpty) {
+      setState(() => _remote = const []);
+      return;
+    }
+
+    _debounce = Timer(widget.searchDebounce, () => _fetch(search, _query));
+  }
+
+  Future<void> _fetch(TagSearch search, String query) async {
+    final id = ++_requestId;
+    try {
+      final result = await search(query);
+      // 그 사이 더 최근 요청이 나갔거나 화면이 사라졌으면 버린다.
+      if (!mounted || id != _requestId) return;
+      setState(() => _remote = result);
+    } catch (_) {
+      // 추천은 있으면 좋은 정보다. 실패해도 입력을 막지 않는다.
+      if (!mounted || id != _requestId) return;
+      setState(() => _remote = const []);
+    }
   }
 
   String get _query => _controller.text.trim();
@@ -54,10 +114,14 @@ class _TagInputFieldState extends State<TagInputField> {
   bool get _isFull => widget.selected.length >= widget.maxTags;
 
   /// 목록에 같은 이름이 있으면 그 표기를 따른다.
+  ///
+  /// 서버 추천도 같은 기준으로 본다. 남들이 이미 'Svelte'로 적어둔 값이 있으면
+  /// 'svelte'를 쳐도 그 표기로 합류시켜야 태그가 갈리지 않는다.
   String _canonical(String raw) {
     final trimmed = raw.trim();
-    for (final suggestion in widget.suggestions) {
-      if (suggestion.toLowerCase() == trimmed.toLowerCase()) return suggestion;
+    final lower = trimmed.toLowerCase();
+    for (final candidate in [...widget.suggestions, ..._remote]) {
+      if (candidate.toLowerCase() == lower) return candidate;
     }
     return trimmed;
   }
@@ -67,21 +131,32 @@ class _TagInputFieldState extends State<TagInputField> {
     return widget.selected.any((tag) => tag.toLowerCase() == lower);
   }
 
-  /// 입력과 겹치면서 아직 안 고른 후보
+  /// 입력과 겹치면서 아직 안 고른 후보.
+  ///
+  /// 로컬 목록을 앞에 두고 서버 추천을 뒤에 붙인다. 표기가 같으면 하나만 남긴다.
   List<String> get _matches {
     if (_query.isEmpty) return const [];
     final lower = _query.toLowerCase();
-    return widget.suggestions
-        .where((s) => s.toLowerCase().contains(lower) && !_alreadyAdded(s))
-        .take(6)
-        .toList();
+
+    final seen = <String>{};
+    final result = <String>[];
+    for (final candidate in [...widget.suggestions, ..._remote]) {
+      if (!candidate.toLowerCase().contains(lower)) continue;
+      if (_alreadyAdded(candidate)) continue;
+      if (!seen.add(candidate.toLowerCase())) continue;
+      result.add(candidate);
+      if (result.length == 6) break;
+    }
+    return result;
   }
 
   /// 목록에 없는 값을 새로 만들 수 있는지
-  bool get _canCreate =>
-      _query.isNotEmpty &&
-      !_alreadyAdded(_query) &&
-      !widget.suggestions.any((s) => s.toLowerCase() == _query.toLowerCase());
+  bool get _canCreate {
+    if (_query.isEmpty || _alreadyAdded(_query)) return false;
+    final lower = _query.toLowerCase();
+    return !widget.suggestions.any((s) => s.toLowerCase() == lower) &&
+        !_remote.any((s) => s.toLowerCase() == lower);
+  }
 
   void _add(String raw) {
     final value = _canonical(raw);

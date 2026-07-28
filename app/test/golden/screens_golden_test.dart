@@ -5,6 +5,8 @@ import 'package:mogacko/features/auth/presentation/login_screen.dart';
 import 'package:mogacko/features/signup/presentation/chapter_select_screen.dart';
 import 'package:mogacko/features/signup/presentation/profile_setup_screen.dart';
 import 'package:mogacko/features/signup/presentation/signup_complete_screen.dart';
+import 'package:mogacko/features/signup/domain/term.dart';
+import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
 
@@ -66,6 +68,14 @@ void main() {
       await expectGolden(tester, const ProfileSetupScreen(), 'profile_light');
     });
 
+    testWidgets('약관 전문', (tester) async {
+      await expectGolden(
+        tester,
+        const TermDetailScreen(term: Term.service),
+        'term_detail_light',
+      );
+    });
+
     testWidgets('가입 완료', (tester) async {
       await expectGolden(
         tester,
@@ -118,6 +128,15 @@ void main() {
         tester,
         const ProfileSetupScreen(),
         'profile_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('약관 전문', (tester) async {
+      await expectGolden(
+        tester,
+        const TermDetailScreen(term: Term.service),
+        'term_detail_dark',
         brightness: Brightness.dark,
       );
     });

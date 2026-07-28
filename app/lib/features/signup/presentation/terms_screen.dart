@@ -5,44 +5,34 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/full_height_scroll_view.dart';
+import '../domain/term.dart';
+import 'term_detail_screen.dart';
 import 'widgets/signup_progress.dart';
-
-enum _Term {
-  service('[필수] 서비스 이용약관', required: true),
-  privacy('[필수] 개인정보 수집·이용 동의', required: true),
-  age('[필수] 만 14세 이상입니다', required: true),
-  marketing('[선택] 모임 소식·마케팅 정보 수신', required: false);
-
-  const _Term(this.label, {required this.required});
-
-  final String label;
-  final bool required;
-}
 
 class TermsScreen extends StatefulWidget {
   const TermsScreen({super.key});
 
   @override
-  State<TermsScreen> createState() => _TermsScreenState();
+  State<TermsScreen> createState() => TermsScreenState();
 }
 
-class _TermsScreenState extends State<TermsScreen> {
-  final _agreed = <_Term>{};
+class TermsScreenState extends State<TermsScreen> {
+  final _agreed = <Term>{};
 
-  bool get _allAgreed => _agreed.length == _Term.values.length;
+  bool get _allAgreed => _agreed.length == Term.values.length;
 
   bool get _canProceed =>
-      _Term.values.where((t) => t.required).every(_agreed.contains);
+      Term.values.where((t) => t.required).every(_agreed.contains);
 
   void _toggleAll(bool? value) {
     setState(() {
       _agreed
         ..clear()
-        ..addAll(value == true ? _Term.values : const <_Term>[]);
+        ..addAll(value == true ? Term.values : const <Term>[]);
     });
   }
 
-  void _toggle(_Term term, bool? value) {
+  void _toggle(Term term, bool? value) {
     setState(() {
       if (value == true) {
         _agreed.add(term);
@@ -79,11 +69,16 @@ class _TermsScreenState extends State<TermsScreen> {
               const SizedBox(height: AppSpacing.lg),
               Divider(color: colors.border),
               const SizedBox(height: AppSpacing.sm),
-              for (final term in _Term.values)
+              for (final term in Term.values)
                 _TermTile(
                   term: term,
                   value: _agreed.contains(term),
                   onChanged: (v) => _toggle(term, v),
+                  onOpenDetail: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => TermDetailScreen(term: term),
+                    ),
+                  ),
                 ),
               const Spacer(),
               FilledButton(
@@ -143,11 +138,13 @@ class _TermTile extends StatelessWidget {
     required this.term,
     required this.value,
     required this.onChanged,
+    required this.onOpenDetail,
   });
 
-  final _Term term;
+  final Term term;
   final bool value;
   final ValueChanged<bool?> onChanged;
+  final VoidCallback onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -170,11 +167,15 @@ class _TermTile extends StatelessWidget {
                 ),
               ),
             ),
-            // 약관 전문 화면은 다음 스프린트에 붙인다.
-            Icon(
-              Icons.chevron_right,
-              size: AppSize.iconMd,
-              color: colors.textTertiary,
+            // 전문 보기. 체크와 겹치지 않도록 아이콘만 따로 누를 수 있게 한다.
+            IconButton(
+              icon: Icon(
+                Icons.chevron_right,
+                size: AppSize.iconMd,
+                color: colors.textTertiary,
+              ),
+              tooltip: '${'\$'}{term.title} 전문 보기',
+              onPressed: onOpenDetail,
             ),
           ],
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mogacko/features/signup/domain/term.dart';
+import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 
 import '../../helpers/pump_app.dart';
@@ -67,6 +69,60 @@ void main() {
 
       final agreeAll = tester.widget<Checkbox>(checkboxAt(0));
       expect(agreeAll.value, isTrue);
+    });
+    testWidgets('네 항목 모두 라벨에 필수·선택이 표시된다', (tester) async {
+      await tester.pumpScreen(const TermsScreen());
+
+      expect(find.text('[필수] 서비스 이용약관'), findsOneWidget);
+      expect(find.text('[필수] 개인정보 수집·이용 동의'), findsOneWidget);
+      expect(find.text('[필수] 만 14세 이상 확인'), findsOneWidget);
+      expect(find.text('[선택] 모임 소식·마케팅 정보 수신'), findsOneWidget);
+    });
+
+    testWidgets('화살표를 누르면 약관 전문이 열린다', (tester) async {
+      await tester.pumpScreen(const TermsScreen());
+
+      await tester.tap(find.byIcon(Icons.chevron_right).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TermDetailScreen), findsOneWidget);
+      expect(find.text('제1조 (목적)'), findsNothing); // 본문은 통짜 Text 하나다
+      expect(find.textContaining('제1조 (목적)'), findsOneWidget);
+    });
+
+    testWidgets('전문을 열어도 동의 상태는 바뀌지 않는다', (tester) async {
+      await tester.pumpScreen(const TermsScreen());
+
+      await tester.tap(find.byIcon(Icons.chevron_right).first);
+      await tester.pumpAndSettle();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      // 읽기만 했으므로 여전히 잠겨 있어야 한다.
+      expect(isButtonEnabled(tester), isFalse);
+    });
+
+    testWidgets('선택 약관 전문은 선택 배지를 단다', (tester) async {
+      await tester.pumpScreen(const TermsScreen());
+
+      await tester.tap(find.byIcon(Icons.chevron_right).last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('선택 동의'), findsOneWidget);
+    });
+  });
+
+  group('Term', () {
+    test('필수 항목은 세 개다', () {
+      expect(Term.values.where((t) => t.required).length, 3);
+      expect(Term.marketing.required, isFalse);
+    });
+
+    test('모든 약관이 전문을 가진다', () {
+      for (final term in Term.values) {
+        expect(term.body.trim(), isNotEmpty, reason: term.name);
+        expect(term.body.trim().length, greaterThan(100), reason: term.name);
+      }
     });
   });
 }
