@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 울산">
+  <title>모각코 울산</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M459 829C248 829 124 774 124 671C124 569 248 513 459 513C671 513 795 569 795 671C795 774 671 829 459 829ZM459 732C593 732 656 713 656 671C656 628 593 611 459 611C326 611 262 628 262 671C262 713 326 732 459 732ZM137 18V-83H801V18H269V71H776V308H524V369H878V474H40V369H392V308H136V210H645V163H137Z"/>
+    <path transform="translate(964.1 0)" d="M248 781V681C248 555 183 432 26 381L97 278C204 314 277 386 318 478C358 394 426 328 527 295L595 399C446 448 383 564 383 680V781ZM636 837V160H769V460H892V569H769V837ZM173 225V-73H802V34H307V225Z"/>
+  </g>
+</svg>

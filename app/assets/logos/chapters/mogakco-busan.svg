@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 부산">
+  <title>모각코 부산</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M136 802V393H780V802H649V697H268V802ZM268 593H649V498H268ZM41 305V200H390V-89H523V200H879V305Z"/>
+    <path transform="translate(964.1 0)" d="M248 781V681C248 555 183 432 26 381L97 278C204 314 277 386 318 478C358 394 426 328 527 295L595 399C446 448 383 564 383 680V781ZM636 837V160H769V460H892V569H769V837ZM173 225V-73H802V34H307V225Z"/>
+  </g>
+</svg>

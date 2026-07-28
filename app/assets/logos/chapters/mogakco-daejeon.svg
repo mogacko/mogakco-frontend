@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 대전">
+  <title>모각코 대전</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M502 822V-45H625V374H709V-88H836V838H709V481H625V822ZM67 730V120H132C250 120 348 124 461 145L450 253C363 237 284 232 198 230V623H408V730Z"/>
+    <path transform="translate(964.1 0)" d="M682 837V598H537V491H682V162H816V837ZM204 219V-73H837V34H337V219ZM72 775V669H255V658C255 540 188 420 36 369L102 263C210 300 284 373 324 465C364 382 432 315 534 282L599 385C453 435 389 549 389 658V669H570V775Z"/>
+  </g>
+</svg>

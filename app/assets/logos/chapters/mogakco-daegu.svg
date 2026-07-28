@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 대구">
+  <title>모각코 대구</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M502 822V-45H625V374H709V-88H836V838H709V481H625V822ZM67 730V120H132C250 120 348 124 461 145L450 253C363 237 284 232 198 230V623H408V730Z"/>
+    <path transform="translate(964.1 0)" d="M41 390V282H388V-89H522V282H879V390H757C780 520 780 615 780 702V784H137V679H649C649 598 647 508 624 390Z"/>
+  </g>
+</svg>

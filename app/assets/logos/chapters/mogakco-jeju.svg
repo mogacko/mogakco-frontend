@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 제주">
+  <title>모각코 제주</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M709 838V-88H836V838ZM522 823V521H404V413H522V-46H646V823ZM56 745V638H205V592C205 433 158 268 22 182L101 84C185 136 239 226 271 333C302 236 354 155 436 107L513 203C379 282 334 437 334 592V638H469V745Z"/>
+    <path transform="translate(964.1 0)" d="M115 790V685H381C367 597 270 507 81 483L130 380C292 401 405 471 460 565C515 471 628 401 790 380L839 483C651 507 553 597 539 685H802V790ZM41 327V220H390V-89H523V220H879V327Z"/>
+  </g>
+</svg>

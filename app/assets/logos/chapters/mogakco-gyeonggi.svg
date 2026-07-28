@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 경기">
+  <title>모각코 경기</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M509 293C321 293 196 221 196 105C196 -11 321 -84 509 -84C697 -84 821 -11 821 105C821 221 697 293 509 293ZM509 191C622 191 690 161 690 105C690 48 622 19 509 19C395 19 327 48 327 105C327 161 395 191 509 191ZM98 775V669H378C361 543 260 443 48 388L99 284C303 340 433 440 489 586H682V500H479V393H682V305H816V838H682V691H516C520 718 522 746 522 775Z"/>
+    <path transform="translate(964.1 0)" d="M679 838V-88H812V838ZM93 742V636H402C382 431 279 286 43 173L113 68C442 227 537 458 537 742Z"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none" color="#4C6EF5" role="img" aria-label="모각코">
+  <title>모각코</title>
+  <path d="M 26 13 L 46 33 L 26 53" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 72 13 H 112 V 53 H 72 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 16 75 H 56 V 115" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 72 75 H 112 V 115" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 78 95 H 112" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

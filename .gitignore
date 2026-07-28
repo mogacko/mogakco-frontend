@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Flutter 프로젝트 내부 규칙은 app/.gitignore 를 따른다

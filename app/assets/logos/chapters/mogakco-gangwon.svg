@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 강원">
+  <title>모각코 강원</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M469 290C283 290 158 216 158 100C158 -16 283 -89 469 -89C656 -89 780 -16 780 100C780 216 656 290 469 290ZM469 187C582 187 649 157 649 100C649 43 582 14 469 14C357 14 290 43 290 100C290 157 357 187 469 187ZM636 838V302H769V512H892V622H769V838ZM77 777V671H369C349 545 235 440 34 386L88 280C360 355 515 528 515 777Z"/>
+    <path transform="translate(964.1 0)" d="M335 806C199 806 104 739 104 640C104 541 199 476 335 476C470 476 566 541 566 640C566 739 470 806 335 806ZM335 709C397 709 439 686 439 640C439 596 397 572 335 572C273 572 230 596 230 640C230 686 273 709 335 709ZM54 322C123 322 201 323 282 327V203H153V-73H841V34H286V160H415V335C489 340 563 349 635 361L626 456C432 431 206 429 37 428ZM513 300V209H687V136H820V838H687V300Z"/>
+  </g>
+</svg>

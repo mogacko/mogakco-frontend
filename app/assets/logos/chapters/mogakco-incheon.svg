@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 인천">
+  <title>모각코 인천</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M677 837V172H810V837ZM306 778C164 778 54 681 54 543C54 408 164 308 306 308C448 308 558 408 558 543C558 681 448 778 306 778ZM306 664C375 664 428 620 428 543C428 469 375 424 306 424C237 424 184 469 184 543C184 620 237 664 306 664ZM193 238V-73H834V34H326V238Z"/>
+    <path transform="translate(964.1 0)" d="M248 830V728H66V624H248V621C248 508 184 396 34 349L99 245C205 279 277 346 317 432C359 353 430 291 533 261L596 365C446 410 381 516 381 621V624H564V728H381V830ZM682 837V568H534V460H682V152H816V837ZM204 209V-73H837V34H337V209Z"/>
+  </g>
+</svg>

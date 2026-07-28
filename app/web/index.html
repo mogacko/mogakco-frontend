@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!--
+    앱을 루트가 아닌 경로에서 서빙한다면 아래 href를 그 경로로 바꿔야 한다.
+    값은 반드시 "/"로 시작하고 "/"로 끝나야 한다.
+    flutter build의 --base-href 인자로 치환된다.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="모여서 각자 코딩. 모각코 모임을 만들고 참여하세요.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- 부팅 화면 배경과 맞춰야 주소창까지 한 덩어리로 보인다 -->
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0F1115" media="(prefers-color-scheme: dark)">
+
+  <!-- iOS 홈 화면 추가 시 적용되는 설정 -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="모각코">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>모각코</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #FFFFFF;
+    }
+
+    /*
+      Flutter 엔진이 첫 프레임을 그리기 전까지 화면을 채우는 부팅 스플래시.
+      이게 없으면 엔진과 canvaskit을 내려받는 동안 빈 흰 화면만 보인다.
+      Dart 쪽 SplashScreen과 배경·로고 색을 맞춰 전환이 이어져 보이게 한다.
+    */
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      color: #4C6EF5;
+      opacity: 1;
+      transition: opacity 250ms ease-out;
+    }
+
+    #boot-splash.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /*
+      Dart SplashScreen의 로고와 크기·위치가 정확히 같다.
+      깜빡임 없이 이어지려면 여기에 애니메이션을 걸지 않아야 한다.
+    */
+    #boot-splash svg {
+      width: 112px;
+      height: 112px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html, body { background: #0F1115; }
+      #boot-splash {
+        background: #0F1115;
+        color: #FFFFFF;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="boot-splash">
+    <!-- assets/logos/mogakco-logo-square.svg 와 동일한 도형.
+         에셋 요청을 기다리지 않도록 인라인으로 둔다. -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="모각코">
+      <title>모각코</title>
+      <path d="M 26 13 L 46 33 L 26 53" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 72 13 H 112 V 53 H 72 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 16 75 H 56 V 115" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 72 75 H 112 V 115" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 78 95 H 112" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <script>
+    // 엔진이 첫 프레임을 그리는 순간 발생한다.
+    // (flutter_web_sdk/lib/_engine/engine/platform_dispatcher.dart)
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('boot-splash');
+      if (!splash) return;
+      splash.classList.add('is-hidden');
+      // 페이드가 끝난 뒤 제거해 터치 이벤트를 가로채지 않게 한다.
+      splash.addEventListener('transitionend', function () {
+        splash.remove();
+      }, { once: true });
+    });
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

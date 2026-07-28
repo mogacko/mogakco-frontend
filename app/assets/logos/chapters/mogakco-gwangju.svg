@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 72" width="304" height="72" fill="none" color="#4C6EF5" role="img" aria-label="모각코 광주">
+  <title>모각코 광주</title>
+  <path d="M 12 20 L 28 36 L 12 52" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(38 0)">
+    <path d="M 12 16 H 52 V 56 H 12 Z" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 68 16 H 108 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 124 16 H 164 V 56" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 130 36 H 164" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(233 57.97) scale(0.034 -0.034)" fill="currentColor">
+    <path transform="translate(0 0)" d="M468 263C271 263 147 197 147 88C147 -22 271 -88 468 -88C665 -88 788 -22 788 88C788 197 665 263 468 263ZM468 161C587 161 652 137 652 88C652 39 587 16 468 16C348 16 283 39 283 88C283 137 348 161 468 161ZM82 787V682H425C424 630 421 569 406 494L535 483C556 584 556 666 556 727V787ZM40 311C205 311 415 315 605 347L596 441C511 430 418 424 327 421V580H196V418L27 417ZM646 838V273H780V501H891V610H780V838Z"/>
+    <path transform="translate(964.1 0)" d="M115 790V685H381C367 597 270 507 81 483L130 380C292 401 405 471 460 565C515 471 628 401 790 380L839 483C651 507 553 597 539 685H802V790ZM41 327V220H390V-89H523V220H879V327Z"/>
+  </g>
+</svg>
