@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -50,14 +49,19 @@ class AppBottomNav extends StatelessWidget {
 
   /// 탭 바 높이.
   ///
-  /// HIG 기준 49pt에 아이콘과 라벨이 숨 쉴 자리를 조금 더한 값이다.
-  /// 모바일 웹에서는 브라우저 하단 바가 따로 붙어 더 두꺼워 보이므로
-  /// 여유를 크게 잡지 않는다.
-  static const barHeight = 52.0;
+  /// HIG 기준값 49pt에 맞춘다. 여기에 기기가 요구하는 안전영역이 더해지므로
+  /// (홈 인디케이터가 있는 기기는 34pt 안팎) 바 자체는 넉넉히 잡지 않는다.
+  static const barHeight = 48.0;
 
   /// 홈 인디케이터가 없는 기기는 안전영역이 0이라 탭이 화면 바닥에 붙는다.
   /// 손가락이 닿는 자리라 최소한의 여백만 남긴다.
-  static const _minBottomPadding = 8.0;
+  static const _minBottomPadding = 6.0;
+
+  /// 안전영역을 그대로 쓰면 바가 지나치게 두꺼워 보인다.
+  ///
+  /// 홈 인디케이터를 가리지 않을 만큼만 남기고 나머지는 덜어낸다.
+  /// 인디케이터 자체는 8pt 남짓이라 이 정도면 겹치지 않는다.
+  static const _maxBottomPadding = 20.0;
 
   final AppTab current;
   final ValueChanged<AppTab> onSelect;
@@ -65,10 +69,9 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final bottomInset = math.max(
-      MediaQuery.of(context).padding.bottom,
-      _minBottomPadding,
-    );
+    final bottomInset = MediaQuery.of(
+      context,
+    ).padding.bottom.clamp(_minBottomPadding, _maxBottomPadding);
 
     return ClipRect(
       child: BackdropFilter(
@@ -131,7 +134,7 @@ class _TabItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? tab.activeIcon : tab.icon, size: 25, color: color),
+            Icon(selected ? tab.activeIcon : tab.icon, size: 24, color: color),
             const SizedBox(height: 2),
             Text(
               tab.label,
