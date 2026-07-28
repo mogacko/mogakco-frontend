@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -65,19 +64,13 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
+    // 아이콘을 붙이지 않는다. 제목이 이미 무엇인지 말하고 있어서
+    // 앞에 그림을 하나 더 두면 장식만 는다.
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
-      child: Row(
-        children: [
-          Icon(CupertinoIcons.calendar, size: 19, color: colors.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Text(title, style: context.texts.headlineMedium),
-        ],
-      ),
+      child: Text(title, style: context.texts.headlineMedium),
     );
   }
 }

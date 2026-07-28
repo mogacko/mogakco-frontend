@@ -161,8 +161,10 @@ class _ChapterMenu extends StatelessWidget {
             turns: open ? 0.5 : 0,
             duration: const Duration(milliseconds: 200),
             child: Icon(
-              Icons.keyboard_arrow_down,
-              size: AppSize.iconMd,
+              // SF Symbols 계열은 획이 얇아 Material 아이콘보다 작게 둬야
+              // 로고 옆에서 어울린다.
+              CupertinoIcons.chevron_down,
+              size: AppSize.iconSm,
               color: colors.textSecondary,
             ),
           ),

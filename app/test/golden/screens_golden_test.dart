@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +64,7 @@ void main() {
 
       await tester.pumpScreen(const AppShell());
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       await expectLater(

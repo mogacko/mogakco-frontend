@@ -264,7 +264,7 @@ void main() {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       await tester.tap(find.text('서울'));
       await tester.pumpAndSettle();
@@ -281,7 +281,7 @@ void main() {
 
       expect(chapterLogos, findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       expect(
@@ -294,7 +294,7 @@ void main() {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       final items = tester
@@ -315,7 +315,7 @@ void main() {
       expect(find.bySemanticsLabel('모각코 부산'), findsWidgets);
       expect(find.bySemanticsLabel('모각코 서울'), findsNothing);
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       await tester.tap(find.text('서울'));
       await tester.pumpAndSettle();
@@ -327,7 +327,7 @@ void main() {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       final closed = Chapter.values.where((c) => !c.isOpen).length;
@@ -338,7 +338,7 @@ void main() {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       await tester.tap(find.text('제주'));
       await tester.pumpAndSettle();
