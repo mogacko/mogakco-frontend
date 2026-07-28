@@ -1,0 +1,65 @@
+name: 웹 배포
+
+# main 에 올라갈 때마다 웹으로 빌드해 GitHub Pages 에 올린다.
+# 맥이 없는 곳에서도 실제 앱을 열어 볼 수 있게 하려는 것이다.
+on:
+  push:
+    branches: [main]
+  # 필요할 때 손으로도 돌릴 수 있게 둔다.
+  workflow_dispatch:
+
+# Pages 배포에 필요한 최소 권한
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 연달아 푸시하면 뒤엣것만 살린다.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # 로컬과 같은 버전으로 묶어 둔다. 올릴 때는 여기도 함께 고친다.
+          flutter-version: 3.38.7
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: 정적 분석
+        run: flutter analyze
+
+      - name: 테스트
+        # 골든은 뺀다. 이미지가 맥에서 만들어져 리눅스에서는 글자 렌더링이
+        # 미세하게 달라 늘 어긋난다. 시각 확인용이지 통과 조건이 아니다.
+        run: flutter test test/features test/shared
+
+      - name: 웹 빌드
+        # 저장소 이름이 경로에 붙으므로 base-href 를 맞춰야 에셋을 찾는다.
+        run: flutter build web --release --base-href /mogakco-frontend/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
