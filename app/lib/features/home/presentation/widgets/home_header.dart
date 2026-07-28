@@ -105,8 +105,6 @@ class _ChapterMenu extends StatelessWidget {
       elevation: 8,
       shadowColor: Colors.black.withValues(alpha: 0.18),
       menuPadding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      // 지역이 늘면 항목이 길어지므로 최소 폭만 잡아두고 나머지는 맡긴다.
-      constraints: const BoxConstraints(minWidth: 180),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
         side: BorderSide(color: colors.border, width: 0.5),
@@ -158,7 +156,10 @@ class _MenuRow extends StatelessWidget {
     final colors = context.colors;
     final open = chapter.isOpen;
 
+    // Spacer로 양끝에 붙이면 지역명과 표식이 헤더보다 넓게 벌어진다.
+    // 필요한 만큼만 차지하고 둘 사이는 좁게 붙여 둔다.
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           chapter.label,
@@ -166,9 +167,8 @@ class _MenuRow extends StatelessWidget {
             color: open ? colors.textPrimary : colors.textTertiary,
           ),
         ),
-        const Spacer(),
         if (!open) ...[
-          const SizedBox(width: AppSpacing.lg),
+          const SizedBox(width: AppSpacing.sm),
           Icon(
             CupertinoIcons.nosign,
             size: AppSize.iconSm,
