@@ -163,8 +163,11 @@ class _MenuRow extends StatelessWidget {
       children: [
         Text(
           chapter.label,
+          // 로고 획이 굵어 기본 굵기로는 옆에서 가볍게 보인다.
+          // 활성·비활성은 굵기가 아니라 색으로 가른다.
           style: context.texts.bodyLarge?.copyWith(
             color: open ? colors.textPrimary : colors.textTertiary,
+            fontWeight: FontWeight.w600,
           ),
         ),
         if (!open) ...[
