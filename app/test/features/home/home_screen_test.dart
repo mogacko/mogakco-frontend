@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,6 +51,13 @@ void main() {
   });
 
   group('HomeScreen', () {
+    /// 순환 캐러셀은 좌우에 이웃 카드가 걸쳐 있어 first 로 집으면 엉뚱한 카드를
+    /// 누른다. 어느 모임인지 키로 짚어 그 안의 버튼만 누른다.
+    Finder buttonIn(String meetupId, String label) => find.descendant(
+      of: find.byKey(ValueKey(meetupId)).first,
+      matching: find.text(label),
+    );
+
     // 카드 배경에도 로고가 깔려 있어 챕터 워드마크만 따로 골라낸다.
     final chapterLogos = find.byWidgetPredicate(
       (w) => w is MogackoLogo && w.chapter != null,
@@ -96,26 +104,63 @@ void main() {
       // 첫 카드(모모스커피 온천장)는 5/8로 시작한다.
       expect(find.text('5 / 8'), findsOneWidget);
 
-      await tester.tap(find.text('참여 신청').first);
+      await tester.tap(buttonIn('busan-1', '참여 신청'));
       await tester.pumpAndSettle();
 
       expect(find.text('6 / 8'), findsOneWidget);
       expect(find.text('5 / 8'), findsNothing);
-      // 옆 카드가 걸쳐 보이므로 개수 대신 존재만 확인한다.
-      expect(find.text('참여 취소'), findsWidgets);
+      expect(buttonIn('busan-1', '참여 취소'), findsOneWidget);
     });
 
     testWidgets('다시 누르면 신청이 취소되고 인원이 돌아온다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('참여 신청').first);
+      await tester.tap(buttonIn('busan-1', '참여 신청'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('참여 취소').first);
+      await tester.tap(buttonIn('busan-1', '참여 취소'));
       await tester.pumpAndSettle();
 
       expect(find.text('5 / 8'), findsOneWidget);
       expect(find.text('6 / 8'), findsNothing);
+    });
+
+    testWidgets('참여를 눌러도 보고 있던 카드가 그대로 있다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      // 두 번째 카드로 넘긴다.
+      await tester.drag(find.byType(PageView), const Offset(-400, 0));
+      await tester.pumpAndSettle();
+
+      final controller = tester
+          .widget<PageView>(find.byType(PageView))
+          .controller!;
+      final before = controller.page!.round();
+      expect(find.text('웨이브온 커피'), findsWidgets);
+
+      await tester.tap(buttonIn('busan-2', '참여 신청'));
+      await tester.pumpAndSettle();
+
+      // 목록 구성은 그대로이므로 첫 장으로 튕기면 안 된다.
+      expect(controller.page!.round(), before);
+      expect(buttonIn('busan-2', '참여 취소'), findsOneWidget);
+    });
+
+    testWidgets('지역을 바꾸면 첫 카드부터 다시 보여준다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(PageView), const Offset(-400, 0));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PopupMenuItem<Chapter>).first);
+      await tester.pumpAndSettle();
+
+      // 서울 목록의 첫 모임이 중앙에 와야 한다.
+      expect(find.text('카페 그리다'), findsWidgets);
     });
 
     testWidgets('화살표를 누르면 지역 메뉴가 뜬다', (tester) async {
@@ -128,9 +173,13 @@ void main() {
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
-      // 헤더 1 + 현재 지역을 뺀 나머지 1
-      expect(chapterLogos, findsNWidgets(2));
-      expect(find.byType(PopupMenuItem<Chapter>), findsOneWidget);
+      // 현재 지역을 뺀 아홉 곳이 모두 나열된다.
+      expect(
+        find.byType(PopupMenuItem<Chapter>),
+        findsNWidgets(Chapter.values.length - 1),
+      );
+      expect(find.text('서울'), findsOneWidget);
+      expect(find.text('제주'), findsOneWidget);
     });
 
     testWidgets('메뉴에 현재 지역은 넣지 않는다', (tester) async {
@@ -151,15 +200,73 @@ void main() {
       expect(items, contains(Chapter.seoul));
     });
 
-    testWidgets('메뉴 항목은 지역명 대신 워드마크로 보여준다', (tester) async {
+    testWidgets('헤더 워드마크가 지역까지 낭독된다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      // 헤더에는 글자가 없어 낭독 라벨이 유일한 지역 단서다.
+      expect(find.bySemanticsLabel('모각코 부산'), findsWidgets);
+      expect(find.bySemanticsLabel('모각코 서울'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('서울'));
+      await tester.pumpAndSettle();
+
+      // 지역을 바꾸면 낭독 내용도 따라 바뀐다.
+      expect(find.bySemanticsLabel('모각코 서울'), findsWidgets);
+      expect(find.bySemanticsLabel('모각코 부산'), findsNothing);
+    });
+
+    testWidgets('아직 열지 않은 지역은 금지 표식과 함께 잠겨 있다', (tester) async {
       await tester.pumpScreen(const HomeScreen());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
       await tester.pumpAndSettle();
 
-      expect(find.text('서울'), findsNothing);
-      expect(find.text('부산'), findsNothing);
+      final closed = Chapter.values.where((c) => !c.isOpen).length;
+      expect(find.byIcon(CupertinoIcons.nosign), findsNWidgets(closed));
+
+      final items = tester.widgetList<PopupMenuItem<Chapter>>(
+        find.byType(PopupMenuItem<Chapter>),
+      );
+      for (final item in items) {
+        expect(item.enabled, item.value!.isOpen, reason: item.value!.name);
+      }
+    });
+
+    testWidgets('열린 지역에는 금지 표식이 없다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+
+      final seoul = find.ancestor(
+        of: find.text('서울'),
+        matching: find.byType(PopupMenuItem<Chapter>),
+      );
+      expect(
+        find.descendant(
+          of: seoul,
+          matching: find.byIcon(CupertinoIcons.nosign),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('잠긴 지역을 눌러도 지역이 바뀌지 않는다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('제주'));
+      await tester.pumpAndSettle();
+
+      // 부산 모임이 그대로 보여야 한다.
+      expect(find.text('모모스커피 온천장'), findsWidgets);
     });
 
     testWidgets('메뉴에서 지역을 고르면 헤더와 목록이 함께 바뀐다', (tester) async {
@@ -178,22 +285,6 @@ void main() {
 
       final header = tester.widget<MogackoLogo>(chapterLogos.first);
       expect(header.chapter, Chapter.seoul);
-    });
-
-    testWidgets('열지 않은 지역은 메뉴에 없다', (tester) async {
-      await tester.pumpScreen(const HomeScreen());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-      await tester.pumpAndSettle();
-
-      final items = tester
-          .widgetList<PopupMenuItem<Chapter>>(
-            find.byType(PopupMenuItem<Chapter>),
-          )
-          .map((e) => e.value);
-
-      expect(items, everyElement(isIn(Chapter.open)));
     });
   });
 

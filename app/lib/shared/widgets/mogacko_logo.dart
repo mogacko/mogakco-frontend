@@ -61,7 +61,9 @@ class MogackoLogo extends StatelessWidget {
       width: size * _aspectRatio,
       theme: SvgTheme(currentColor: resolved),
       // 로고는 화면 낭독 시 서비스명으로 읽히면 충분하다.
-      semanticsLabel: '모각코',
+      // 챕터 워드마크는 지역까지 읽혀야 한다. 전부 '모각코'로만 읽히면
+      // 화면 낭독으로는 서울과 부산을 구분할 수 없다.
+      semanticsLabel: chapter == null ? '모각코' : '모각코 ${chapter!.label}',
     );
   }
 }

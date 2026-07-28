@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -46,8 +47,15 @@ class AppBottomNav extends StatelessWidget {
     required this.onSelect,
   });
 
-  /// HIG가 규정한 탭 바 높이
-  static const barHeight = 49.0;
+  /// 탭 바 높이.
+  ///
+  /// HIG 기준은 49pt지만 그대로 두면 아이콘과 라벨이 위아래로 꽉 차 답답하다.
+  /// 콘텐츠가 숨 쉴 자리를 위아래로 남기려고 조금 키웠다.
+  static const barHeight = 58.0;
+
+  /// 홈 인디케이터가 없는 기기는 안전영역이 0이라 탭이 화면 바닥에 붙는다.
+  /// 손가락이 닿는 자리라 최소한의 여백은 남긴다.
+  static const _minBottomPadding = 18.0;
 
   final AppTab current;
   final ValueChanged<AppTab> onSelect;
@@ -55,7 +63,10 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final bottomInset = math.max(
+      MediaQuery.of(context).padding.bottom,
+      _minBottomPadding,
+    );
 
     return ClipRect(
       child: BackdropFilter(

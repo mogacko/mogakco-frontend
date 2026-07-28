@@ -24,10 +24,50 @@ class MeetupCarousel extends StatefulWidget {
 class _MeetupCarouselState extends State<MeetupCarousel> {
   static const _cardHeight = 210.0;
 
-  /// 1보다 작게 두면 다음 카드가 옆에 걸쳐 보여서 넘길 수 있다는 게 드러난다.
-  late final _controller = PageController(viewportFraction: 0.88);
+  /// 1보다 작게 둬야 양옆 카드가 걸쳐 보인다. 첫 장에서도 왼쪽에 이전 카드
+  /// 끝자락이 남아 목록이 이어진다는 게 드러난다.
+  static const _viewportFraction = 0.82;
+
+  /// 끝없이 넘기는 것처럼 보이게 하는 시작 지점.
+  ///
+  /// 실제로 무한한 목록을 만드는 대신 아주 먼 페이지에서 시작하고 인덱스를
+  /// 항목 수로 나눈 나머지에 대응시킨다. 양쪽으로 수천 번 넘겨도 끝에 닿지 않는다.
+  static const _loopOrigin = 10000;
+
+  /// 순환하지 않을 때 먼 페이지에서 시작하면 범위를 벗어나 아무것도 안 보인다.
+  late final PageController _controller = PageController(
+    viewportFraction: _viewportFraction,
+    initialPage: _looping ? _loopOrigin : 0,
+  );
 
   int _page = 0;
+
+  /// 한 장뿐이면 순환시켜도 같은 카드만 반복돼 의미가 없다.
+  bool get _looping => widget.meetups.length > 1;
+
+  @override
+  void didUpdateWidget(MeetupCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 지역을 바꾸면 목록이 통째로 갈리므로 첫 장부터 다시 보여준다.
+    //
+    // 참여 상태만 바뀌어도 목록은 매번 새 인스턴스로 온다. 리스트를 그대로
+    // 비교하면 참조가 달라 늘 리셋되고, 참여를 누른 순간 보던 카드가 첫 장으로
+    // 튕긴다. 그래서 어떤 모임이 어떤 순서로 있는지만 본다.
+    if (!_sameLineup(oldWidget.meetups, widget.meetups) &&
+        _controller.hasClients) {
+      _controller.jumpToPage(_looping ? _loopOrigin : 0);
+      setState(() => _page = 0);
+    }
+  }
+
+  /// 담긴 모임과 그 순서가 같은지
+  bool _sameLineup(List<Meetup> before, List<Meetup> after) {
+    if (before.length != after.length) return false;
+    for (var i = 0; i < before.length; i++) {
+      if (before[i].id != after[i].id) return false;
+    }
+    return true;
+  }
 
   @override
   void dispose() {
@@ -39,19 +79,25 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
   Widget build(BuildContext context) {
     if (widget.meetups.isEmpty) return const _EmptyState();
 
+    final count = widget.meetups.length;
+
     return Column(
       children: [
         SizedBox(
           height: _cardHeight,
           child: PageView.builder(
             controller: _controller,
-            itemCount: widget.meetups.length,
-            onPageChanged: (index) => setState(() => _page = index),
+            // null이면 양방향으로 끝없이 이어진다.
+            itemCount: _looping ? null : count,
+            onPageChanged: (index) => setState(() => _page = index % count),
             itemBuilder: (context, index) {
-              final meetup = widget.meetups[index];
+              final meetup = widget.meetups[index % count];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: _MeetupCard(
+                  // 순환하면 같은 카드가 여러 자리에 나타나므로 어느 모임인지
+                  // 키로 짚을 수 있게 한다.
+                  key: ValueKey(meetup.id),
                   meetup: meetup,
                   onToggleJoin: () => widget.onToggleJoin(meetup.id),
                 ),
@@ -60,14 +106,18 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        _PageDots(count: widget.meetups.length, current: _page),
+        _PageDots(count: count, current: _page),
       ],
     );
   }
 }
 
 class _MeetupCard extends StatelessWidget {
-  const _MeetupCard({required this.meetup, required this.onToggleJoin});
+  const _MeetupCard({
+    super.key,
+    required this.meetup,
+    required this.onToggleJoin,
+  });
 
   final Meetup meetup;
   final VoidCallback onToggleJoin;

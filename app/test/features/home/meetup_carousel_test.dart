@@ -87,6 +87,61 @@ void main() {
       expect(called, isTrue);
     });
 
+    testWidgets('첫 장에서도 좌우로 이웃 카드가 걸쳐 보인다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(
+          meetups: [
+            _meetup(id: 'a'),
+            _meetup(id: 'b'),
+            _meetup(id: 'c'),
+          ],
+          onToggleJoin: (_) {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 화면 폭보다 좁은 카드가 3장 얹혀 있으면 양옆이 걸친 상태다.
+      expect(find.byType(PageView), findsOneWidget);
+      final pageView = tester.widget<PageView>(find.byType(PageView));
+      expect(pageView.controller!.viewportFraction, lessThan(1.0));
+      // 무한 순환이라 총 개수가 정해져 있지 않다.
+      expect(pageView.childrenDelegate.estimatedChildCount, isNull);
+    });
+
+    testWidgets('끝까지 넘겨도 처음으로 이어진다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(
+          meetups: [
+            _meetup(id: 'a'),
+            _meetup(id: 'b'),
+          ],
+          onToggleJoin: (_) {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 항목 수보다 많이 넘겨도 끝에 닿지 않고 카드가 계속 나온다.
+      for (var i = 0; i < 4; i++) {
+        await tester.drag(find.byType(PageView), const Offset(-300, 0));
+        await tester.pumpAndSettle();
+      }
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(PageView), findsOneWidget);
+      expect(find.text('카페 오리진'), findsWidgets);
+    });
+
+    testWidgets('한 장뿐이면 순환시키지 않는다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(meetups: [_meetup()], onToggleJoin: (_) {}),
+      );
+      await tester.pumpAndSettle();
+
+      // 같은 카드만 반복될 뿐이라 개수를 고정한다.
+      final pageView = tester.widget<PageView>(find.byType(PageView));
+      expect(pageView.childrenDelegate.estimatedChildCount, 1);
+    });
+
     testWidgets('카드가 여러 장이면 페이지 점을 그린다', (tester) async {
       await tester.pumpScreen(
         MeetupCarousel(

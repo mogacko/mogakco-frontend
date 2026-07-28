@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -78,6 +79,9 @@ class _ChapterMenu extends StatelessWidget {
     required this.onSelected,
   });
 
+  /// 메뉴 항목의 좌우 여백. 메뉴 위치를 맞출 때 같은 값을 되돌려 쓴다.
+  static const _itemPadding = AppSpacing.lg;
+
   final Chapter current;
   final bool open;
   final VoidCallback onOpened;
@@ -89,8 +93,10 @@ class _ChapterMenu extends StatelessWidget {
     final colors = context.colors;
 
     return PopupMenuButton<Chapter>(
-      // 앵커 바로 아래에 붙여 어디서 나온 메뉴인지 드러낸다.
-      offset: const Offset(0, 34),
+      // 메뉴는 버튼 좌상단을 기준으로 놓인다. 항목 패딩만큼 왼쪽으로 당겨야
+      // 메뉴 안 워드마크가 헤더 워드마크와 수직으로 맞는다.
+      position: PopupMenuPosition.under,
+      offset: const Offset(-_itemPadding, AppSpacing.sm),
       onOpened: onOpened,
       onCanceled: onDismissed,
       onSelected: onSelected,
@@ -99,18 +105,23 @@ class _ChapterMenu extends StatelessWidget {
       elevation: 8,
       shadowColor: Colors.black.withValues(alpha: 0.18),
       menuPadding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      // 지역이 늘면 항목이 길어지므로 최소 폭만 잡아두고 나머지는 맡긴다.
+      constraints: const BoxConstraints(minWidth: 180),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
         side: BorderSide(color: colors.border, width: 0.5),
       ),
       // 지금 지역은 헤더 워드마크가 이미 보여주므로 목록에서 뺀다.
+      // 아직 열지 않은 지역도 함께 보여줘 어디까지 넓어질지 드러낸다.
       itemBuilder: (context) => [
-        for (final chapter in Chapter.open.where((c) => c != current))
+        for (final chapter in Chapter.values.where((c) => c != current))
           PopupMenuItem<Chapter>(
             value: chapter,
+            // 준비 중인 지역은 눌러도 넘어가지 않는다.
+            enabled: chapter.isOpen,
             height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: MogackoLogo.chapter(chapter: chapter, size: 22),
+            padding: const EdgeInsets.symmetric(horizontal: _itemPadding),
+            child: _MenuRow(chapter: chapter),
           ),
       ],
       child: Row(
@@ -129,6 +140,42 @@ class _ChapterMenu extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 메뉴 한 줄.
+///
+/// 지역명은 텍스트로 둔다. 항목이 열 개까지 늘어나면 워드마크가 세로로 쌓여
+/// 훑어보기 어렵고, 로고마다 앞부분 도형이 반복돼 지역명만 골라내야 한다.
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({required this.chapter});
+
+  final Chapter chapter;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final open = chapter.isOpen;
+
+    return Row(
+      children: [
+        Text(
+          chapter.label,
+          style: context.texts.bodyLarge?.copyWith(
+            color: open ? colors.textPrimary : colors.textTertiary,
+          ),
+        ),
+        const Spacer(),
+        if (!open) ...[
+          const SizedBox(width: AppSpacing.lg),
+          Icon(
+            CupertinoIcons.nosign,
+            size: AppSize.iconSm,
+            color: colors.textTertiary,
+          ),
+        ],
+      ],
     );
   }
 }
