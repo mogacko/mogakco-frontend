@@ -31,6 +31,7 @@ class _AppShellState extends State<AppShell> {
           HomeScreen(),
           PlaceholderTab(tab: AppTab.community),
           PlaceholderTab(tab: AppTab.meetup),
+          PlaceholderTab(tab: AppTab.event),
           PlaceholderTab(tab: AppTab.profile),
         ],
       ),

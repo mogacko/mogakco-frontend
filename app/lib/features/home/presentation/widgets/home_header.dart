@@ -57,9 +57,11 @@ class _HomeHeaderState extends ConsumerState<HomeHeader> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.screenHorizontal,
-            vertical: AppSpacing.sm,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screenHorizontal,
+            AppSpacing.sm,
+            AppSpacing.screenHorizontal - AppSpacing.sm,
+            AppSpacing.sm,
           ),
           child: Row(
             children: [
@@ -71,18 +73,27 @@ class _HomeHeaderState extends ConsumerState<HomeHeader> {
                 onSelected: _select,
               ),
               const Spacer(),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.notifications_none,
-                  color: colors.textSecondary,
+              // IconButton 은 48x48 터치 영역을 차지해 헤더를 두껍게 만든다.
+              // 손가락이 닿을 만큼만 남기고 직접 그린다.
+              Semantics(
+                button: true,
+                label: '알림',
+                child: InkWell(
+                  onTap: () {},
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    child: Icon(
+                      CupertinoIcons.bell,
+                      size: AppSize.iconMd,
+                      color: colors.textSecondary,
+                    ),
+                  ),
                 ),
-                tooltip: '알림',
               ),
             ],
           ),
         ),
-        Divider(color: colors.border, height: 0.5, thickness: 0.5),
       ],
     );
   }

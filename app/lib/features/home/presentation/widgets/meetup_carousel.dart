@@ -5,24 +5,29 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/mogacko_logo.dart';
 import '../../domain/meetup.dart';
+import '../meetup_provider.dart';
+import 'join_confirm_dialog.dart';
 
 /// 모집 중인 모임을 옆으로 넘겨 보는 캐러셀.
 class MeetupCarousel extends StatefulWidget {
   const MeetupCarousel({
     super.key,
     required this.meetups,
-    required this.onToggleJoin,
-    this.label,
+    required this.now,
+    required this.onToggleSession,
   });
 
-  final List<Meetup> meetups;
-  final ValueChanged<String> onToggleJoin;
-
-  /// 카드 위에 얹을 라벨.
+  /// 모임과 화면에 세울 하루.
   ///
-  /// 카드가 화면 여백이 아니라 뷰포트 비율로 배치돼서, 바깥에서 그리면
-  /// 좌우가 어긋난다. 카드 폭을 아는 이곳에서 같은 자리에 맞춰 그린다.
-  final Widget? label;
+  /// 한 모임이 여러 날에 걸쳐도 여기서는 하루만 다룬다. 갈지 말지를 하루로
+  /// 좁혀야 결정이 단순해진다.
+  final List<MeetupOnDay> meetups;
+
+  /// '오늘/내일'을 재는 기준 시각
+  final DateTime now;
+
+  /// (모임 id, 날짜 id)로 그 날의 참여를 뒤집는다.
+  final void Function(String meetupId, String sessionId) onToggleSession;
 
   @override
   State<MeetupCarousel> createState() => _MeetupCarouselState();
@@ -35,16 +40,22 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
   /// 끝자락이 남아 목록이 이어진다는 게 드러난다.
   static const _viewportFraction = 0.82;
 
-  /// 끝없이 넘기는 것처럼 보이게 하는 시작 지점.
+  /// 끝없이 넘기는 것처럼 보이게 하려고 몇 바퀴 앞선 자리에서 시작한다.
   ///
-  /// 실제로 무한한 목록을 만드는 대신 아주 먼 페이지에서 시작하고 인덱스를
-  /// 항목 수로 나눈 나머지에 대응시킨다. 양쪽으로 수천 번 넘겨도 끝에 닿지 않는다.
-  static const _loopOrigin = 10000;
+  /// 실제로 무한한 목록을 만드는 대신 먼 페이지에서 출발하고 인덱스를 항목
+  /// 수로 나눈 나머지에 대응시킨다. 양쪽으로 수천 번 넘겨도 끝에 닿지 않는다.
+  static const _loopLaps = 3000;
+
+  /// 순환 시작 페이지.
+  ///
+  /// 항목 수의 배수여야 첫 화면에 0번 카드가 온다. 고정 숫자를 쓰면
+  /// 항목이 3개일 때 10000 % 3 = 1 이 되어 두 번째 카드부터 보인다.
+  int get _loopStart => widget.meetups.length * _loopLaps;
 
   /// 순환하지 않을 때 먼 페이지에서 시작하면 범위를 벗어나 아무것도 안 보인다.
   late final PageController _controller = PageController(
     viewportFraction: _viewportFraction,
-    initialPage: _looping ? _loopOrigin : 0,
+    initialPage: _looping ? _loopStart : 0,
   );
 
   int _page = 0;
@@ -62,16 +73,16 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
     // 튕긴다. 그래서 어떤 모임이 어떤 순서로 있는지만 본다.
     if (!_sameLineup(oldWidget.meetups, widget.meetups) &&
         _controller.hasClients) {
-      _controller.jumpToPage(_looping ? _loopOrigin : 0);
+      _controller.jumpToPage(_looping ? _loopStart : 0);
       setState(() => _page = 0);
     }
   }
 
   /// 담긴 모임과 그 순서가 같은지
-  bool _sameLineup(List<Meetup> before, List<Meetup> after) {
+  bool _sameLineup(List<MeetupOnDay> before, List<MeetupOnDay> after) {
     if (before.length != after.length) return false;
     for (var i = 0; i < before.length; i++) {
-      if (before[i].id != after[i].id) return false;
+      if (before[i].meetup.id != after[i].meetup.id) return false;
     }
     return true;
   }
@@ -82,12 +93,6 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
     super.dispose();
   }
 
-  /// 중앙 카드의 왼쪽 가장자리까지의 거리.
-  ///
-  /// 양옆에 남는 공간의 절반에 카드끼리의 간격을 더한 값이다.
-  double _cardInset(double width) =>
-      width * (1 - _viewportFraction) / 2 + AppSpacing.sm;
-
   @override
   Widget build(BuildContext context) {
     if (widget.meetups.isEmpty) return const _EmptyState();
@@ -97,20 +102,6 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (widget.label != null)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final inset = _cardInset(constraints.maxWidth);
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: inset,
-                  right: inset,
-                  bottom: AppSpacing.md,
-                ),
-                child: widget.label,
-              );
-            },
-          ),
         SizedBox(
           height: _cardHeight,
           child: PageView.builder(
@@ -119,15 +110,18 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
             itemCount: _looping ? null : count,
             onPageChanged: (index) => setState(() => _page = index % count),
             itemBuilder: (context, index) {
-              final meetup = widget.meetups[index % count];
+              final entry = widget.meetups[index % count];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: _MeetupCard(
                   // 순환하면 같은 카드가 여러 자리에 나타나므로 어느 모임인지
                   // 키로 짚을 수 있게 한다.
-                  key: ValueKey(meetup.id),
-                  meetup: meetup,
-                  onToggleJoin: () => widget.onToggleJoin(meetup.id),
+                  key: ValueKey(entry.meetup.id),
+                  meetup: entry.meetup,
+                  session: entry.session,
+                  now: widget.now,
+                  onToggle: () =>
+                      widget.onToggleSession(entry.meetup.id, entry.session.id),
                 ),
               );
             },
@@ -144,11 +138,18 @@ class _MeetupCard extends StatelessWidget {
   const _MeetupCard({
     super.key,
     required this.meetup,
-    required this.onToggleJoin,
+    required this.session,
+    required this.now,
+    required this.onToggle,
   });
 
   final Meetup meetup;
-  final VoidCallback onToggleJoin;
+
+  /// 이 카드가 다루는 하루
+  final MeetupSession session;
+
+  final DateTime now;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -192,31 +193,32 @@ class _MeetupCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Spacer(),
-                  Text(
-                    meetup.placeName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.texts.headlineMedium?.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    meetup.shortAddress,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.texts.bodyMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.82),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
+                  // 위쪽 한 줄에 어디서·언제를 나란히 둔다.
+                  // 왼쪽은 장소, 오른쪽은 시각과 정원이다.
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _JoinButton(meetup: meetup, onTap: onToggleJoin),
-                      const Spacer(),
-                      _Participants(meetup: meetup),
+                      Expanded(child: _Place(meetup: meetup)),
+                      const SizedBox(width: AppSpacing.md),
+                      _When(session: session, now: now),
                     ],
+                  ),
+                  const Spacer(),
+                  // 결정 버튼은 엄지가 닿는 오른쪽 아래에 둔다.
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: _JoinButton(
+                      session: session,
+                      onTap: () async {
+                        final ok = await confirmJoinChange(
+                          context,
+                          meetup: meetup,
+                          session: session,
+                          now: now,
+                        );
+                        if (ok) onToggle();
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -228,18 +230,88 @@ class _MeetupCard extends StatelessWidget {
   }
 }
 
-/// 좌측 하단 참여 토글
-class _JoinButton extends StatelessWidget {
-  const _JoinButton({required this.meetup, required this.onTap});
+/// 카드 좌측 상단의 장소
+class _Place extends StatelessWidget {
+  const _Place({required this.meetup});
 
   final Meetup meetup;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          meetup.placeName,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: context.texts.headlineMedium?.copyWith(color: Colors.white),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          meetup.shortAddress,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.texts.bodyMedium?.copyWith(
+            color: Colors.white.withValues(alpha: 0.82),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 카드 우측 상단의 시각과 정원
+class _When extends StatelessWidget {
+  const _When({required this.session, required this.now});
+
+  final MeetupSession session;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          session.whenLabel(now),
+          style: context.texts.labelLarge?.copyWith(color: Colors.white),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.person,
+              size: AppSize.iconSm - 2,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+            const SizedBox(width: 3),
+            Text(
+              '${session.participantCount} / ${session.capacity}',
+              style: context.texts.labelSmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.85),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// 좌측 하단 참여 토글
+class _JoinButton extends StatelessWidget {
+  const _JoinButton({required this.session, required this.onTap});
+
+  final MeetupSession session;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final joined = meetup.isJoined;
-    // 정원이 찼어도 이미 신청했다면 취소는 할 수 있어야 한다.
-    final blocked = meetup.isFull && !joined;
+    final joined = session.isJoined;
+    // 자리가 찼어도 이미 신청했다면 뺄 수는 있어야 한다.
+    final blocked = session.isFull && !joined;
 
     final label = blocked ? '마감' : (joined ? '참여 취소' : '참여 신청');
     final background = blocked
@@ -278,30 +350,6 @@ class _JoinButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Participants extends StatelessWidget {
-  const _Participants({required this.meetup});
-
-  final Meetup meetup;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          Icons.person,
-          size: AppSize.iconSm,
-          color: Colors.white.withValues(alpha: 0.85),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Text(
-          '${meetup.participantCount} / ${meetup.capacity}',
-          style: context.texts.labelMedium?.copyWith(color: Colors.white),
-        ),
-      ],
     );
   }
 }
