@@ -7,7 +7,7 @@ import '../../../../shared/widgets/mogacko_logo.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 import '../../domain/meetup.dart';
 import '../meetup_provider.dart';
-import 'join_confirm_dialog.dart';
+import 'join_confirm_sheet.dart';
 
 /// 모집 중인 모임을 옆으로 넘겨 보는 캐러셀.
 class MeetupCarousel extends StatefulWidget {

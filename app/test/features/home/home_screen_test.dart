@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart'
-    show CupertinoDialogAction, CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -230,7 +229,7 @@ void main() {
 
       await tester.tap(inCard('busan-1', '참여 취소'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(CupertinoDialogAction, '참여 취소'));
+      await tester.tap(find.widgetWithText(FilledButton, '참여 취소'));
       await tester.pumpAndSettle();
 
       expect(inCard('busan-1', '5 / 8'), findsOneWidget);

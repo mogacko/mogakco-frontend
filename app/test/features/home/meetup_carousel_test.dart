@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart' show CupertinoDialogAction;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/home/domain/meetup.dart';
@@ -150,6 +149,40 @@ void main() {
       expect(find.text('참여 신청'), findsOneWidget);
     });
 
+    testWidgets('확인은 시트로 올라온다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(
+          meetups: [_entry()],
+          now: _now,
+          onToggleSession: (_, _) {},
+        ),
+      );
+
+      await tester.tap(find.text('참여 신청'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BottomSheet), findsOneWidget);
+      // 주 버튼과 물러날 길이 함께 있어야 한다.
+      expect(find.widgetWithText(FilledButton, '참여하기'), findsOneWidget);
+      expect(find.widgetWithText(TextButton, '닫기'), findsOneWidget);
+    });
+
+    testWidgets('시트에 모임장까지 함께 보여준다', (tester) async {
+      await tester.pumpScreen(
+        MeetupCarousel(
+          meetups: [_entry()],
+          now: _now,
+          onToggleSession: (_, _) {},
+        ),
+      );
+
+      await tester.tap(find.text('참여 신청'));
+      await tester.pumpAndSettle();
+
+      // 카드에 하나, 시트에 하나.
+      expect(find.text('evan'), findsNWidgets(2));
+    });
+
     testWidgets('확인 창에 장소와 일정을 함께 보여준다', (tester) async {
       await tester.pumpScreen(
         MeetupCarousel(
@@ -224,7 +257,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('참여를 취소할까요?'), findsOneWidget);
-      await tester.tap(find.widgetWithText(CupertinoDialogAction, '참여 취소'));
+      await tester.tap(find.widgetWithText(FilledButton, '참여 취소'));
       await tester.pumpAndSettle();
       expect(called, isTrue);
     });
