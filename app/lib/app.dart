@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
+import 'shared/widgets/mobile_frame.dart';
 
 class MogackoApp extends StatelessWidget {
   const MogackoApp({super.key});
@@ -26,7 +27,8 @@ class MogackoApp extends StatelessWidget {
           data: mediaQuery.copyWith(
             textScaler: mediaQuery.textScaler.clamp(maxScaleFactor: 1.3),
           ),
-          child: child!,
+          // 넓은 화면에서도 폰 폭으로 잡아 둔다.
+          child: MobileFrame(child: child!),
         );
       },
     );
