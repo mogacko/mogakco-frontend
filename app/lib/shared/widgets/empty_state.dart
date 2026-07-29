@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -11,7 +12,11 @@ import '../../core/theme/app_theme.dart';
 ///
 /// 아이콘은 옅은 원 안에 넣어 글자보다 먼저 눈에 들되 화면을 지배하지는
 /// 않게 한다.
-class EmptyState extends StatelessWidget {
+///
+/// 나타날 때 한 번 떠오른다. 필터를 바꾸면 목록이 사라진 자리에 이게 툭
+/// 나타나는데, 정지된 채로 바뀌면 화면이 깨진 것처럼 보인다. 올라오면서
+/// 들어오면 비었다는 것이 결과로 읽힌다.
+class EmptyState extends StatefulWidget {
   const EmptyState({
     super.key,
     required this.icon,
@@ -31,8 +36,74 @@ class EmptyState extends StatelessWidget {
   final VoidCallback? onAction;
 
   @override
+  State<EmptyState> createState() => _EmptyStateState();
+}
+
+class _EmptyStateState extends State<EmptyState>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 320),
+    vsync: this,
+  )..forward();
+
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final description = widget.description;
+    final actionLabel = widget.actionLabel;
+    final onAction = widget.onAction;
+
+    return FadeTransition(
+      opacity: _fade,
+      // 12픽셀만 올린다. 더 움직이면 등장이 눈에 띄어 화면이 부산해진다.
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(0, 0.04),
+          end: Offset.zero,
+        ).animate(_fade),
+        child: _Body(
+          icon: widget.icon,
+          title: widget.title,
+          description: description,
+          actionLabel: actionLabel,
+          onAction: onAction,
+          colors: colors,
+        ),
+      ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  const _Body({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.actionLabel,
+    required this.onAction,
+    required this.colors,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? description;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final AppColors colors;
+
+  @override
+  Widget build(BuildContext context) {
     final description = this.description;
     final actionLabel = this.actionLabel;
     final onAction = this.onAction;

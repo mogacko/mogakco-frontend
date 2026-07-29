@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/utils/haptics.dart';
 import '../../../../shared/utils/relative_time.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 import '../../domain/post.dart';
@@ -161,7 +162,11 @@ class _PopularMark extends StatelessWidget {
 /// 누를 수 있는 좋아요.
 ///
 /// 목록에서 바로 누를 수 있어야 한다. 글을 열고 다시 나오는 걸음이 사라진다.
-class _LikeButton extends StatelessWidget {
+///
+/// 누르는 순간 하트가 한 번 부푼다. 목록 한가운데서 일어나는 일이라 색만
+/// 바뀌면 눌렸는지 모르고 한 번 더 누르게 된다. 켤 때만 부풀리고 끌 때는
+/// 그냥 꺼진다. 취소는 축하할 일이 아니다.
+class _LikeButton extends StatefulWidget {
   const _LikeButton({
     required this.liked,
     required this.count,
@@ -173,16 +178,59 @@ class _LikeButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_LikeButton> createState() => _LikeButtonState();
+}
+
+class _LikeButtonState extends State<_LikeButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 260),
+    vsync: this,
+  );
+
+  /// 커졌다가 제자리로. 끝에서 살짝 넘어갔다 돌아와야 튕기는 맛이 난다.
+  late final Animation<double> _scale = TweenSequence<double>([
+    TweenSequenceItem(
+      tween: Tween<double>(
+        begin: 1,
+        end: 1.32,
+      ).chain(CurveTween(curve: Curves.easeOut)),
+      weight: 40,
+    ),
+    TweenSequenceItem(
+      tween: Tween<double>(
+        begin: 1.32,
+        end: 1,
+      ).chain(CurveTween(curve: Curves.easeOutBack)),
+      weight: 60,
+    ),
+  ]).animate(_controller);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap() {
+    if (!widget.liked) {
+      Haptics.toggle();
+      _controller.forward(from: 0);
+    }
+    widget.onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final color = liked ? colors.hot : colors.textTertiary;
+    final color = widget.liked ? colors.hot : colors.textTertiary;
 
     return Semantics(
       button: true,
-      selected: liked,
+      selected: widget.liked,
       label: '좋아요',
       child: InkWell(
-        onTap: onTap,
+        onTap: _onTap,
         borderRadius: BorderRadius.circular(AppRadius.sm),
         child: Padding(
           // 아이콘만으로는 손가락이 닿기에 좁다. 눌리는 자리를 넓혀 둔다.
@@ -193,14 +241,19 @@ class _LikeButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                size: AppSize.iconSm - 2,
-                color: color,
+              ScaleTransition(
+                scale: _scale,
+                child: Icon(
+                  widget.liked
+                      ? CupertinoIcons.heart_fill
+                      : CupertinoIcons.heart,
+                  size: AppSize.iconSm - 2,
+                  color: color,
+                ),
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                '$count',
+                '${widget.count}',
                 style: context.texts.labelSmall?.copyWith(color: color),
               ),
             ],

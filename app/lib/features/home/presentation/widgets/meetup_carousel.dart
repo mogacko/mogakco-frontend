@@ -375,27 +375,36 @@ class _JoinButton extends StatelessWidget {
     return Semantics(
       button: true,
       selected: joined,
-      child: Material(
-        color: background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.full),
-          side: joined && !blocked
-              ? BorderSide(color: Colors.white.withValues(alpha: 0.75))
-              : BorderSide.none,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: blocked ? null : onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.xl,
-              vertical: AppSpacing.md - 1,
-            ),
-            child: Text(
-              label,
-              style: context.texts.labelMedium?.copyWith(
-                color: foreground,
-                fontWeight: FontWeight.w600,
+      // 결정이 반영된 순간이 눈에 보여야 한다. 흰 버튼이 한 번에 투명하게
+      // 바뀌면 화면이 튄 것처럼 보이고, 방금 누른 것과 이어지지 않는다.
+      // 상태가 통째로 갈리므로 겹쳐 넘긴다.
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        child: Material(
+          // 라벨이 바뀔 때만 새 자식으로 친다. 인원수가 바뀌었다고 버튼이
+          // 다시 넘어가면 이유 없이 어지럽다.
+          key: ValueKey(label),
+          color: background,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.full),
+            side: joined && !blocked
+                ? BorderSide(color: Colors.white.withValues(alpha: 0.75))
+                : BorderSide.none,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: blocked ? null : onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.md - 1,
+              ),
+              child: Text(
+                label,
+                style: context.texts.labelMedium?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

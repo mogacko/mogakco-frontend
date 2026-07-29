@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../utils/haptics.dart';
 
 /// 확인 시트의 성격.
 ///
@@ -105,7 +106,12 @@ class _ConfirmSheet extends StatelessWidget {
               style: tone == ConfirmTone.danger
                   ? FilledButton.styleFrom(backgroundColor: colors.danger)
                   : null,
-              onPressed: () => Navigator.of(context).pop(true),
+              // 결정이 확정되는 지점이 여기 한 곳이라 손끝 확인도 여기서 준다.
+              // 부르는 쪽마다 넣으면 빠뜨리는 자리가 생긴다.
+              onPressed: () {
+                Haptics.decide();
+                Navigator.of(context).pop(true);
+              },
               child: Text(confirmLabel),
             ),
             const SizedBox(height: AppSpacing.xs),
