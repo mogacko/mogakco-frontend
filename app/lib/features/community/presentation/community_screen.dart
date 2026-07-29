@@ -13,26 +13,31 @@ import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../domain/post.dart';
 import 'post_provider.dart';
+import 'widgets/board_menu.dart';
 import 'widgets/post_card.dart';
 
 /// 커뮤니티 탭.
+///
+/// 게시판은 상단 제목에서 바꾸고, 이야기 게시판 안의 분류는 그 아래 필터에서
+/// 좁힌다. 둘을 같은 줄에 놓으면 무엇이 무엇을 좁히는지 흐려진다.
 ///
 /// 지금 보고 있는 지역의 글만 나온다. 지역은 홈 헤더에서 바꾼다.
 class CommunityScreen extends ConsumerWidget {
   const CommunityScreen({super.key});
 
-  /// 필터 항목. 맨 앞의 null 이 '전체'다.
+  /// 분류 필터 항목. 맨 앞의 null 이 '전체'다.
   static const _filters = <PostCategory?>[null, ...PostCategory.values];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final now = ref.watch(nowProvider);
+    final board = ref.watch(postBoardProvider);
     final posts = ref.watch(visiblePostsProvider);
     final selected = ref.watch(postFilterProvider);
     final counts = ref.watch(postCountsProvider);
     final popular = ref.watch(popularPostIdsProvider);
-    final total = ref.watch(chapterPostsProvider).length;
+    final total = ref.watch(boardPostsProvider).length;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -41,34 +46,42 @@ class CommunityScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ScreenHeader(
-              title: '커뮤니티',
+            ScreenHeader.custom(
+              titleWidget: BoardMenu(
+                current: board,
+                onSelected: (board) =>
+                    ref.read(postBoardProvider.notifier).select(board),
+              ),
               actions: [
                 HeaderAction(
                   icon: CupertinoIcons.search,
                   label: '글 검색',
                   onTap: () => showComingSoon(context, '검색'),
                 ),
-                HeaderAction(
-                  icon: CupertinoIcons.square_pencil,
-                  label: '글쓰기',
-                  emphasized: true,
-                  onTap: () => showComingSoon(context, '글쓰기'),
-                ),
+                // 공지는 운영진만 올린다. 쓸 수 없는 자리에 버튼을 두면
+                // 눌러보고 나서야 안 된다는 걸 알게 된다.
+                if (board.isWritable)
+                  HeaderAction(
+                    icon: CupertinoIcons.square_pencil,
+                    label: '글쓰기',
+                    emphasized: true,
+                    onTap: () => showComingSoon(context, '글쓰기'),
+                  ),
               ],
             ),
-            // 분류는 목록과 함께 밀려 올라가지 않게 붙여 둔다. 아래로 한참
-            // 내려간 뒤에 분류를 바꾸려고 맨 위까지 되돌아가는 일이 없다.
-            FilterBar<PostCategory?>(
-              options: _filters,
-              selected: selected,
-              labelOf: (category) => category?.label ?? '전체',
-              countOf: (category) =>
-                  category == null ? total : (counts[category] ?? 0),
-              onSelect: (category) =>
-                  ref.read(postFilterProvider.notifier).select(category),
-            ),
-            const SizedBox(height: AppSpacing.sm),
+            // 공지와 질문에는 분류가 없다. 빈 필터 줄을 남기지 않는다.
+            if (board.hasCategories) ...[
+              FilterBar<PostCategory?>(
+                options: _filters,
+                selected: selected,
+                labelOf: (category) => category?.label ?? '전체',
+                countOf: (category) =>
+                    category == null ? total : (counts[category] ?? 0),
+                onSelect: (category) =>
+                    ref.read(postFilterProvider.notifier).select(category),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             // 글은 카드로 쪼개지 않는다. 열 편 넘게 이어지는 자리라 카드마다
             // 테두리가 붙으면 글보다 상자가 먼저 보인다. 대신 목록 전체를
             // 흰 면 하나에 올려 다른 탭의 카드와 같은 높이에 둔다. 글자가
@@ -84,7 +97,7 @@ class CommunityScreen extends ConsumerWidget {
                       ? Center(
                           child: SingleChildScrollView(
                             physics: alwaysScrollable,
-                            child: _Empty(category: selected),
+                            child: _Empty(board: board, category: selected),
                           ),
                         )
                       : ListView.separated(
@@ -125,14 +138,16 @@ class CommunityScreen extends ConsumerWidget {
 }
 
 class _Empty extends StatelessWidget {
-  const _Empty({required this.category});
+  const _Empty({required this.board, required this.category});
 
-  /// 어떤 분류를 보다가 비었는지. null 이면 지역 전체가 비어 있다.
+  final PostBoard board;
+
+  /// 이야기 게시판에서 어떤 분류를 보다가 비었는지. null 이면 게시판이 비었다.
   final PostCategory? category;
 
   @override
   Widget build(BuildContext context) {
-    // 분류를 좁혀서 빈 것과 아무 글도 없는 것은 다른 상황이다.
+    // 분류를 좁혀서 빈 것과 게시판 자체가 빈 것은 다른 상황이다.
     // 앞은 필터를 풀면 되고, 뒤는 첫 글을 써야 한다.
     if (category != null) {
       return EmptyState(
@@ -142,12 +157,27 @@ class _Empty extends StatelessWidget {
       );
     }
 
-    return EmptyState(
-      icon: CupertinoIcons.bubble_left_bubble_right,
-      title: '첫 글을 기다리고 있어요',
-      description: '질문이든 기록이든 편하게 남겨주세요',
-      actionLabel: '글쓰기',
-      onAction: () => showComingSoon(context, '글쓰기'),
-    );
+    return switch (board) {
+      // 공지는 운영진이 올린다. 사용자가 지금 할 수 있는 일이 없다.
+      PostBoard.notice => const EmptyState(
+        icon: CupertinoIcons.speaker_2,
+        title: '아직 올라온 공지가 없어요',
+        description: '알려드릴 일이 생기면 여기에 적어둘게요',
+      ),
+      PostBoard.question => EmptyState(
+        icon: CupertinoIcons.question_circle,
+        title: '첫 질문을 기다리고 있어요',
+        description: '막히는 부분이 있으면 편하게 물어보세요',
+        actionLabel: '질문하기',
+        onAction: () => showComingSoon(context, '글쓰기'),
+      ),
+      PostBoard.talk => EmptyState(
+        icon: CupertinoIcons.bubble_left_bubble_right,
+        title: '첫 글을 기다리고 있어요',
+        description: '후기든 기록이든 편하게 남겨주세요',
+        actionLabel: '글쓰기',
+        onAction: () => showComingSoon(context, '글쓰기'),
+      ),
+    };
   }
 }

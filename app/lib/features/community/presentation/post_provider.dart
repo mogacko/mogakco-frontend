@@ -62,7 +62,28 @@ final chapterPostsProvider = Provider<List<Post>>((ref) {
       .toList();
 });
 
-/// 고른 분류. null 이면 전체.
+/// 지금 보고 있는 게시판. 상단 제목에서 바꾼다.
+class PostBoardSelection extends Notifier<PostBoard> {
+  @override
+  PostBoard build() => PostBoard.talk;
+
+  void select(PostBoard board) => state = board;
+}
+
+final postBoardProvider = NotifierProvider<PostBoardSelection, PostBoard>(
+  PostBoardSelection.new,
+);
+
+/// 지금 게시판의 글
+final boardPostsProvider = Provider<List<Post>>((ref) {
+  final board = ref.watch(postBoardProvider);
+  return ref
+      .watch(chapterPostsProvider)
+      .where((post) => post.board == board)
+      .toList();
+});
+
+/// 이야기 게시판에서 고른 분류. null 이면 전체.
 class PostFilter extends Notifier<PostCategory?> {
   @override
   PostCategory? build() => null;
@@ -76,18 +97,25 @@ final postFilterProvider = NotifierProvider<PostFilter, PostCategory?>(
 
 /// 커뮤니티 탭에 뿌릴 글
 final visiblePostsProvider = Provider<List<Post>>((ref) {
-  final category = ref.watch(postFilterProvider);
-  final posts = ref.watch(chapterPostsProvider);
+  final board = ref.watch(postBoardProvider);
+  final posts = ref.watch(boardPostsProvider);
 
+  // 공지와 질문은 분류가 없다. 필터를 걸 것도 없다.
+  if (!board.hasCategories) return posts;
+
+  final category = ref.watch(postFilterProvider);
   if (category == null) return posts;
   return posts.where((post) => post.category == category).toList();
 });
 
-/// 분류별 글 개수. 필터 알약에 붙여 빈 분류를 눌러보게 두지 않는다.
+/// 이야기 게시판의 분류별 글 개수.
+/// 필터 알약에 붙여 빈 분류를 눌러보게 두지 않는다.
 final postCountsProvider = Provider<Map<PostCategory, int>>((ref) {
   final counts = <PostCategory, int>{};
-  for (final post in ref.watch(chapterPostsProvider)) {
-    counts[post.category] = (counts[post.category] ?? 0) + 1;
+  for (final post in ref.watch(boardPostsProvider)) {
+    final category = post.category;
+    if (category == null) continue;
+    counts[category] = (counts[category] ?? 0) + 1;
   }
   return counts;
 });
@@ -101,12 +129,16 @@ const _popularThreshold = 20;
 /// 홈에 세울 인기글.
 ///
 /// 최근 것 위주로 본다. 지난달 글이 계속 1등이면 커뮤니티가 멈춰 보인다.
+///
+/// 공지는 뺀다. 운영진이 올린 글이라 반응이 많이 붙기 마련이라 그대로 두면
+/// 인기글 자리를 공지가 차지한다. 그건 인기가 아니라 공지다.
 final popularPostsProvider = Provider<List<Post>>((ref) {
   final now = ref.watch(nowProvider);
 
   final recent =
       ref
           .watch(chapterPostsProvider)
+          .where((post) => post.board != PostBoard.notice)
           .where((post) => now.difference(post.createdAt).inDays < 7)
           .where((post) => post.engagement >= _popularThreshold)
           .toList()

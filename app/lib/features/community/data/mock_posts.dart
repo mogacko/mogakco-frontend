@@ -13,10 +13,39 @@ abstract final class MockPosts {
     DateTime ago(Duration duration) => now.subtract(duration);
 
     return [
+      // ── 공지 ──────────────────────────────────────────────
       Post(
-        id: 'busan-p1',
+        id: 'busan-n1',
         chapter: Chapter.busan,
-        category: PostCategory.question,
+        board: PostBoard.notice,
+        title: '8월 정기 모각코 장소가 바뀝니다',
+        excerpt:
+            '모모스커피 온천장이 8월 한 달간 내부 공사에 들어갑니다. '
+            '그동안은 카페 오리진 2층으로 모입니다. 자리는 미리 잡아두겠습니다.',
+        author: '운영진',
+        createdAt: ago(const Duration(hours: 5)),
+        likeCount: 24,
+        commentCount: 6,
+      ),
+      Post(
+        id: 'busan-n2',
+        chapter: Chapter.busan,
+        board: PostBoard.notice,
+        title: '커뮤니티 이용 안내',
+        excerpt:
+            '홍보성 글과 특정인을 지목한 비방은 안내 없이 삭제됩니다. '
+            '모임 후기와 질문은 언제든 환영합니다.',
+        author: '운영진',
+        createdAt: ago(const Duration(days: 12)),
+        likeCount: 8,
+        commentCount: 1,
+      ),
+
+      // ── 질문 ──────────────────────────────────────────────
+      Post(
+        id: 'busan-q1',
+        chapter: Chapter.busan,
+        board: PostBoard.question,
         title: 'Flutter 웹에서 안전영역(safe area)이 0으로 잡히는데 정상인가요?',
         excerpt:
             'PWA로 홈 화면에 추가하고 보니 MediaQuery.padding.bottom이 계속 0이더라고요. '
@@ -27,8 +56,24 @@ abstract final class MockPosts {
         commentCount: 8,
       ),
       Post(
-        id: 'busan-p2',
+        id: 'busan-q2',
         chapter: Chapter.busan,
+        board: PostBoard.question,
+        title: 'Spring Boot 3.x에서 QueryDSL 설정이 자꾸 깨집니다',
+        excerpt:
+            'Gradle 8로 올리고 나서 Q클래스가 생성이 안 되네요. '
+            'annotationProcessor 경로 문제인 것 같은데 해결하신 분 있나요?',
+        author: '지훈',
+        createdAt: ago(const Duration(days: 2, hours: 5)),
+        likeCount: 14,
+        commentCount: 6,
+      ),
+
+      // ── 이야기 ────────────────────────────────────────────
+      Post(
+        id: 'busan-t1',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
         category: PostCategory.retrospective,
         title: '3개월 만에 첫 사이드 프로젝트 배포했습니다',
         excerpt:
@@ -41,8 +86,9 @@ abstract final class MockPosts {
         isLiked: true,
       ),
       Post(
-        id: 'busan-p3',
+        id: 'busan-t2',
         chapter: Chapter.busan,
+        board: PostBoard.talk,
         category: PostCategory.recruit,
         title: '토요일 알고리즘 스터디 같이 하실 분 (3명)',
         excerpt:
@@ -54,8 +100,9 @@ abstract final class MockPosts {
         commentCount: 21,
       ),
       Post(
-        id: 'busan-p4',
+        id: 'busan-t3',
         chapter: Chapter.busan,
+        board: PostBoard.talk,
         category: PostCategory.free,
         title: '온천장 근처 콘센트 많은 카페 추천받아요',
         excerpt:
@@ -66,21 +113,9 @@ abstract final class MockPosts {
         commentCount: 11,
       ),
       Post(
-        id: 'busan-p5',
+        id: 'busan-t4',
         chapter: Chapter.busan,
-        category: PostCategory.question,
-        title: 'Spring Boot 3.x에서 QueryDSL 설정이 자꾸 깨집니다',
-        excerpt:
-            'Gradle 8로 올리고 나서 Q클래스가 생성이 안 되네요. '
-            'annotationProcessor 경로 문제인 것 같은데 해결하신 분 있나요?',
-        author: '지훈',
-        createdAt: ago(const Duration(days: 2, hours: 5)),
-        likeCount: 14,
-        commentCount: 6,
-      ),
-      Post(
-        id: 'busan-p6',
-        chapter: Chapter.busan,
+        board: PostBoard.talk,
         category: PostCategory.free,
         title: '다들 모각코 오실 때 장비 뭐 챙기시나요',
         excerpt: '노트북 거치대까지 들고 다니려니 가방이 너무 무거워서요. 다들 어떻게 하시는지 궁금합니다.',
@@ -89,9 +124,36 @@ abstract final class MockPosts {
         likeCount: 3,
         commentCount: 9,
       ),
+
+      // ── 서울 ──────────────────────────────────────────────
       Post(
-        id: 'seoul-p1',
+        id: 'seoul-n1',
         chapter: Chapter.seoul,
+        board: PostBoard.notice,
+        title: '9월부터 성수 모각코가 주 2회로 늘어납니다',
+        excerpt: '수요일 저녁 자리가 추가됩니다. 장소와 시간은 모각코 탭에서 확인해주세요.',
+        author: '운영진',
+        createdAt: ago(const Duration(days: 1)),
+        likeCount: 31,
+        commentCount: 4,
+      ),
+      Post(
+        id: 'seoul-q1',
+        chapter: Chapter.seoul,
+        board: PostBoard.question,
+        title: 'React Query v5 마이그레이션 하신 분 계신가요',
+        excerpt:
+            'isLoading이 isPending으로 바뀌면서 손댈 곳이 생각보다 많네요. '
+            '한 번에 올리셨는지 아니면 나눠서 하셨는지 궁금합니다.',
+        author: '지우',
+        createdAt: ago(const Duration(days: 1, hours: 8)),
+        likeCount: 18,
+        commentCount: 12,
+      ),
+      Post(
+        id: 'seoul-t1',
+        chapter: Chapter.seoul,
+        board: PostBoard.talk,
         category: PostCategory.retrospective,
         title: '이직 준비 6개월 회고 — 결국 붙었습니다',
         excerpt:
@@ -103,21 +165,9 @@ abstract final class MockPosts {
         commentCount: 34,
       ),
       Post(
-        id: 'seoul-p2',
+        id: 'seoul-t2',
         chapter: Chapter.seoul,
-        category: PostCategory.question,
-        title: 'React Query v5 마이그레이션 하신 분 계신가요',
-        excerpt:
-            'isLoading이 isPending으로 바뀌면서 손댈 곳이 생각보다 많네요. '
-            '한 번에 올리셨는지 아니면 나눠서 하셨는지 궁금합니다.',
-        author: '지우',
-        createdAt: ago(const Duration(days: 1, hours: 8)),
-        likeCount: 18,
-        commentCount: 12,
-      ),
-      Post(
-        id: 'seoul-p3',
-        chapter: Chapter.seoul,
+        board: PostBoard.talk,
         category: PostCategory.recruit,
         title: '사이드 프로젝트 디자이너 한 분 찾습니다',
         excerpt:
@@ -129,8 +179,9 @@ abstract final class MockPosts {
         commentCount: 17,
       ),
       Post(
-        id: 'seoul-p4',
+        id: 'seoul-t3',
         chapter: Chapter.seoul,
+        board: PostBoard.talk,
         category: PostCategory.free,
         title: '합정 스터디홀 새로 생긴 곳 다녀왔습니다',
         excerpt: '자리마다 콘센트 있고 조용해서 좋더라고요. 다만 주말은 예약 필수인 것 같습니다.',

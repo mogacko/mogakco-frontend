@@ -35,6 +35,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final category = post.category;
 
     return InkWell(
       onTap: onTap,
@@ -48,10 +49,15 @@ class PostCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                _CategoryLabel(category: post.category),
-                if (isPopular) ...[
+                // 이야기 게시판에서만 붙는다. 공지·질문 게시판은 이미 그
+                // 자체로 무엇인지 분명해 한 번 더 적을 이유가 없다.
+                if (category != null) ...[
+                  _CategoryLabel(category: category),
                   const SizedBox(width: AppSpacing.sm),
+                ],
+                if (isPopular) ...[
                   const _PopularMark(),
+                  const SizedBox(width: AppSpacing.sm),
                 ],
                 const Spacer(),
                 Text(

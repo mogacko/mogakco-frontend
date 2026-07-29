@@ -12,15 +12,29 @@ import '../../core/theme/app_theme.dart';
 /// 홈만 예외로 제목 대신 지역 워드마크를 세운다. 홈에서는 화면 이름보다
 /// 어느 지역을 보고 있는지가 먼저 필요해서다.
 class ScreenHeader extends StatelessWidget {
-  const ScreenHeader({super.key, required this.title, this.actions = const []});
+  const ScreenHeader({super.key, required String this.title, this.actions = const []})
+    : titleWidget = null;
 
-  final String title;
+  /// 제목 자리에 위젯을 직접 세운다.
+  ///
+  /// 커뮤니티처럼 제목이 곧 전환 버튼인 화면에 쓴다. 제목 글자 크기와 여백은
+  /// 세우는 쪽에서 맞춘다.
+  const ScreenHeader.custom({
+    super.key,
+    required Widget this.titleWidget,
+    this.actions = const [],
+  }) : title = null;
+
+  final String? title;
+  final Widget? titleWidget;
 
   /// 오른쪽 끝에 붙는 [HeaderAction] 들
   final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
+    final titleWidget = this.titleWidget;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screenHorizontal,
@@ -32,14 +46,20 @@ class ScreenHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.texts.headlineLarge,
+          if (titleWidget != null) ...[
+            // 누를 수 있는 제목은 글자만큼만 차지해야 옆 빈자리까지 눌리지
+            // 않는다. 남는 폭은 Spacer 가 가져간다.
+            titleWidget,
+            const Spacer(),
+          ] else
+            Expanded(
+              child: Text(
+                title!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.texts.headlineLarge,
+              ),
             ),
-          ),
           ...actions,
         ],
       ),

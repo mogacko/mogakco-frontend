@@ -8,6 +8,7 @@ void main() {
       return Post(
         id: 'p',
         chapter: Chapter.busan,
+        board: PostBoard.talk,
         category: PostCategory.free,
         title: '제목',
         excerpt: '본문',

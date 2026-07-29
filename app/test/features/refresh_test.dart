@@ -19,28 +19,28 @@ void main() {
   group('커뮤니티', () {
     test('새로 누른 좋아요가 새로고침 후에도 남는다', () async {
       final container = makeContainer();
-      // busan-p1 은 목업에서 눌려 있지 않다.
-      container.read(postFeedProvider.notifier).toggleLike('busan-p1');
+      // busan-q1 은 목업에서 눌려 있지 않다.
+      container.read(postFeedProvider.notifier).toggleLike('busan-q1');
 
       await container.read(postFeedProvider.notifier).refresh();
 
       final post = container
           .read(postFeedProvider)
-          .firstWhere((post) => post.id == 'busan-p1');
+          .firstWhere((post) => post.id == 'busan-q1');
       expect(post.isLiked, isTrue);
       expect(post.likeCount, 13);
     });
 
     test('취소한 좋아요가 새로고침으로 되살아나지 않는다', () async {
       final container = makeContainer();
-      // busan-p2 는 목업에서 이미 눌려 있다.
-      container.read(postFeedProvider.notifier).toggleLike('busan-p2');
+      // busan-t1 은 목업에서 이미 눌려 있다.
+      container.read(postFeedProvider.notifier).toggleLike('busan-t1');
 
       await container.read(postFeedProvider.notifier).refresh();
 
       final post = container
           .read(postFeedProvider)
-          .firstWhere((post) => post.id == 'busan-p2');
+          .firstWhere((post) => post.id == 'busan-t1');
       expect(post.isLiked, isFalse);
       expect(post.likeCount, 46);
     });

@@ -1,12 +1,33 @@
 import '../../../shared/domain/chapter.dart';
 
-/// 글의 분류.
+/// 커뮤니티 게시판.
 ///
-/// 커뮤니티에 올라오는 글은 성격이 꽤 다르다. 답을 기다리는 질문과 그냥
-/// 남기는 기록을 한 줄에 섞어 놓으면 둘 다 묻힌다.
+/// 성격이 다른 글을 한 줄에 섞으면 셋 다 묻힌다. 공지는 놓치면 안 되고,
+/// 질문은 답을 기다리며, 이야기는 그냥 읽는다. 읽는 마음가짐이 달라서
+/// 분류가 아니라 게시판으로 나눈다.
+enum PostBoard {
+  notice('공지'),
+  question('질문'),
+  talk('이야기');
+
+  const PostBoard(this.label);
+
+  final String label;
+
+  /// 글쓴이가 고르는 분류가 있는 게시판인지.
+  ///
+  /// 공지와 질문은 그 자체로 무엇인지 분명해 더 쪼갤 이유가 없다.
+  bool get hasCategories => this == PostBoard.talk;
+
+  /// 아무나 쓸 수 있는 게시판인지. 공지는 운영진만 올린다.
+  bool get isWritable => this != PostBoard.notice;
+}
+
+/// 이야기 게시판 안의 분류.
+///
+/// 질문은 여기 없다. 게시판으로 올라갔다.
 enum PostCategory {
   free('자유'),
-  question('질문'),
   retrospective('회고'),
   recruit('모집');
 
@@ -20,13 +41,14 @@ class Post {
   const Post({
     required this.id,
     required this.chapter,
-    required this.category,
+    required this.board,
     required this.title,
     required this.excerpt,
     required this.author,
     required this.createdAt,
     required this.likeCount,
     required this.commentCount,
+    this.category,
     this.authorAvatarUrl,
     this.isLiked = false,
   });
@@ -36,7 +58,10 @@ class Post {
   /// 글이 속한 지역. 커뮤니티는 지부별로 나뉜다.
   final Chapter chapter;
 
-  final PostCategory category;
+  final PostBoard board;
+
+  /// 이야기 게시판에서만 붙는다. 다른 게시판에서는 null.
+  final PostCategory? category;
 
   final String title;
 
@@ -71,6 +96,7 @@ class Post {
     return Post(
       id: id,
       chapter: chapter,
+      board: board,
       category: category,
       title: title,
       excerpt: excerpt,
