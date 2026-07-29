@@ -19,7 +19,7 @@ void main() {
       expect(AppTab.values.map((t) => t.label), [
         '홈',
         '커뮤니티',
-        '모임',
+        '모각코',
         '행사',
         '내 정보',
       ]);

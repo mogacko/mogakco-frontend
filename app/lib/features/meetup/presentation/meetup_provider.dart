@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_meetups.dart';
@@ -30,6 +31,37 @@ class MeetupList extends Notifier<List<Meetup>> {
       for (final meetup in state)
         if (meetup.id != meetupId) meetup else meetup.toggleSession(sessionId),
     ];
+  }
+
+  /// 당겨서 새로고침.
+  ///
+  /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 신청한 날도 응답에
+  /// 실려 오므로 아래 옮겨 담기는 지운다.
+  Future<void> refresh() async {
+    final joined = {
+      for (final meetup in state)
+        for (final session in meetup.sessions)
+          if (session.isJoined) session.id,
+    };
+
+    await Future<void>.delayed(mockNetworkDelay);
+
+    final now = ref.read(nowProvider);
+
+    state =
+        MockMeetups.from(now).where((meetup) => meetup.isThisWeek(now)).map((
+          meetup,
+        ) {
+          var restored = meetup;
+          for (final session in meetup.sessions) {
+            if (session.isJoined != joined.contains(session.id)) {
+              restored = restored.toggleSession(session.id);
+            }
+          }
+          return restored;
+        }).toList()..sort(
+          (a, b) => a.firstStartsAt.compareTo(b.firstStartsAt),
+        );
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_events.dart';
@@ -41,6 +42,34 @@ class EventList extends Notifier<List<Event>> {
         else
           event,
     ];
+  }
+
+  /// 당겨서 새로고침.
+  ///
+  /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 신청한 행사도 응답에
+  /// 실려 오므로 아래 옮겨 담기는 지운다.
+  Future<void> refresh() async {
+    final applied = {
+      for (final event in state)
+        if (event.isApplied) event.id,
+    };
+
+    await Future<void>.delayed(mockNetworkDelay);
+
+    final now = ref.read(nowProvider);
+
+    state =
+        MockEvents.from(now)
+            .where((event) => event.startsAt.isAfter(now))
+            .map((event) {
+              // 목업에도 미리 신청해 둔 행사가 있다. 한쪽으로만 맞추면
+              // 취소한 뒤 새로고침했을 때 신청이 되살아난다.
+              final mine = applied.contains(event.id);
+              if (event.isApplied == mine) return event;
+              return mine ? event.apply() : event.cancel();
+            })
+            .toList()
+          ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
   }
 }
 

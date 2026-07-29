@@ -17,7 +17,7 @@ void main() {
       await tester.pumpScreen(const MeetupScreen());
       await tester.pumpAndSettle();
 
-      expect(find.text('모임'), findsOneWidget);
+      expect(find.text('모각코'), findsOneWidget);
       // 부산 모임만 나온다.
       expect(find.text('모모스커피 온천장'), findsOneWidget);
       expect(find.text('카페 그리다'), findsNothing);

@@ -9,6 +9,7 @@ import '../../../shared/utils/korean_particle.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../domain/event.dart';
 import 'event_provider.dart';
@@ -51,30 +52,38 @@ class EventScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Expanded(
-              child: events.isEmpty
-                  // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                  ? Center(
-                      child: SingleChildScrollView(child: _Empty(kind: kind)),
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppBottomNav.contentInset(context) + AppSpacing.xl,
+              child: PullToRefresh(
+                onRefresh: () => ref.read(eventListProvider.notifier).refresh(),
+                child: events.isEmpty
+                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
+                    ? Center(
+                        child: SingleChildScrollView(
+                          physics: alwaysScrollable,
+                          child: _Empty(kind: kind),
+                        ),
+                      )
+                    : ListView.separated(
+                        physics: alwaysScrollable,
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        itemCount: events.length,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(height: AppSpacing.md),
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          return EventCard(
+                            event: event,
+                            now: now,
+                            onToggleApply: () => ref
+                                .read(eventListProvider.notifier)
+                                .toggleApply(event.id),
+                          );
+                        },
                       ),
-                      itemCount: events.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.md),
-                      itemBuilder: (context, index) {
-                        final event = events[index];
-                        return EventCard(
-                          event: event,
-                          now: now,
-                          onToggleApply: () => ref
-                              .read(eventListProvider.notifier)
-                              .toggleApply(event.id),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),

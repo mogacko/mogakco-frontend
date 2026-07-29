@@ -66,7 +66,7 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen>
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                '이제 모임을 둘러보고 참여할 수 있어요',
+                '이제 모각코를 둘러보고 참여할 수 있어요',
                 style: context.texts.bodyLarge?.copyWith(
                   color: colors.textSecondary,
                 ),

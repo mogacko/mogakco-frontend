@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
@@ -24,6 +25,29 @@ class PostFeed extends Notifier<List<Post>> {
       for (final post in state)
         if (post.id != postId) post else post.toggleLike(),
     ];
+  }
+
+  /// 당겨서 새로고침.
+  ///
+  /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 누른 좋아요도 응답에
+  /// 실려 오므로 아래 옮겨 담기는 지운다. 지금은 목업을 다시 읽으면 내가
+  /// 눌러 둔 것이 사라져서, 새로고침이 되돌리기처럼 보인다.
+  Future<void> refresh() async {
+    final liked = {
+      for (final post in state)
+        if (post.isLiked) post.id,
+    };
+
+    await Future<void>.delayed(mockNetworkDelay);
+
+    state =
+        MockPosts.from(ref.read(nowProvider)).map((post) {
+          // 목업에도 미리 눌러 둔 글이 있어서, 무조건 뒤집으면 어긋난다.
+          // 내 상태와 다를 때만 맞춘다.
+          final mine = liked.contains(post.id);
+          return post.isLiked == mine ? post : post.toggleLike();
+        }).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 }
 

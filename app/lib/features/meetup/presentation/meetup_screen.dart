@@ -9,6 +9,7 @@ import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/coming_soon.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import 'meetup_provider.dart';
 import 'widgets/meetup_list_card.dart';
@@ -36,13 +37,13 @@ class MeetupScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ScreenHeader(
-              title: '모임',
+              title: '모각코',
               actions: [
                 HeaderAction(
                   icon: CupertinoIcons.add,
-                  label: '모임 만들기',
+                  label: '모각코 만들기',
                   emphasized: true,
-                  onTap: () => showComingSoon(context, '모임 만들기'),
+                  onTap: () => showComingSoon(context, '모각코 만들기'),
                 ),
               ],
             ),
@@ -56,32 +57,39 @@ class MeetupScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Expanded(
-              child: meetups.isEmpty
-                  // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                  ? Center(
-                      child: SingleChildScrollView(
-                        child: _Empty(filter: filter),
+              child: PullToRefresh(
+                onRefresh: () =>
+                    ref.read(meetupListProvider.notifier).refresh(),
+                child: meetups.isEmpty
+                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
+                    ? Center(
+                        child: SingleChildScrollView(
+                          physics: alwaysScrollable,
+                          child: _Empty(filter: filter),
+                        ),
+                      )
+                    : ListView.separated(
+                        physics: alwaysScrollable,
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        itemCount: meetups.length,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(height: AppSpacing.md),
+                        itemBuilder: (context, index) {
+                          final meetup = meetups[index];
+                          return MeetupListCard(
+                            meetup: meetup,
+                            now: now,
+                            onToggleSession: (sessionId) => ref
+                                .read(meetupListProvider.notifier)
+                                .toggleSession(meetup.id, sessionId),
+                          );
+                        },
                       ),
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppBottomNav.contentInset(context) + AppSpacing.xl,
-                      ),
-                      itemCount: meetups.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.md),
-                      itemBuilder: (context, index) {
-                        final meetup = meetups[index];
-                        return MeetupListCard(
-                          meetup: meetup,
-                          now: now,
-                          onToggleSession: (sessionId) => ref
-                              .read(meetupListProvider.notifier)
-                              .toggleSession(meetup.id, sessionId),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),
@@ -103,19 +111,19 @@ class _Empty extends StatelessWidget {
       MeetupFilter.joined => const EmptyState(
         icon: CupertinoIcons.checkmark_circle,
         title: '아직 신청한 자리가 없어요',
-        description: '전체에서 이번 주에 열리는 모임을 볼 수 있어요',
+        description: '전체에서 이번 주에 열리는 모각코를 볼 수 있어요',
       ),
       MeetupFilter.recurring => const EmptyState(
         icon: CupertinoIcons.repeat,
-        title: '정기 모임이 아직 없어요',
-        description: '매주 같은 자리에서 열리는 모임이 생기면 여기 모여요',
+        title: '정기 모각코가 아직 없어요',
+        description: '매주 같은 자리에서 열리는 모각코가 생기면 여기 모여요',
       ),
       MeetupFilter.all => EmptyState(
         icon: CupertinoIcons.person_2,
-        title: '이번 주에 열리는 모임이 없어요',
+        title: '이번 주에 열리는 모각코가 없어요',
         description: '먼저 자리를 만들어 사람을 모아보세요',
-        actionLabel: '모임 만들기',
-        onAction: () => showComingSoon(context, '모임 만들기'),
+        actionLabel: '모각코 만들기',
+        onAction: () => showComingSoon(context, '모각코 만들기'),
       ),
     };
   }

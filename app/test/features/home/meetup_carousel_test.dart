@@ -54,7 +54,7 @@ void main() {
         ),
       );
 
-      expect(find.text('아직 열린 모임이 없어요'), findsOneWidget);
+      expect(find.text('아직 열린 모각코가 없어요'), findsOneWidget);
     });
 
     testWidgets('장소·주소와 그 날의 시각·인원을 보여준다', (tester) async {

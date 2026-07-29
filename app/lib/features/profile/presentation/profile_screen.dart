@@ -182,7 +182,7 @@ class _Stats extends ConsumerWidget {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            _StatCell(label: '참여 중인 모임', value: stats.joinedSessions),
+            _StatCell(label: '참여 중인 모각코', value: stats.joinedSessions),
             const _StatDivider(),
             _StatCell(label: '신청한 행사', value: stats.appliedEvents),
             const _StatDivider(),

@@ -16,7 +16,7 @@ enum AppTab {
     CupertinoIcons.bubble_left_bubble_right,
     CupertinoIcons.bubble_left_bubble_right_fill,
   ),
-  meetup('모임', CupertinoIcons.person_2, CupertinoIcons.person_2_fill),
+  meetup('모각코', CupertinoIcons.person_2, CupertinoIcons.person_2_fill),
   event('행사', CupertinoIcons.ticket, CupertinoIcons.ticket_fill),
   profile(
     '내 정보',

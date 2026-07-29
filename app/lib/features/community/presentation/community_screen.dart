@@ -9,6 +9,7 @@ import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/coming_soon.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../domain/post.dart';
 import 'post_provider.dart';
@@ -75,39 +76,45 @@ class CommunityScreen extends ConsumerWidget {
             Expanded(
               child: ColoredBox(
                 color: colors.surface,
-                child: posts.isEmpty
-                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                    ? Center(
-                        child: SingleChildScrollView(
-                          child: _Empty(category: selected),
+                child: PullToRefresh(
+                  onRefresh: () =>
+                      ref.read(postFeedProvider.notifier).refresh(),
+                  child: posts.isEmpty
+                      // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
+                      ? Center(
+                          child: SingleChildScrollView(
+                            physics: alwaysScrollable,
+                            child: _Empty(category: selected),
+                          ),
+                        )
+                      : ListView.separated(
+                          physics: alwaysScrollable,
+                          padding: EdgeInsets.only(
+                            bottom:
+                                AppBottomNav.contentInset(context) +
+                                AppSpacing.xl,
+                          ),
+                          itemCount: posts.length,
+                          separatorBuilder: (context, _) => Divider(
+                            height: 1,
+                            // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
+                            indent: AppSpacing.screenHorizontal,
+                            endIndent: AppSpacing.screenHorizontal,
+                            color: colors.border,
+                          ),
+                          itemBuilder: (context, index) {
+                            final post = posts[index];
+                            return PostCard(
+                              post: post,
+                              now: now,
+                              isPopular: popular.contains(post.id),
+                              onToggleLike: () => ref
+                                  .read(postFeedProvider.notifier)
+                                  .toggleLike(post.id),
+                            );
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              AppBottomNav.contentInset(context) +
-                              AppSpacing.xl,
-                        ),
-                        itemCount: posts.length,
-                        separatorBuilder: (context, _) => Divider(
-                          height: 1,
-                          // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
-                          indent: AppSpacing.screenHorizontal,
-                          endIndent: AppSpacing.screenHorizontal,
-                          color: colors.border,
-                        ),
-                        itemBuilder: (context, index) {
-                          final post = posts[index];
-                          return PostCard(
-                            post: post,
-                            now: now,
-                            isPopular: popular.contains(post.id),
-                            onToggleLike: () => ref
-                                .read(postFeedProvider.notifier)
-                                .toggleLike(post.id),
-                          );
-                        },
-                      ),
+                ),
               ),
             ),
           ],

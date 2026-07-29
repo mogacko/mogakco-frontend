@@ -467,7 +467,7 @@ class _EmptyState extends StatelessWidget {
             Icon(CupertinoIcons.calendar, size: 32, color: colors.textTertiary),
             const SizedBox(height: AppSpacing.md),
             Text(
-              '아직 열린 모임이 없어요',
+              '아직 열린 모각코가 없어요',
               style: context.texts.bodyLarge?.copyWith(
                 color: colors.textSecondary,
               ),

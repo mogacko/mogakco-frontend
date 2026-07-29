@@ -42,7 +42,7 @@ class _ChapterSelectScreenState extends State<ChapterSelectScreen> {
               const SizedBox(height: AppSpacing.md),
               Text(
                 // 길어지면 마지막 글자만 다음 줄로 떨어진다. 한 줄에 맞춰 줄였다.
-                '고른 지역의 모임이 먼저 보여요',
+                '고른 지역의 모각코가 먼저 보여요',
                 style: context.texts.bodyLarge?.copyWith(
                   color: colors.textSecondary,
                 ),
