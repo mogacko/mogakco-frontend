@@ -176,7 +176,7 @@ class _Stats extends ConsumerWidget {
       ),
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colors.surfaceAlt,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: IntrinsicHeight(

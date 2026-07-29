@@ -100,7 +100,7 @@ class _ChapterTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? colors.primary.withValues(alpha: 0.08)
-              : colors.surfaceAlt,
+              : colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
             color: selected ? colors.primary : colors.border,

@@ -29,7 +29,7 @@ class SignupProgress extends StatelessWidget {
                   duration: const Duration(milliseconds: 250),
                   height: 4,
                   decoration: BoxDecoration(
-                    color: i <= step ? colors.primary : colors.surfaceAlt,
+                    color: i <= step ? colors.primary : colors.border,
                     borderRadius: BorderRadius.circular(AppRadius.full),
                   ),
                 ),

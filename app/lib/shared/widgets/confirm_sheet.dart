@@ -135,7 +135,7 @@ class ConfirmSummary extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: colors.surfaceAlt,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: colors.border),
       ),

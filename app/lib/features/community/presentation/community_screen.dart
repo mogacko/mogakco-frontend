@@ -68,39 +68,47 @@ class CommunityScreen extends ConsumerWidget {
                   ref.read(postFilterProvider.notifier).select(category),
             ),
             const SizedBox(height: AppSpacing.sm),
+            // 글은 카드로 쪼개지 않는다. 열 편 넘게 이어지는 자리라 카드마다
+            // 테두리가 붙으면 글보다 상자가 먼저 보인다. 대신 목록 전체를
+            // 흰 면 하나에 올려 다른 탭의 카드와 같은 높이에 둔다. 글자가
+            // 놓이는 바탕이 바뀌지 않아 길게 읽어도 눈이 덜 흔들린다.
             Expanded(
-              child: posts.isEmpty
-                  // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                  ? Center(
-                      child: SingleChildScrollView(
-                        child: _Empty(category: selected),
+              child: ColoredBox(
+                color: colors.surface,
+                child: posts.isEmpty
+                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
+                    ? Center(
+                        child: SingleChildScrollView(
+                          child: _Empty(category: selected),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        itemCount: posts.length,
+                        separatorBuilder: (context, _) => Divider(
+                          height: 1,
+                          // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
+                          indent: AppSpacing.screenHorizontal,
+                          endIndent: AppSpacing.screenHorizontal,
+                          color: colors.border,
+                        ),
+                        itemBuilder: (context, index) {
+                          final post = posts[index];
+                          return PostCard(
+                            post: post,
+                            now: now,
+                            isPopular: popular.contains(post.id),
+                            onToggleLike: () => ref
+                                .read(postFeedProvider.notifier)
+                                .toggleLike(post.id),
+                          );
+                        },
                       ),
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppBottomNav.contentInset(context) + AppSpacing.xl,
-                      ),
-                      itemCount: posts.length,
-                      separatorBuilder: (context, _) => Divider(
-                        height: 1,
-                        // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
-                        indent: AppSpacing.screenHorizontal,
-                        endIndent: AppSpacing.screenHorizontal,
-                        color: colors.border,
-                      ),
-                      itemBuilder: (context, index) {
-                        final post = posts[index];
-                        return PostCard(
-                          post: post,
-                          now: now,
-                          isPopular: popular.contains(post.id),
-                          onToggleLike: () => ref
-                              .read(postFeedProvider.notifier)
-                              .toggleLike(post.id),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),

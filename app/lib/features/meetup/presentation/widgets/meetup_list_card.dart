@@ -43,7 +43,7 @@ class MeetupListCard extends StatelessWidget {
       // Material 로 세우는 이유는 안에 눌리는 줄이 있어서다. 잉크 효과는
       // 가장 가까운 Material 이 그 모양대로 잘라 그린다.
       child: Material(
-        color: colors.surfaceAlt,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -287,8 +287,8 @@ class _JoinPill extends StatelessWidget {
 
     final (label, background, foreground) = switch ((joined, blocked)) {
       (true, _) => ('참여 중', colors.primary, colors.primaryForeground),
-      (_, true) => ('마감', colors.surface, colors.textTertiary),
-      _ => ('신청', colors.surface, colors.primary),
+      (_, true) => ('마감', colors.surfaceAlt, colors.textTertiary),
+      _ => ('신청', colors.surfaceAlt, colors.primary),
     };
 
     return Container(

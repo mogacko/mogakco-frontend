@@ -43,7 +43,7 @@ class SettingsGroup extends StatelessWidget {
         // 잘라 그리므로, 바깥에 ClipRRect 를 둘러도 눌린 자국이 둥근 모서리를
         // 삐져나온다.
         Material(
-          color: colors.surfaceAlt,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           clipBehavior: Clip.antiAlias,
           child: Column(

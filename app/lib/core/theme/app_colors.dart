@@ -20,13 +20,19 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.hot,
   });
 
-  /// 화면 최하단 배경
+  /// 화면 바탕.
+  ///
+  /// 라이트에서도 순백이 아니다. 카드까지 흰색이면 둘이 붙어 보여서 무엇이
+  /// 떠 있는 것인지 구분되지 않는다. 한 단계 낮춰 깔아야 위에 올린 것이 뜬다.
   final Color background;
 
-  /// 카드·시트 등 배경 위에 올라가는 면
+  /// 바탕 위로 떠오르는 면. 카드·시트·메뉴.
   final Color surface;
 
-  /// 입력창·비활성 칩처럼 한 단계 눌린 면
+  /// 카드 안에서 한 단계 눌린 면. 입력창·비활성 칩·달력 칸.
+  ///
+  /// 라이트에서는 카드보다 어둡고 다크에서는 밝다. 어느 쪽이든 카드에서
+  /// 물러나 보이는 방향이다.
   final Color surfaceAlt;
 
   final Color border;
@@ -55,10 +61,10 @@ class AppColors extends ThemeExtension<AppColors> {
   static const brandBlueDark = Color(0xFF8DA2FF);
 
   static const light = AppColors(
-    background: Color(0xFFFFFFFF),
+    background: Color(0xFFF5F6F8),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF4F5F7),
-    border: Color(0xFFE4E7EC),
+    surfaceAlt: Color(0xFFEBEEF3),
+    border: Color(0xFFE1E5EC),
     textPrimary: Color(0xFF13161C),
     textSecondary: Color(0xFF667085),
     textTertiary: Color(0xFF98A2B3),
@@ -70,10 +76,10 @@ class AppColors extends ThemeExtension<AppColors> {
   );
 
   static const dark = AppColors(
-    background: Color(0xFF0F1115),
-    surface: Color(0xFF161920),
-    surfaceAlt: Color(0xFF1E222B),
-    border: Color(0xFF2A2F3A),
+    background: Color(0xFF0E1013),
+    surface: Color(0xFF181C23),
+    surfaceAlt: Color(0xFF232833),
+    border: Color(0xFF282D38),
     textPrimary: Color(0xFFF2F4F7),
     textSecondary: Color(0xFF98A2B3),
     textTertiary: Color(0xFF667085),

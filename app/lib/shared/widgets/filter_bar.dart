@@ -76,7 +76,7 @@ class _FilterPill extends StatelessWidget {
     final colors = context.colors;
     final count = this.count;
 
-    final background = selected ? colors.primary : colors.surfaceAlt;
+    final background = selected ? colors.primary : colors.surface;
     final foreground = selected ? colors.primaryForeground : colors.textSecondary;
 
     return Semantics(

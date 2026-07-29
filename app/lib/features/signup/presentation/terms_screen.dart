@@ -114,7 +114,7 @@ class _AgreeAllTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: value
               ? colors.primary.withValues(alpha: 0.08)
-              : colors.surfaceAlt,
+              : colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: value ? colors.primary : colors.border),
         ),

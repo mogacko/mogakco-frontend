@@ -246,7 +246,7 @@ class _SuggestionChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadius.full),
       child: Ink(
         decoration: BoxDecoration(
-          color: colors.surfaceAlt,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.full),
           border: Border.all(
             color: isCreate ? colors.primary : colors.border,

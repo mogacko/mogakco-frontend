@@ -39,7 +39,7 @@ class EventCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colors.surfaceAlt,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Column(
@@ -167,8 +167,8 @@ class _ApplyButton extends StatelessWidget {
     final (background, foreground) = switch ((applied, blocked)) {
       // 신청을 마친 뒤에는 그 사실을 알리기만 하면 된다. 채운 버튼으로 두면
       // 아직 할 일이 남은 것처럼 계속 재촉한다.
-      (true, _) => (colors.surface, colors.primary),
-      (_, true) => (colors.surface, colors.textTertiary),
+      (true, _) => (colors.surfaceAlt, colors.primary),
+      (_, true) => (colors.surfaceAlt, colors.textTertiary),
       _ => (colors.primary, colors.primaryForeground),
     };
 

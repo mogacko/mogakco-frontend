@@ -267,7 +267,7 @@ class _AvatarPicker extends StatelessWidget {
             width: _size,
             height: _size,
             decoration: BoxDecoration(
-              color: colors.surfaceAlt,
+              color: colors.surface,
               shape: BoxShape.circle,
               border: Border.all(color: colors.border),
             ),

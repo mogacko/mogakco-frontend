@@ -31,7 +31,7 @@ class MobileFrame extends StatelessWidget {
 
     return ColoredBox(
       // 앱 바깥이라는 게 드러나야 폭이 좁은 게 의도로 읽힌다.
-      color: colors.surfaceAlt,
+      color: colors.border,
       child: Center(
         child: SizedBox(
           width: width,

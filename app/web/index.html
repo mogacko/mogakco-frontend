@@ -17,8 +17,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- 부팅 화면 배경과 맞춰야 주소창까지 한 덩어리로 보인다 -->
-  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0F1115" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0E1013" media="(prefers-color-scheme: dark)">
 
   <!-- iOS 홈 화면 추가 시 적용되는 설정 -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -38,7 +38,7 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background: #FFFFFF;
+      background: #F5F6F8;
     }
 
     /*
@@ -52,7 +52,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #FFFFFF;
+      background: #F5F6F8;
       color: #4C6EF5;
       opacity: 1;
       transition: opacity 250ms ease-out;
@@ -73,9 +73,10 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      html, body { background: #0F1115; }
+      html, body { background: #0E1013; }
       #boot-splash {
-        background: #0F1115;
+        background: #0E1013;
+        /* 로고는 순백이다. 바탕색을 낮춰도 여기는 따라가지 않는다. */
         color: #FFFFFF;
       }
     }

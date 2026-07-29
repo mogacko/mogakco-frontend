@@ -36,7 +36,7 @@ class EventDateBlock extends StatelessWidget {
       decoration: compact
           ? null
           : BoxDecoration(
-              color: colors.surface,
+              color: colors.surfaceAlt,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
       child: Column(

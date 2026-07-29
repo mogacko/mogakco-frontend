@@ -447,7 +447,7 @@ class _EmptyState extends StatelessWidget {
         horizontal: AppSpacing.screenHorizontal,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceAlt,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(color: colors.border),
       ),

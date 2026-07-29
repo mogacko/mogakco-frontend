@@ -49,10 +49,13 @@ class EmptyState extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: colors.surfaceAlt,
+              // 바탕 위에 바로 놓여서 회색 면으로는 거의 드러나지 않는다.
+              // 브랜드 색을 옅게 깔면 두 테마 모두에서 또렷하고, 빈 화면이
+              // 고장 난 게 아니라 만들어 둔 자리처럼 보인다.
+              color: colors.primary.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 28, color: colors.textTertiary),
+            child: Icon(icon, size: 28, color: colors.primary),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(

@@ -19,7 +19,7 @@ class TagChip extends StatelessWidget {
     final colors = context.colors;
 
     final (background, foreground) = switch (tone) {
-      TagTone.neutral => (colors.surfaceAlt, colors.textSecondary),
+      TagTone.neutral => (colors.surface, colors.textSecondary),
       // 브랜드 색을 옅게 깔고 글자만 진하게 둔다. 채운 알약은 버튼처럼
       // 보여서, 누를 수 없는 태그에는 쓰지 않는다.
       TagTone.brand => (
