@@ -4,7 +4,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/event.dart';
 import 'event_apply_sheet.dart';
-import 'event_date_block.dart';
+import 'event_poster.dart';
 
 /// 행사 탭에 놓이는 행사 하나.
 ///
@@ -48,7 +48,7 @@ class EventCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              EventDateBlock(date: event.startsAt),
+              EventPoster(event: event),
               const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
@@ -63,6 +63,17 @@ class EventCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        // 포스터가 왼쪽 자리를 가져갔으므로 날짜를 여기서
+                        // 말한다. 포스터가 없으면 날짜 칸이 그대로 있다.
+                        if (event.posterUrl != null) ...[
+                          Text(' · ', style: context.texts.labelSmall),
+                          Text(
+                            event.shortDateLabel,
+                            style: context.texts.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                         const Spacer(),
                         _Dday(event: event, now: now),
                       ],

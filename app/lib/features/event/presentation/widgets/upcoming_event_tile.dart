@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/event.dart';
-import 'event_date_block.dart';
+import 'event_poster.dart';
 
 /// 홈에 세우는 다가오는 행사 한 줄.
 ///
@@ -36,7 +36,7 @@ class UpcomingEventTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            EventDateBlock(date: event.startsAt, compact: true),
+            EventPoster(event: event, compact: true),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
@@ -44,6 +44,17 @@ class UpcomingEventTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
+                      // 포스터가 왼쪽 자리를 가져갔으므로 날짜를 여기서 말한다.
+                      // 포스터가 없는 행사는 날짜 칸이 그대로라 여기서는 뺀다.
+                      if (event.posterUrl != null) ...[
+                        Text(
+                          event.shortDateLabel,
+                          style: context.texts.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(' · ', style: context.texts.labelSmall),
+                      ],
                       Text(
                         event.kind.label,
                         style: context.texts.labelSmall?.copyWith(
@@ -51,7 +62,7 @@ class UpcomingEventTile extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(' · ', style: context.texts.labelSmall),
+                      const Spacer(),
                       Text(
                         event.ddayLabel(now),
                         style: context.texts.labelSmall?.copyWith(

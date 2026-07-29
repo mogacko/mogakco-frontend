@@ -10,6 +10,17 @@ import '../../../../core/theme/app_theme.dart';
 class EventDateBlock extends StatelessWidget {
   const EventDateBlock({super.key, required this.date, this.compact = false});
 
+  /// 포스터가 이 자리를 대신하므로 크기를 못 박아 둔다.
+  ///
+  /// 내용에 맡기면 세로가 68 쯤 되는데, 포스터를 정사각으로 잡으면 이미지가
+  /// 붙는 순간 줄 높이가 튄다. 둘이 같은 상자를 쓰게 해서 무엇이 오든
+  /// 자리가 흔들리지 않게 한다.
+  static const regularSize = Size(52, 68);
+  static const compactSize = Size(44, 58);
+
+  static Size sizeOf({required bool compact}) =>
+      compact ? compactSize : regularSize;
+
   final DateTime date;
 
   /// 홈처럼 좁은 자리에 놓을 때. 폭과 글자를 한 단계 줄이고 면을 깔지 않는다.
@@ -28,42 +39,48 @@ class EventDateBlock extends StatelessWidget {
     // 토·일은 달력에서 하듯 색을 달리한다. 주말인지가 갈 수 있는지를 가른다.
     final isWeekend = date.weekday >= 6;
 
+    final size = sizeOf(compact: compact);
+
     return Container(
-      width: compact ? 44 : 52,
-      padding: EdgeInsets.symmetric(
-        vertical: compact ? AppSpacing.xs + 2 : AppSpacing.sm,
-      ),
+      width: size.width,
+      height: size.height,
+      alignment: Alignment.center,
       decoration: compact
           ? null
           : BoxDecoration(
               color: colors.surfaceAlt,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${date.month}월',
-            style: context.texts.labelSmall?.copyWith(
-              color: colors.textTertiary,
-              height: 1.1,
+      // 글꼴을 키운 기기에서는 세 줄이 상자를 넘는다. 넘치게 두는 대신
+      // 통째로 줄여 상자 안에 앉힌다.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${date.month}월',
+              style: context.texts.labelSmall?.copyWith(
+                color: colors.textTertiary,
+                height: 1.1,
+              ),
             ),
-          ),
-          Text(
-            '${date.day}',
-            style: compact
-                ? context.texts.titleLarge?.copyWith(height: 1.2)
-                : context.texts.headlineMedium?.copyWith(height: 1.2),
-          ),
-          Text(
-            weekdays[date.weekday - 1],
-            style: context.texts.labelSmall?.copyWith(
-              color: isWeekend ? colors.primary : colors.textTertiary,
-              fontWeight: FontWeight.w600,
-              height: 1.1,
+            Text(
+              '${date.day}',
+              style: compact
+                  ? context.texts.titleLarge?.copyWith(height: 1.2)
+                  : context.texts.headlineMedium?.copyWith(height: 1.2),
             ),
-          ),
-        ],
+            Text(
+              weekdays[date.weekday - 1],
+              style: context.texts.labelSmall?.copyWith(
+                color: isWeekend ? colors.primary : colors.textTertiary,
+                fontWeight: FontWeight.w600,
+                height: 1.1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

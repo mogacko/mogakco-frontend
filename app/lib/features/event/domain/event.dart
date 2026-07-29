@@ -34,6 +34,7 @@ class Event {
     required this.capacity,
     required this.applicantCount,
     this.fee = 0,
+    this.posterUrl,
     this.isApplied = false,
   });
 
@@ -62,6 +63,12 @@ class Event {
 
   /// 참가비. 0이면 무료.
   final int fee;
+
+  /// 홍보 포스터. 없는 행사가 흔하다.
+  ///
+  /// 지부가 매번 포스터를 만들지는 않는다. 없을 때 자리가 비지 않도록
+  /// 화면에서는 날짜 칸으로 대신한다.
+  final String? posterUrl;
 
   /// 내가 신청했는지
   final bool isApplied;
@@ -100,12 +107,17 @@ class Event {
     };
   }
 
-  /// '8월 12일 (토)'
-  String get dateLabel {
-    const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-    return '${startsAt.month}월 ${startsAt.day}일 '
-        '(${weekdays[startsAt.weekday - 1]})';
-  }
+  /// 요일 한 글자
+  String get weekdayLabel =>
+      const ['월', '화', '수', '목', '금', '토', '일'][startsAt.weekday - 1];
+
+  /// '8월 12일 (토)'. 확인 시트처럼 자리가 넉넉한 곳에 쓴다.
+  String get dateLabel =>
+      '${startsAt.month}월 ${startsAt.day}일 ($weekdayLabel)';
+
+  /// '8/12 (토)'. 종류·마감과 한 줄에 놓일 때 쓴다.
+  String get shortDateLabel =>
+      '${startsAt.month}/${startsAt.day} ($weekdayLabel)';
 
   /// '14:00 - 18:00'
   String get timeRangeLabel => '${_hhmm(startsAt)} - ${_hhmm(endsAt)}';
@@ -137,6 +149,7 @@ class Event {
       capacity: capacity,
       applicantCount: applicantCount ?? this.applicantCount,
       fee: fee,
+      posterUrl: posterUrl,
       isApplied: isApplied ?? this.isApplied,
     );
   }

@@ -15,6 +15,7 @@ import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
 import 'package:mogacko/shared/widgets/app_bottom_nav.dart';
 
+import '../helpers/fake_image_http.dart';
 import '../helpers/pump_app.dart';
 
 /// 화면 렌더링을 이미지로 남긴다.
@@ -27,9 +28,26 @@ void main() {
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
+    // 바인딩이 자기 HttpClient 를 건 다음이라야 이쪽이 이긴다.
+    installFakeImageHttpClient();
     await _loadPretendard();
     await _loadIconFonts();
   });
+
+  /// 화면 안의 이미지를 실제로 받아 그릴 때까지 기다린다.
+  ///
+  /// 위젯 테스트는 가짜 시간 위에서 돌아 이미지 디코드가 끝나지 않는다.
+  /// 그냥 찍으면 포스터 자리에 늘 대체 표시만 남는다. [WidgetTester.runAsync]
+  /// 안에서만 진짜 비동기가 돌아간다.
+  Future<void> settleImages(WidgetTester tester) async {
+    await tester.runAsync(() async {
+      for (final element in find.byType(Image).evaluate()) {
+        final image = element.widget as Image;
+        await precacheImage(image.image, element);
+      }
+    });
+    await tester.pumpAndSettle();
+  }
 
   Future<void> expectGolden(
     WidgetTester tester,
@@ -45,6 +63,8 @@ void main() {
     await tester.pumpScreen(screen, brightness: brightness);
     // 진입 애니메이션을 끝까지 돌려 최종 상태를 담는다.
     await tester.pump(const Duration(milliseconds: 1200));
+
+    await settleImages(tester);
 
     await expectLater(
       find.byType(MaterialApp),
@@ -77,6 +97,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+
+    await settleImages(tester);
 
     await expectLater(
       find.byType(MaterialApp),
