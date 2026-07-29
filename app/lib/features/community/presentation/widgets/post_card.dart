@@ -91,7 +91,11 @@ class PostCard extends StatelessWidget {
                   size: 22,
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Flexible(
+                // Flexible 과 Spacer 를 같이 두면 남는 폭을 반씩 나눠 갖는다.
+                // 닉네임이 짧아도 그 몫이 그대로 비어 있어, 오른쪽 수치가
+                // 끝에 닿지 못하고 안쪽으로 밀린다. 닉네임이 남는 폭을 다
+                // 가져가게 하고 수치는 끝에 붙인다.
+                Expanded(
                   child: Text(
                     post.author,
                     maxLines: 1,
@@ -99,7 +103,6 @@ class PostCard extends StatelessWidget {
                     style: context.texts.labelMedium,
                   ),
                 ),
-                const Spacer(),
                 _LikeButton(
                   liked: post.isLiked,
                   count: post.likeCount,

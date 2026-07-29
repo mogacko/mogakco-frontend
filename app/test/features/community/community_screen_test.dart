@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mogacko/core/theme/app_spacing.dart';
 import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/community_screen.dart';
 import 'package:mogacko/shared/widgets/filter_bar.dart';
@@ -94,6 +96,27 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(filled, findsNWidgets(2));
+    });
+
+    testWidgets('좋아요·댓글 수는 오른쪽 끝에 붙는다', (tester) async {
+      await tester.pumpScreen(const CommunityScreen());
+      await tester.pumpAndSettle();
+
+      // Flexible 과 Spacer 를 같이 두면 남는 폭을 반씩 나눠 가져 수치가
+      // 안쪽으로 밀린다. 눈으로는 '조금 어긋난' 정도라 놓치기 쉽다.
+      // 아이콘 뒤에 숫자가 더 붙으므로 수치 줄 전체를 재야 한다.
+      final metricRow = find
+          .ancestor(
+            of: find.byIcon(CupertinoIcons.bubble_right).first,
+            matching: find.byType(Row),
+          )
+          .first;
+      final screen = tester.getRect(find.byType(CommunityScreen));
+
+      expect(
+        screen.right - tester.getRect(metricRow).right,
+        closeTo(AppSpacing.screenHorizontal, 1),
+      );
     });
 
     testWidgets('반응이 많은 글에만 인기 표시가 붙는다', (tester) async {
