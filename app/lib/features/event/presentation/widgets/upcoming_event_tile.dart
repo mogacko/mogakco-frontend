@@ -26,6 +26,7 @@ class UpcomingEventTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final urgent = event.isUrgent(now) && !event.isFull;
+    final poster = event.posterUrl;
 
     return InkWell(
       onTap: onTap,
@@ -35,26 +36,24 @@ class UpcomingEventTile extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            EventPoster(event: event, compact: true),
-            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      // 포스터가 왼쪽 자리를 가져갔으므로 날짜를 여기서 말한다.
-                      // 포스터가 없는 행사는 날짜 칸이 그대로라 여기서는 뺀다.
-                      if (event.posterUrl != null) ...[
-                        Text(
-                          event.shortDateLabel,
-                          style: context.texts.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다
+                      // 갔다 하면 매번 어디를 봐야 할지 다시 찾게 된다.
+                      Text(
+                        event.shortDateLabel,
+                        style: context.texts.labelSmall?.copyWith(
+                          color: colors.textSecondary,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Text(' · ', style: context.texts.labelSmall),
-                      ],
+                      ),
+                      Text(' · ', style: context.texts.labelSmall),
                       Text(
                         event.kind.label,
                         style: context.texts.labelSmall?.copyWith(
@@ -91,6 +90,11 @@ class UpcomingEventTile extends StatelessWidget {
                 ],
               ),
             ),
+            // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
+            if (poster != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              EventPoster(url: poster, size: EventPoster.compactSize),
+            ],
           ],
         ),
       ),

@@ -1,49 +1,54 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../domain/event.dart';
-import 'event_date_block.dart';
+import '../../../../core/theme/app_theme.dart';
 
-/// 행사 목록 왼쪽에 세우는 포스터.
+/// 행사 목록 오른쪽에 붙는 포스터.
 ///
-/// 포스터가 있으면 날짜 칸 대신 이걸 세운다. 둘 다 두면 제목이 열 자쯤에서
-/// 잘리고, 무엇보다 포스터가 날짜보다 그 행사를 잘 말한다.
+/// 오른쪽인 이유는 이 목록이 글을 먼저 읽는 자리라서다. 왼쪽은 눈이 먼저
+/// 닿는 자리라 거기에 그림을 두면 제목보다 그림이 앞선다. 포스터는 제목을
+/// 읽고 나서 '아 이런 자리구나' 하고 거드는 몫이다.
 ///
-/// 포스터가 없거나 못 불러오면 날짜 칸으로 물러난다. 자리가 비면 목록이
-/// 들쭉날쭉해지고, 지부가 매번 포스터를 만들지는 않아서 흔한 경우다.
-/// 크기를 날짜 칸과 똑같이 잡아 두 경우가 같은 줄에 섞여도 어긋나지 않는다.
+/// 없는 행사가 흔하다. 지부가 매번 포스터를 만들지는 않는다. 그때는 이
+/// 위젯을 아예 세우지 않고 글이 폭을 다 쓴다. 자리를 빈 상자로 남겨두면
+/// 무언가 빠진 것처럼 보인다.
 class EventPoster extends StatelessWidget {
-  const EventPoster({super.key, required this.event, this.compact = false});
+  const EventPoster({super.key, required this.url, this.size = regularSize});
 
-  final Event event;
+  /// 행사 탭 카드용
+  static const regularSize = 64.0;
 
-  /// 홈처럼 좁은 자리에 놓을 때
-  final bool compact;
+  /// 홈 타일용. 줄이 얕아 그만큼 줄인다.
+  static const compactSize = 52.0;
+
+  final String url;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
-    final url = event.posterUrl;
-    final fallback = EventDateBlock(date: event.startsAt, compact: compact);
-
-    if (url == null) return fallback;
-
-    final size = EventDateBlock.sizeOf(compact: compact);
+    // 받아오는 동안과 못 받았을 때 자리를 지킨다. 크기가 바뀌면 목록이 출렁인다.
+    final placeholder = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: context.colors.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: Image.network(
         url,
-        width: size.width,
-        height: size.height,
-        // 포스터는 대개 세로로 길다. 상자에 맞춰 잘라 줄 높이를 지킨다.
+        width: size,
+        height: size,
+        // 포스터는 대개 세로로 길다. 정사각으로 잘라 줄 높이를 지킨다.
         fit: BoxFit.cover,
-        // 받아오는 동안 자리를 비워두면 목록이 한 번 출렁인다.
-        // 날짜 칸이 같은 상자를 쓰므로 그대로 세워 둔다.
         frameBuilder: (context, child, frame, wasSynchronous) {
           if (wasSynchronous || frame != null) return child;
-          return fallback;
+          return placeholder;
         },
-        errorBuilder: (context, _, _) => fallback,
+        errorBuilder: (context, _, _) => placeholder,
       ),
     );
   }

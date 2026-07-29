@@ -32,6 +32,7 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final closed = event.isClosed(now);
+    final poster = event.posterUrl;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -48,14 +49,22 @@ class EventCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              EventPoster(event: event),
-              const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
+                        // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다
+                        // 갔다 하면 매번 어디를 봐야 할지 다시 찾게 된다.
+                        Text(
+                          event.shortDateLabel,
+                          style: context.texts.labelSmall?.copyWith(
+                            color: colors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(' · ', style: context.texts.labelSmall),
                         Text(
                           event.kind.label,
                           style: context.texts.labelSmall?.copyWith(
@@ -63,17 +72,6 @@ class EventCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        // 포스터가 왼쪽 자리를 가져갔으므로 날짜를 여기서
-                        // 말한다. 포스터가 없으면 날짜 칸이 그대로 있다.
-                        if (event.posterUrl != null) ...[
-                          Text(' · ', style: context.texts.labelSmall),
-                          Text(
-                            event.shortDateLabel,
-                            style: context.texts.labelSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                         const Spacer(),
                         _Dday(event: event, now: now),
                       ],
@@ -107,6 +105,11 @@ class EventCard extends StatelessWidget {
                   ],
                 ),
               ),
+              // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
+              if (poster != null) ...[
+                const SizedBox(width: AppSpacing.lg),
+                EventPoster(url: poster),
+              ],
             ],
           ),
           const SizedBox(height: AppSpacing.md),
