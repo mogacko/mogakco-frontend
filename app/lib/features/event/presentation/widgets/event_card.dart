@@ -4,13 +4,13 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/event.dart';
 import 'event_apply_sheet.dart';
+import 'event_meta_line.dart';
 import 'event_poster.dart';
 
 /// 행사 탭에 놓이는 행사 하나.
 ///
-/// 왼쪽에 날짜를 달력처럼 세운다. 행사는 '무엇을 하느냐'만큼 '언제 하느냐'로
-/// 고르게 되는데, 날짜가 본문 속 한 줄로 섞여 있으면 목록을 훑으며 비교할 수
-/// 없다.
+/// 글이 왼쪽에서 시작하고 포스터가 오른쪽에서 거든다. 이 목록은 무엇을 하는
+/// 자리인지 읽으러 오는 곳이라, 눈이 먼저 닿는 왼쪽을 글에 내준다.
 class EventCard extends StatelessWidget {
   const EventCard({
     super.key,
@@ -53,29 +53,9 @@ class EventCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다
-                        // 갔다 하면 매번 어디를 봐야 할지 다시 찾게 된다.
-                        Text(
-                          event.shortDateLabel,
-                          style: context.texts.labelSmall?.copyWith(
-                            color: colors.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(' · ', style: context.texts.labelSmall),
-                        Text(
-                          event.kind.label,
-                          style: context.texts.labelSmall?.copyWith(
-                            color: colors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        _Dday(event: event, now: now),
-                      ],
-                    ),
+                    // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다 갔다
+                    // 하면 매번 어디를 봐야 할지 다시 찾게 된다.
+                    EventMetaLine(event: event, now: now),
                     const SizedBox(height: 2),
                     Text(
                       event.title,
@@ -122,31 +102,6 @@ class EventCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// 신청 마감까지 남은 날.
-///
-/// 마감이 코앞일 때만 눈에 띄게 한다. 모든 행사에 빨간 표시가 붙으면
-/// 정말 급한 것이 묻힌다.
-class _Dday extends StatelessWidget {
-  const _Dday({required this.event, required this.now});
-
-  final Event event;
-  final DateTime now;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final urgent = event.isUrgent(now) && !event.isFull;
-
-    return Text(
-      event.ddayLabel(now),
-      style: context.texts.labelSmall?.copyWith(
-        color: urgent ? colors.hot : colors.textTertiary,
-        fontWeight: FontWeight.w600,
       ),
     );
   }

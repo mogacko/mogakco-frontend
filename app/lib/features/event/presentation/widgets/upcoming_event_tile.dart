@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/event.dart';
+import 'event_meta_line.dart';
 import 'event_poster.dart';
 
 /// 홈에 세우는 다가오는 행사 한 줄.
@@ -24,8 +25,6 @@ class UpcomingEventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final urgent = event.isUrgent(now) && !event.isFull;
     final poster = event.posterUrl;
 
     return InkWell(
@@ -42,36 +41,9 @@ class UpcomingEventTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다
-                      // 갔다 하면 매번 어디를 봐야 할지 다시 찾게 된다.
-                      Text(
-                        event.shortDateLabel,
-                        style: context.texts.labelSmall?.copyWith(
-                          color: colors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(' · ', style: context.texts.labelSmall),
-                      Text(
-                        event.kind.label,
-                        style: context.texts.labelSmall?.copyWith(
-                          color: colors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        event.ddayLabel(now),
-                        style: context.texts.labelSmall?.copyWith(
-                          // 마감이 코앞일 때만 눈에 띄게 한다.
-                          color: urgent ? colors.hot : colors.textTertiary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다 갔다
+                  // 하면 매번 어디를 봐야 할지 다시 찾게 된다.
+                  EventMetaLine(event: event, now: now),
                   const SizedBox(height: 1),
                   Text(
                     event.title,
