@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/signup/domain/term.dart';
@@ -82,7 +83,7 @@ void main() {
     testWidgets('화살표를 누르면 약관 전문이 열린다', (tester) async {
       await tester.pumpScreen(const TermsScreen());
 
-      await tester.tap(find.byIcon(Icons.chevron_right).first);
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_forward).first);
       await tester.pumpAndSettle();
 
       expect(find.byType(TermDetailScreen), findsOneWidget);
@@ -93,7 +94,7 @@ void main() {
     testWidgets('전문을 열어도 동의 상태는 바뀌지 않는다', (tester) async {
       await tester.pumpScreen(const TermsScreen());
 
-      await tester.tap(find.byIcon(Icons.chevron_right).first);
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_forward).first);
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
@@ -105,7 +106,7 @@ void main() {
     testWidgets('선택 약관 전문은 선택 배지를 단다', (tester) async {
       await tester.pumpScreen(const TermsScreen());
 
-      await tester.tap(find.byIcon(Icons.chevron_right).last);
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_forward).last);
       await tester.pumpAndSettle();
 
       expect(find.text('선택 동의'), findsOneWidget);

@@ -1,0 +1,234 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/utils/relative_time.dart';
+import '../../../../shared/widgets/user_avatar.dart';
+import '../../domain/post.dart';
+
+/// 목록에 놓이는 글 한 편.
+///
+/// 카드로 띄우지 않고 줄로 눕힌다. 열 편이 넘게 이어지는 자리라 카드마다
+/// 테두리와 그림자가 붙으면 글보다 상자가 먼저 보인다. 구분은 아래 얇은
+/// 선 하나로 충분하다.
+class PostCard extends StatelessWidget {
+  const PostCard({
+    super.key,
+    required this.post,
+    required this.now,
+    required this.onToggleLike,
+    this.isPopular = false,
+    this.onTap,
+  });
+
+  final Post post;
+  final DateTime now;
+  final VoidCallback onToggleLike;
+
+  /// 이번 주 반응이 많은 글인지
+  final bool isPopular;
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.screenHorizontal,
+          vertical: AppSpacing.lg,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _CategoryLabel(category: post.category),
+                if (isPopular) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  const _PopularMark(),
+                ],
+                const Spacer(),
+                Text(
+                  relativeTime(post.createdAt, now),
+                  style: context.texts.labelSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              post.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.texts.titleLarge,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              post.excerpt,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.texts.bodyMedium?.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                UserAvatar(
+                  name: post.author,
+                  imageUrl: post.authorAvatarUrl,
+                  size: 22,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Flexible(
+                  child: Text(
+                    post.author,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.texts.labelMedium,
+                  ),
+                ),
+                const Spacer(),
+                _LikeButton(
+                  liked: post.isLiked,
+                  count: post.likeCount,
+                  onTap: onToggleLike,
+                ),
+                const SizedBox(width: AppSpacing.lg),
+                _Metric(
+                  icon: CupertinoIcons.bubble_right,
+                  count: post.commentCount,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 분류 표시.
+///
+/// 알약으로 채우면 목록마다 색 덩어리가 열 개씩 생겨 시끄럽다. 글자만
+/// 브랜드 색으로 올려 무엇인지만 알린다.
+class _CategoryLabel extends StatelessWidget {
+  const _CategoryLabel({required this.category});
+
+  final PostCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      category.label,
+      style: context.texts.labelSmall?.copyWith(
+        color: context.colors.primary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+/// 반응이 많은 글에 붙는 표시
+class _PopularMark extends StatelessWidget {
+  const _PopularMark();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(CupertinoIcons.flame_fill, size: 12, color: colors.hot),
+        const SizedBox(width: 2),
+        Text(
+          '인기',
+          style: context.texts.labelSmall?.copyWith(
+            color: colors.hot,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 누를 수 있는 좋아요.
+///
+/// 목록에서 바로 누를 수 있어야 한다. 글을 열고 다시 나오는 걸음이 사라진다.
+class _LikeButton extends StatelessWidget {
+  const _LikeButton({
+    required this.liked,
+    required this.count,
+    required this.onTap,
+  });
+
+  final bool liked;
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final color = liked ? colors.hot : colors.textTertiary;
+
+    return Semantics(
+      button: true,
+      selected: liked,
+      label: '좋아요',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: Padding(
+          // 아이콘만으로는 손가락이 닿기에 좁다. 눌리는 자리를 넓혀 둔다.
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs,
+            vertical: AppSpacing.sm,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                size: AppSize.iconSm - 2,
+                color: color,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                '$count',
+                style: context.texts.labelSmall?.copyWith(color: color),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 누를 수 없는 수치
+class _Metric extends StatelessWidget {
+  const _Metric({required this.icon, required this.count});
+
+  final IconData icon;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: AppSize.iconSm - 2, color: colors.textTertiary),
+        const SizedBox(width: AppSpacing.xs),
+        Text('$count', style: context.texts.labelSmall),
+      ],
+    );
+  }
+}

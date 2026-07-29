@@ -38,20 +38,43 @@ class MeetupSession {
     return day.difference(today).inDays;
   }
 
+  /// 'HH:mm'
+  String get timeLabel =>
+      '${startsAt.hour.toString().padLeft(2, '0')}:'
+      '${startsAt.minute.toString().padLeft(2, '0')}';
+
+  /// 요일 한 글자
+  String get weekdayLabel =>
+      const ['월', '화', '수', '목', '금', '토', '일'][startsAt.weekday - 1];
+
   /// 화면에 보여줄 시점. '오늘 19:00'처럼 읽힌다.
   ///
   /// 요일 대신 남은 날로 적는다. 며칠 뒤인지가 참여를 정하는 데 더 직접적이고,
   /// '수요일'은 오늘이 무슨 요일인지 먼저 떠올려야 한다.
+  ///
+  /// 하루만 따로 세울 때 쓴다. 한 주를 한꺼번에 늘어놓는 자리에서는
+  /// [dayLabel] 쪽이 맞다.
   String whenLabel(DateTime now) {
     final days = daysFrom(now);
-    final time =
-        '${startsAt.hour.toString().padLeft(2, '0')}:'
-        '${startsAt.minute.toString().padLeft(2, '0')}';
 
     return switch (days) {
-      0 => '오늘 $time',
-      1 => '내일 $time',
-      _ => '$days일 뒤 $time',
+      0 => '오늘 $timeLabel',
+      1 => '내일 $timeLabel',
+      _ => '$days일 뒤 $timeLabel',
+    };
+  }
+
+  /// 날짜만. '오늘', '내일', '8/2 (일)'처럼 읽힌다.
+  ///
+  /// 한 모임의 여러 날을 세로로 늘어놓을 때 쓴다. 그 자리에서는 '3일 뒤',
+  /// '5일 뒤'가 나란히 놓이는데, 며칠씩 떨어져 있는지를 머릿속에서 다시
+  /// 날짜로 옮겨야 해서 오히려 고르기 어렵다. 가까운 이틀만 말로 두고
+  /// 나머지는 날짜로 적는다.
+  String dayLabel(DateTime now) {
+    return switch (daysFrom(now)) {
+      0 => '오늘',
+      1 => '내일',
+      _ => '${startsAt.month}/${startsAt.day} ($weekdayLabel)',
     };
   }
 

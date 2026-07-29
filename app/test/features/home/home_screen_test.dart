@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mogacko/features/home/domain/meetup.dart';
+import 'package:mogacko/features/meetup/domain/meetup.dart';
 import 'package:mogacko/features/home/presentation/home_screen.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
 import 'package:mogacko/shared/providers/current_chapter_provider.dart';

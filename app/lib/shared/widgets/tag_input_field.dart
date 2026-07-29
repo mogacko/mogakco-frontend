@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
@@ -185,7 +186,7 @@ class _TagInputFieldState extends State<TagInputField> {
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
-                    icon: Icon(Icons.add_circle, color: colors.primary),
+                    icon: Icon(CupertinoIcons.add_circled_solid, color: colors.primary),
                     onPressed: () => _add(_query),
                     tooltip: '추가',
                   ),
@@ -308,7 +309,7 @@ class _SelectedChip extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(2),
               child: Icon(
-                Icons.close,
+                CupertinoIcons.xmark,
                 size: AppSize.iconSm - 2,
                 color: colors.primary,
               ),

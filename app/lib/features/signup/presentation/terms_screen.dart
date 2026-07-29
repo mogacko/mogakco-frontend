@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -170,7 +171,7 @@ class _TermTile extends StatelessWidget {
             // 전문 보기. 체크와 겹치지 않도록 아이콘만 따로 누를 수 있게 한다.
             IconButton(
               icon: Icon(
-                Icons.chevron_right,
+                CupertinoIcons.chevron_forward,
                 size: AppSize.iconMd,
                 color: colors.textTertiary,
               ),

@@ -68,12 +68,23 @@ class AppBottomNav extends StatelessWidget {
   final AppTab current;
   final ValueChanged<AppTab> onSelect;
 
+  /// 이 기기에서 탭 바가 실제로 차지하는 높이.
+  ///
+  /// 탭 바가 반투명이라 본문이 그 아래로 지나간다(`extendBody`). 스크롤하는
+  /// 화면은 마지막 항목이 바 뒤에 깔려 잘리므로, 목록 끝에 이만큼을 비워
+  /// 둬야 한다. 화면마다 숫자를 따로 적으면 바 높이를 고칠 때 어긋난다.
+  static double contentInset(BuildContext context) =>
+      barHeight + _safeBottom(context);
+
+  /// 안전영역을 이 컴포넌트가 쓰는 범위로 좁힌 값
+  static double _safeBottom(BuildContext context) => MediaQuery.of(
+    context,
+  ).padding.bottom.clamp(_minBottomPadding, _maxBottomPadding);
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final bottomInset = MediaQuery.of(
-      context,
-    ).padding.bottom.clamp(_minBottomPadding, _maxBottomPadding);
+    final bottomInset = _safeBottom(context);
 
     return ClipRect(
       child: BackdropFilter(

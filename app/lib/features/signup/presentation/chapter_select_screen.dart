@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -116,7 +117,7 @@ class _ChapterTile extends StatelessWidget {
             MogackoLogo.chapter(chapter: chapter, size: 26),
             const Spacer(),
             Icon(
-              selected ? Icons.check_circle : Icons.circle_outlined,
+              selected ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
               color: selected ? colors.primary : colors.textTertiary,
               size: AppSize.iconMd,
             ),

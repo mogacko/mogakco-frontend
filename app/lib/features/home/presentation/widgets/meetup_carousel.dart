@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -5,9 +6,9 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/mogacko_logo.dart';
 import '../../../../shared/widgets/user_avatar.dart';
-import '../../domain/meetup.dart';
-import '../meetup_provider.dart';
-import 'join_confirm_sheet.dart';
+import '../../../meetup/domain/meetup.dart';
+import '../../../meetup/presentation/meetup_provider.dart';
+import '../../../meetup/presentation/widgets/join_confirm_sheet.dart';
 
 /// 모집 중인 모임을 옆으로 넘겨 보는 캐러셀.
 class MeetupCarousel extends StatefulWidget {
@@ -330,7 +331,7 @@ class _When extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.person,
+              CupertinoIcons.person_fill,
               size: AppSize.iconSm - 2,
               color: Colors.white.withValues(alpha: 0.8),
             ),
@@ -452,7 +453,7 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.event_busy, size: 32, color: colors.textTertiary),
+            Icon(CupertinoIcons.calendar, size: 32, color: colors.textTertiary),
             const SizedBox(height: AppSpacing.md),
             Text(
               '아직 열린 모임이 없어요',

@@ -1,14 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/current_chapter_provider.dart';
+import '../../../shared/providers/now_provider.dart';
 import '../data/mock_meetups.dart';
 import '../domain/meetup.dart';
-
-/// 기준 시각.
-///
-/// '이번 주'와 '오늘/내일'을 재는 잣대다. 테스트에서 갈아끼울 수 있도록
-/// DateTime.now() 를 화면 곳곳에 흩지 않고 여기 한 곳에 둔다.
-final nowProvider = Provider<DateTime>((ref) => DateTime.now());
 
 /// 모임 목록과 참여 상태.
 ///
@@ -90,4 +85,55 @@ final heroIsTodayProvider = Provider<bool>((ref) {
   return ref
       .watch(visibleMeetupsProvider)
       .any((meetup) => meetup.sessionToday(now) != null);
+});
+
+/// 모임 탭에서 목록을 좁히는 기준.
+///
+/// '내가 신청한 것만'과 '매주 열리는 것만'은 찾는 이유가 서로 다르다. 앞은
+/// 이번 주에 어디를 가기로 했는지 확인하러 오고, 뒤는 꾸준히 나갈 자리를
+/// 고르러 온다.
+enum MeetupFilter {
+  all('전체'),
+  joined('참여 중'),
+  recurring('정기');
+
+  const MeetupFilter(this.label);
+
+  final String label;
+
+  bool matches(Meetup meetup) => switch (this) {
+    MeetupFilter.all => true,
+    MeetupFilter.joined => meetup.isJoinedAny,
+    MeetupFilter.recurring => meetup.isRecurring,
+  };
+}
+
+class MeetupFilterSelection extends Notifier<MeetupFilter> {
+  @override
+  MeetupFilter build() => MeetupFilter.all;
+
+  void select(MeetupFilter filter) => state = filter;
+}
+
+final meetupFilterProvider =
+    NotifierProvider<MeetupFilterSelection, MeetupFilter>(
+      MeetupFilterSelection.new,
+    );
+
+/// 모임 탭에 뿌릴 모임
+final filteredMeetupsProvider = Provider<List<Meetup>>((ref) {
+  final filter = ref.watch(meetupFilterProvider);
+  return ref
+      .watch(visibleMeetupsProvider)
+      .where(filter.matches)
+      .toList();
+});
+
+/// 기준별 모임 개수. 필터 알약에 붙인다.
+final meetupCountsProvider = Provider<Map<MeetupFilter, int>>((ref) {
+  final meetups = ref.watch(visibleMeetupsProvider);
+  return {
+    for (final filter in MeetupFilter.values)
+      filter: meetups.where(filter.matches).length,
+  };
 });

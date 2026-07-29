@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -110,7 +111,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     counterText: '',
                     suffixIcon: _canProceed
                         ? Icon(
-                            Icons.check_circle,
+                            CupertinoIcons.checkmark_circle_fill,
                             color: colors.primary,
                             size: AppSize.iconMd,
                           )
@@ -271,7 +272,7 @@ class _AvatarPicker extends StatelessWidget {
               border: Border.all(color: colors.border),
             ),
             child: Icon(
-              Icons.person_outline,
+              CupertinoIcons.person,
               size: 44,
               color: colors.textTertiary,
             ),
@@ -288,7 +289,7 @@ class _AvatarPicker extends StatelessWidget {
                 border: Border.all(color: colors.background, width: 2),
               ),
               child: Icon(
-                Icons.camera_alt,
+                CupertinoIcons.camera_fill,
                 size: AppSize.iconSm,
                 color: colors.primaryForeground,
               ),

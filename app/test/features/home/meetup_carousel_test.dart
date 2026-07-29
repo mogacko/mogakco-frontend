@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mogacko/features/home/domain/meetup.dart';
-import 'package:mogacko/features/home/presentation/meetup_provider.dart';
+import 'package:mogacko/features/meetup/domain/meetup.dart';
+import 'package:mogacko/features/meetup/presentation/meetup_provider.dart';
 import 'package:mogacko/features/home/presentation/widgets/meetup_carousel.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
 

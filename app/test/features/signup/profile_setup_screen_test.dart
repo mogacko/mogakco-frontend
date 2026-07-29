@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/signup/presentation/profile_setup_screen.dart';
@@ -216,7 +217,7 @@ void main() {
 
       final remove = find.descendant(
         of: key,
-        matching: find.byIcon(Icons.close),
+        matching: find.byIcon(CupertinoIcons.xmark),
       );
       await tester.ensureVisible(remove);
       await tester.pumpAndSettle();
@@ -260,7 +261,7 @@ void main() {
 
       final remove = find.descendant(
         of: find.byKey(const Key('field-input')),
-        matching: find.byIcon(Icons.close),
+        matching: find.byIcon(CupertinoIcons.xmark),
       );
       await tester.ensureVisible(remove);
       await tester.pumpAndSettle();

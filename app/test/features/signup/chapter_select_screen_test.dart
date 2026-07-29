@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
@@ -57,7 +58,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 체크 아이콘은 항상 한 개만 켜져 있어야 한다.
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.checkmark_circle_fill), findsOneWidget);
     });
 
     testWidgets('확장 예정 안내를 보여준다', (tester) async {

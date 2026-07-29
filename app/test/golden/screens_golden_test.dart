@@ -13,6 +13,7 @@ import 'package:mogacko/features/signup/domain/term.dart';
 import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
+import 'package:mogacko/shared/widgets/app_bottom_nav.dart';
 
 import '../helpers/pump_app.dart';
 
@@ -51,9 +52,57 @@ void main() {
     );
   }
 
+  /// 탭 하나를 열어 그 상태를 담는다.
+  ///
+  /// 탭은 셸 안에서 갈리므로 화면만 따로 띄우면 탭 바가 빠져 실제 모습과
+  /// 달라진다. 셸을 띄운 뒤 해당 탭을 눌러 들어간다.
+  Future<void> expectTabGolden(
+    WidgetTester tester,
+    AppTab tab,
+    String name, {
+    Brightness brightness = Brightness.light,
+  }) async {
+    tester.view
+      ..physicalSize = viewport
+      ..devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpScreen(const AppShell(), brightness: brightness);
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AppBottomNav),
+        matching: find.text(tab.label),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('images/$name.png'),
+    );
+  }
+
   group('라이트 모드', () {
     testWidgets('홈', (tester) async {
       await expectGolden(tester, const AppShell(), 'home_light');
+    });
+
+    testWidgets('커뮤니티', (tester) async {
+      await expectTabGolden(tester, AppTab.community, 'community_light');
+    });
+
+    testWidgets('모임', (tester) async {
+      await expectTabGolden(tester, AppTab.meetup, 'meetup_light');
+    });
+
+    testWidgets('행사', (tester) async {
+      await expectTabGolden(tester, AppTab.event, 'event_light');
+    });
+
+    testWidgets('내 정보', (tester) async {
+      await expectTabGolden(tester, AppTab.profile, 'profile_tab_light');
     });
 
     testWidgets('참여 확인 시트', (tester) async {
@@ -134,6 +183,42 @@ void main() {
         tester,
         const AppShell(),
         'home_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('커뮤니티', (tester) async {
+      await expectTabGolden(
+        tester,
+        AppTab.community,
+        'community_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('모임', (tester) async {
+      await expectTabGolden(
+        tester,
+        AppTab.meetup,
+        'meetup_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('행사', (tester) async {
+      await expectTabGolden(
+        tester,
+        AppTab.event,
+        'event_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('내 정보', (tester) async {
+      await expectTabGolden(
+        tester,
+        AppTab.profile,
+        'profile_tab_dark',
         brightness: Brightness.dark,
       );
     });
