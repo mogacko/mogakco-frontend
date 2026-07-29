@@ -8,6 +8,8 @@ import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../community/presentation/post_provider.dart';
 import '../../community/presentation/widgets/popular_post_tile.dart';
+import '../../event/presentation/event_provider.dart';
+import '../../event/presentation/widgets/upcoming_event_tile.dart';
 import '../../meetup/presentation/meetup_provider.dart';
 import '../../shell/presentation/tab_provider.dart';
 import 'widgets/home_header.dart';
@@ -22,6 +24,7 @@ class HomeScreen extends ConsumerWidget {
     final meetups = ref.watch(heroMeetupsProvider);
     final now = ref.watch(nowProvider);
     final isToday = ref.watch(heroIsTodayProvider);
+    final events = ref.watch(upcomingEventsProvider);
     final popular = ref.watch(popularPostsProvider);
 
     return Scaffold(
@@ -50,6 +53,27 @@ class HomeScreen extends ConsumerWidget {
                         .read(meetupListProvider.notifier)
                         .toggleSession(meetupId, sessionId),
                   ),
+                  // 갈 자리를 먼저 모아 두고 읽을거리는 그 아래로 둔다.
+                  // 행사는 날짜가 정해져 있어 놓치면 끝이지만 글은 그렇지 않다.
+                  if (events.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xxxl),
+                    SectionHeader(
+                      title: '다가오는 행사',
+                      actionLabel: '더보기',
+                      onAction: () => ref
+                          .read(currentTabProvider.notifier)
+                          .select(AppTab.event),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    for (final event in events)
+                      UpcomingEventTile(
+                        event: event,
+                        now: now,
+                        onTap: () => ref
+                            .read(currentTabProvider.notifier)
+                            .select(AppTab.event),
+                      ),
+                  ],
                   // 인기글이 없으면 구획째 뺀다. 빈 목록에 제목만 남으면
                   // 커뮤니티가 비어 있다는 인상이 홈까지 번진다.
                   if (popular.isNotEmpty) ...[

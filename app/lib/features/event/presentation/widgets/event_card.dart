@@ -4,6 +4,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/event.dart';
 import 'event_apply_sheet.dart';
+import 'event_date_block.dart';
 
 /// 행사 탭에 놓이는 행사 하나.
 ///
@@ -47,7 +48,7 @@ class EventCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _DateBlock(event: event),
+              EventDateBlock(date: event.startsAt),
               const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
@@ -104,56 +105,6 @@ class EventCard extends StatelessWidget {
               event: event,
               closed: closed,
               onTap: () => _confirm(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 달력 한 칸처럼 세우는 날짜
-class _DateBlock extends StatelessWidget {
-  const _DateBlock({required this.event});
-
-  final Event event;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-    final weekday = weekdays[event.startsAt.weekday - 1];
-
-    // 토·일은 달력에서 하듯 색을 달리한다. 주말인지가 갈 수 있는지를 가른다.
-    final isWeekend = event.startsAt.weekday >= 6;
-
-    return Container(
-      width: 52,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${event.startsAt.month}월',
-            style: context.texts.labelSmall?.copyWith(
-              color: colors.textTertiary,
-              height: 1.1,
-            ),
-          ),
-          Text(
-            '${event.startsAt.day}',
-            style: context.texts.headlineMedium?.copyWith(height: 1.2),
-          ),
-          Text(
-            weekday,
-            style: context.texts.labelSmall?.copyWith(
-              color: isWeekend ? colors.primary : colors.textTertiary,
-              fontWeight: FontWeight.w600,
-              height: 1.1,
             ),
           ),
         ],

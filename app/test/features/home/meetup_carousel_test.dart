@@ -210,7 +210,7 @@ void main() {
         ),
       );
 
-      expect(find.text('참여 취소'), findsOneWidget);
+      expect(find.text('참여 중'), findsOneWidget);
       expect(find.text('참여 신청'), findsNothing);
     });
 
@@ -253,7 +253,7 @@ void main() {
       );
 
       expect(find.text('마감'), findsNothing);
-      await tester.tap(find.text('참여 취소'));
+      await tester.tap(find.text('참여 중'));
       await tester.pumpAndSettle();
 
       expect(find.text('참여를 취소할까요?'), findsOneWidget);

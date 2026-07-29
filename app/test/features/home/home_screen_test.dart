@@ -215,7 +215,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(inCard('busan-1', '6 / 8'), findsOneWidget);
-      expect(inCard('busan-1', '참여 취소'), findsOneWidget);
+      expect(inCard('busan-1', '참여 중'), findsOneWidget);
     });
 
     testWidgets('다시 누르면 참여가 취소된다', (tester) async {
@@ -227,7 +227,7 @@ void main() {
       await tester.tap(find.text('참여하기'));
       await tester.pumpAndSettle();
 
-      await tester.tap(inCard('busan-1', '참여 취소'));
+      await tester.tap(inCard('busan-1', '참여 중'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, '참여 취소'));
       await tester.pumpAndSettle();
@@ -345,6 +345,28 @@ void main() {
 
       expect(find.text('제주는 아직 준비 중이에요'), findsOneWidget);
       expect(find.bySemanticsLabel('모각코 부산'), findsWidgets);
+    });
+
+    testWidgets('다가오는 행사를 갈 자리끼리 모아 위에 둔다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      expect(find.text('다가오는 행사'), findsOneWidget);
+      // 가장 가까운 두 건만. 홈은 훑는 자리지 고르는 자리가 아니다.
+      expect(find.textContaining('광안리 야간 산책'), findsOneWidget);
+      expect(find.textContaining('렌더링 파이프라인'), findsOneWidget);
+      expect(find.textContaining('여름 해커톤'), findsNothing);
+    });
+
+    testWidgets('행사를 넣어도 인기글 구획이 밀려나지 않는다', (tester) async {
+      await tester.pumpScreen(const HomeScreen());
+      await tester.pumpAndSettle();
+
+      // 목록이 캐시 범위까지만 만들어 두므로 아래 구획은 끌어와야 나온다.
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+
+      expect(find.text('커뮤니티 인기글'), findsOneWidget);
     });
   });
 

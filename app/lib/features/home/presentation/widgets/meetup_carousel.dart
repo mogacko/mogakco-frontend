@@ -362,7 +362,9 @@ class _JoinButton extends StatelessWidget {
     // 자리가 찼어도 이미 신청했다면 뺄 수는 있어야 한다.
     final blocked = session.isFull && !joined;
 
-    final label = blocked ? '마감' : (joined ? '참여 취소' : '참여 신청');
+    // 신청을 마친 뒤에는 그 사실을 알리기만 하면 된다. '참여 취소'라고 써 두면
+    // 다음에 할 일이 취소인 것처럼 읽힌다. 취소는 눌렀을 때 시트에서 묻는다.
+    final label = blocked ? '마감' : (joined ? '참여 중' : '참여 신청');
     final background = blocked
         ? Colors.white.withValues(alpha: 0.16)
         : (joined ? Colors.transparent : Colors.white);

@@ -78,6 +78,24 @@ final visibleEventsProvider = Provider<List<Event>>((ref) {
   return events.where((event) => event.kind == kind).toList();
 });
 
+/// 홈에 세울 개수.
+///
+/// 홈은 훑는 자리지 고르는 자리가 아니다. 셋을 넘기면 목록이 되어 행사 탭과
+/// 하는 일이 겹친다.
+const _homeEventCount = 2;
+
+/// 홈에 세울 다가오는 행사.
+///
+/// [chapterEventsProvider] 가 이미 시작한 행사를 빼고 가까운 순으로 세워 두므로
+/// 앞에서 몇 개만 떼면 된다.
+///
+/// 마감됐거나 자리가 찬 행사도 빼지 않는다. 가장 가까운 행사가 목록에서
+/// 사라지면 곧 무슨 일이 있는지를 알 수 없게 된다. 신청할 수 있는지는
+/// 각 줄의 D-day 가 말해 준다.
+final upcomingEventsProvider = Provider<List<Event>>((ref) {
+  return ref.watch(chapterEventsProvider).take(_homeEventCount).toList();
+});
+
 /// 종류별 행사 개수. 필터 알약에 붙인다.
 final eventCountsProvider = Provider<Map<EventKind, int>>((ref) {
   final counts = <EventKind, int>{};
