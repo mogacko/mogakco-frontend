@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/static_map.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
@@ -24,6 +26,21 @@ class MeetupDetailScreen extends ConsumerWidget {
   const MeetupDetailScreen({super.key, required this.meetupId});
 
   final String meetupId;
+
+  /// 길찾기는 지도 앱이 훨씬 잘한다. 여기서 흉내 내지 않고 넘긴다.
+  ///
+  /// 앱이 없으면 브라우저의 카카오맵이 열린다. 열지 못하는 환경이라도
+  /// 주소가 화면에 그대로 있으므로 막히지 않는다.
+  Future<void> _openMap(Meetup meetup) async {
+    await launchUrl(
+      kakaoMapLink(
+        name: meetup.placeName,
+        latitude: meetup.latitude!,
+        longitude: meetup.longitude!,
+      ),
+      mode: LaunchMode.externalApplication,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,6 +74,28 @@ class MeetupDetailScreen extends ConsumerWidget {
               horizontal: AppSpacing.screenHorizontal,
             ),
             child: Text(description, style: context.texts.bodyLarge),
+          ),
+        ],
+        // 주소만 있으면 어디쯤인지 감이 안 온다. 처음 가는 카페가 대부분이라
+        // 동네를 눈으로 확인하고 나서 갈지 정한다.
+        if (meetup.hasLocation) ...[
+          const SizedBox(height: AppSpacing.xl),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screenHorizontal,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                StaticMap(
+                  latitude: meetup.latitude!,
+                  longitude: meetup.longitude!,
+                  onOpen: () => _openMap(meetup),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                OpenInMapButton(onTap: () => _openMap(meetup)),
+              ],
+            ),
           ),
         ],
         const SizedBox(height: AppSpacing.xxl),

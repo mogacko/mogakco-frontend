@@ -105,6 +105,8 @@ class Meetup {
     this.hostAvatarUrl,
     this.isRecurring = false,
     this.description,
+    this.latitude,
+    this.longitude,
   });
 
   final String id;
@@ -135,6 +137,17 @@ class Meetup {
   ///
   /// 없는 모임이 흔하다. 자리만 잡고 별말 없이 여는 경우가 많다.
   final String? description;
+
+  /// 장소의 위도·경도.
+  ///
+  /// 주소 문자열만으로는 지도를 그릴 수 없다. 주소를 좌표로 바꾸는 건 지오코딩
+  /// API 가 하는 일이라 서버가 저장해 내려줘야 한다. 없으면 상세에서 지도를
+  /// 빼고 주소만 둔다.
+  final double? latitude;
+  final double? longitude;
+
+  /// 지도를 그릴 수 있는지
+  bool get hasLocation => latitude != null && longitude != null;
 
   /// 시·도를 뗀 주소.
   ///
@@ -238,6 +251,8 @@ class Meetup {
       sessions: sessions ?? this.sessions,
       isRecurring: isRecurring,
       description: description,
+      latitude: latitude,
+      longitude: longitude,
     );
   }
 }
