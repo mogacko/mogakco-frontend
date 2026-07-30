@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <background android:drawable="@color/ic_launcher_background"/>
+  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+  <!--
+    안드로이드 13+ 테마 아이콘. 사용자가 '테마 아이콘'을 켜면 런처가 이
+    도형만 떼어 배경·글자색을 시스템 테마에 맞춰 칠한다. 다크 배경에서는
+    밝은 로고가, 라이트 배경에서는 어두운 로고가 된다.
+  -->
+  <monochrome android:drawable="@drawable/ic_launcher_foreground"/>
+</adaptive-icon>

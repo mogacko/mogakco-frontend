@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  적응형 아이콘의 앞면. 원본 로고(128 좌표계)를 절반으로 줄여 108 캔버스
+  가운데 앉힌다. 런처가 바깥을 잘라내므로 안전 영역(가운데 72) 안에 둔다.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group
+      android:scaleX="0.5"
+      android:scaleY="0.5"
+      android:translateX="22"
+      android:translateY="22">
+    <path android:pathData="M 26 13 L 46 33 L 26 53" android:strokeColor="#FFFFFF"
+        android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 72 13 H 112 V 53 H 72 Z" android:strokeColor="#FFFFFF"
+        android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 16 75 H 56 V 115" android:strokeColor="#FFFFFF"
+        android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 72 75 H 112 V 115" android:strokeColor="#FFFFFF"
+        android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    <path android:pathData="M 78 95 H 112" android:strokeColor="#FFFFFF"
+        android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  </group>
+</vector>

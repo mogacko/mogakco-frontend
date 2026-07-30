@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- 로고 SVG 가 쓰는 브랜드 컬러. 아이콘과 앱 안의 색이 갈리지 않게 맞춘다. -->
+  <color name="ic_launcher_background">#4C6EF5</color>
+</resources>
