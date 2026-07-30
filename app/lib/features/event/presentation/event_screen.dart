@@ -12,6 +12,7 @@ import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../domain/event.dart';
+import 'event_detail_screen.dart';
 import 'event_provider.dart';
 import 'widgets/event_card.dart';
 
@@ -80,6 +81,12 @@ class EventScreen extends ConsumerWidget {
                             onToggleApply: () => ref
                                 .read(eventListProvider.notifier)
                                 .toggleApply(event.id),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    EventDetailScreen(eventId: event.id),
+                              ),
+                            ),
                           );
                         },
                       ),

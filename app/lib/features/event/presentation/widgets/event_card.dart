@@ -17,11 +17,18 @@ class EventCard extends StatelessWidget {
     required this.event,
     required this.now,
     required this.onToggleApply,
+    this.onTap,
   });
 
   final Event event;
   final DateTime now;
   final VoidCallback onToggleApply;
+
+  /// 카드 위쪽(포스터·제목·장소)을 누르면 상세로 간다.
+  ///
+  /// 신청 버튼은 그 자리에서 결정하는 곳이라 상세로 가지 않는다. 한 카드에
+  /// 목적이 둘이라 눌리는 자리를 나눠 둔다.
+  final VoidCallback? onTap;
 
   Future<void> _confirm(BuildContext context) async {
     final ok = await confirmEventApply(context, event: event, now: now);
@@ -46,51 +53,54 @@ class EventCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다 갔다
-                    // 하면 매번 어디를 봐야 할지 다시 찾게 된다.
-                    EventMetaLine(event: event, now: now),
-                    const SizedBox(height: 2),
-                    Text(
-                      event.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.texts.titleLarge,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      event.venue,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.texts.bodyMedium?.copyWith(
-                        color: colors.textSecondary,
+          InkWell(
+            onTap: onTap,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 날짜는 포스터가 있든 없든 늘 여기 있다. 자리가 왔다 갔다
+                      // 하면 매번 어디를 봐야 할지 다시 찾게 된다.
+                      EventMetaLine(event: event, now: now),
+                      const SizedBox(height: 2),
+                      Text(
+                        event.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.texts.titleLarge,
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    // 시각·참가비·자리는 각각 한 줄을 차지할 만큼 무겁지 않다.
-                    // 가운뎃점으로 이어 한 줄에 눕힌다.
-                    Text(
-                      '${event.timeRangeLabel} · ${event.feeLabel} · '
-                      '${event.applicantCount}/${event.capacity}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.texts.labelSmall,
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        event.venue,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.texts.bodyMedium?.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      // 시각·참가비·자리는 각각 한 줄을 차지할 만큼 무겁지 않다.
+                      // 가운뎃점으로 이어 한 줄에 눕힌다.
+                      Text(
+                        '${event.timeRangeLabel} · ${event.feeLabel} · '
+                        '${event.applicantCount}/${event.capacity}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.texts.labelSmall,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
-              if (poster != null) ...[
-                const SizedBox(width: AppSpacing.lg),
-                EventPoster(url: poster),
+                // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
+                if (poster != null) ...[
+                  const SizedBox(width: AppSpacing.lg),
+                  EventPoster(url: poster),
+                ],
               ],
-            ],
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Align(

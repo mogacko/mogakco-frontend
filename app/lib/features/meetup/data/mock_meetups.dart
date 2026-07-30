@@ -24,6 +24,9 @@ abstract final class MockMeetups {
         placeName: '모모스커피 온천장',
         address: '부산광역시 동래구 온천동',
         isRecurring: true,
+        description:
+            '매주 토·일 오전에 모여 각자 할 일을 합니다. 조용히 앉아 있다가 점심만 같이 먹고 헤어져요. '
+            '처음 오시는 분은 입구 쪽 긴 테이블 보고 오시면 됩니다.',
         sessions: [
           MeetupSession(
             id: 'busan-1-today',
@@ -61,6 +64,9 @@ abstract final class MockMeetups {
         placeName: '카페 오리진',
         address: '부산광역시 해운대구 우동',
         isRecurring: true,
+        description:
+            '해운대 쪽에서 저녁에 모입니다. 늦게 오셔도 되고 중간에 가셔도 됩니다. '
+            '콘센트 자리가 넉넉해서 노트북 오래 쓰기 좋아요.',
         sessions: [
           MeetupSession(
             id: 'busan-3-fri',
@@ -99,6 +105,7 @@ abstract final class MockMeetups {
         placeName: '카페 그리다',
         address: '서울특별시 강남구 역삼동',
         isRecurring: true,
+        description: '강남에서 주말 오전에 모입니다. 조용한 편이고 대화는 쉬는 시간에만 해요.',
         sessions: [
           MeetupSession(
             id: 'seoul-1-sat',

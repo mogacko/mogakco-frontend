@@ -19,6 +19,7 @@ class PopularPostTile extends StatelessWidget {
     required this.post,
     required this.rank,
     required this.now,
+    required this.commentCount,
     this.onTap,
   });
 
@@ -28,6 +29,10 @@ class PopularPostTile extends StatelessWidget {
   final int rank;
 
   final DateTime now;
+
+  /// 댓글 저장소에서 세어 넘어온다.
+  final int commentCount;
+
   final VoidCallback? onTap;
 
   @override
@@ -100,7 +105,7 @@ class PopularPostTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        '${post.commentCount}',
+                        '$commentCount',
                         style: context.texts.labelSmall,
                       ),
                     ],

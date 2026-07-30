@@ -19,11 +19,16 @@ class PostCard extends StatelessWidget {
     required this.post,
     required this.now,
     required this.onToggleLike,
+    required this.commentCount,
     this.isPopular = false,
     this.onTap,
   });
 
   final Post post;
+
+  /// 댓글 저장소에서 세어 넘어온다. 글이 개수를 들고 있으면 댓글을 달 때마다
+  /// 두 곳을 맞춰야 하고, 한 번 어긋나면 목록과 상세가 다른 숫자를 말한다.
+  final int commentCount;
   final DateTime now;
   final VoidCallback onToggleLike;
 
@@ -111,7 +116,7 @@ class PostCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.lg),
                 _Metric(
                   icon: CupertinoIcons.bubble_right,
-                  count: post.commentCount,
+                  count: commentCount,
                 ),
               ],
             ),

@@ -4,6 +4,7 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
+import 'comment_provider.dart';
 import '../domain/post.dart';
 
 /// 커뮤니티 글 목록과 좋아요 상태.
@@ -126,6 +127,13 @@ final postCountsProvider = Provider<Map<PostCategory, int>>((ref) {
 /// 반응 두어 개짜리 글이 1등이 되는데, 그걸 '인기'라 부르면 말이 헐거워진다.
 const _popularThreshold = 20;
 
+/// 얼마나 반응을 얻었는지.
+///
+/// 댓글은 좋아요보다 품이 드는 반응이라 두 배로 센다. 진짜 인기 지표는
+/// 조회수 대비 반응률이겠지만 그건 서버 집계가 있어야 한다.
+int _engagement(Post post, Map<String, int> commentCounts) =>
+    post.likeCount + (commentCounts[post.id] ?? 0) * 2;
+
 /// 홈에 세울 인기글.
 ///
 /// 최근 것 위주로 본다. 지난달 글이 계속 1등이면 커뮤니티가 멈춰 보인다.
@@ -134,15 +142,21 @@ const _popularThreshold = 20;
 /// 인기글 자리를 공지가 차지한다. 그건 인기가 아니라 공지다.
 final popularPostsProvider = Provider<List<Post>>((ref) {
   final now = ref.watch(nowProvider);
+  final commentCounts = ref.watch(commentCountsProvider);
 
   final recent =
       ref
           .watch(chapterPostsProvider)
           .where((post) => post.board != PostBoard.notice)
           .where((post) => now.difference(post.createdAt).inDays < 7)
-          .where((post) => post.engagement >= _popularThreshold)
+          .where((post) => _engagement(post, commentCounts) >= _popularThreshold)
           .toList()
-        ..sort((a, b) => b.engagement.compareTo(a.engagement));
+        ..sort(
+          (a, b) => _engagement(
+            b,
+            commentCounts,
+          ).compareTo(_engagement(a, commentCounts)),
+        );
 
   return recent.take(3).toList();
 });

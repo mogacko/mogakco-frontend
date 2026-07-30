@@ -13,6 +13,9 @@ import 'package:mogacko/features/signup/domain/term.dart';
 import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
+import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
+import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
+import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
 import 'package:mogacko/shared/widgets/app_bottom_nav.dart';
 
 import '../helpers/fake_image_http.dart';
@@ -125,6 +128,30 @@ void main() {
 
     testWidgets('내 정보', (tester) async {
       await expectTabGolden(tester, AppTab.profile, 'profile_tab_light');
+    });
+
+    testWidgets('글 상세', (tester) async {
+      await expectGolden(
+        tester,
+        const PostDetailScreen(postId: 'busan-t1'),
+        'post_detail_light',
+      );
+    });
+
+    testWidgets('모각코 상세', (tester) async {
+      await expectGolden(
+        tester,
+        const MeetupDetailScreen(meetupId: 'busan-1'),
+        'meetup_detail_light',
+      );
+    });
+
+    testWidgets('행사 상세', (tester) async {
+      await expectGolden(
+        tester,
+        const EventDetailScreen(eventId: 'busan-e1'),
+        'event_detail_light',
+      );
     });
 
     testWidgets('참여 확인 시트', (tester) async {
@@ -241,6 +268,24 @@ void main() {
         tester,
         AppTab.profile,
         'profile_tab_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('글 상세', (tester) async {
+      await expectGolden(
+        tester,
+        const PostDetailScreen(postId: 'busan-t1'),
+        'post_detail_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('행사 상세', (tester) async {
+      await expectGolden(
+        tester,
+        const EventDetailScreen(eventId: 'busan-e1'),
+        'event_detail_dark',
         brightness: Brightness.dark,
       );
     });

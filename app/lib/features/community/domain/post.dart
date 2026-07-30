@@ -43,11 +43,10 @@ class Post {
     required this.chapter,
     required this.board,
     required this.title,
-    required this.excerpt,
+    required this.body,
     required this.author,
     required this.createdAt,
     required this.likeCount,
-    required this.commentCount,
     this.category,
     this.authorAvatarUrl,
     this.isLiked = false,
@@ -65,24 +64,27 @@ class Post {
 
   final String title;
 
-  /// 본문 앞부분. 목록에서 제목만으로는 열어볼지 정하기 어렵다.
-  final String excerpt;
+  /// 본문 전체.
+  ///
+  /// 목록에서는 앞부분만 잘라 보여준다([excerpt]). 따로 요약을 두지 않는
+  /// 이유는, 두 값이 어긋나면 목록에서 본 것과 열어서 본 것이 달라지기
+  /// 때문이다.
+  final String body;
 
   final String author;
   final String? authorAvatarUrl;
 
   final DateTime createdAt;
   final int likeCount;
-  final int commentCount;
 
   /// 내가 좋아요를 눌렀는지
   final bool isLiked;
 
-  /// 얼마나 반응을 얻었는지.
+  /// 목록에 세울 본문 앞부분.
   ///
-  /// 댓글은 좋아요보다 품이 드는 반응이라 두 배로 센다. 진짜 인기 지표는
-  /// 조회수 대비 반응률이겠지만 그건 서버 집계가 있어야 한다.
-  int get engagement => likeCount + commentCount * 2;
+  /// 제목만으로는 열어볼지 정하기 어렵다. 줄바꿈은 한 칸으로 눕혀야 두 줄
+  /// 안에 실제 내용이 들어온다. 그대로 두면 첫 문단만 보이고 잘린다.
+  String get excerpt => body.replaceAll(RegExp(r'\s+'), ' ').trim();
 
   /// 좋아요를 뒤집은 새 글을 만든다.
   Post toggleLike() {
@@ -99,12 +101,11 @@ class Post {
       board: board,
       category: category,
       title: title,
-      excerpt: excerpt,
+      body: body,
       author: author,
       authorAvatarUrl: authorAvatarUrl,
       createdAt: createdAt,
       likeCount: likeCount ?? this.likeCount,
-      commentCount: commentCount,
       isLiked: isLiked ?? this.isLiked,
     );
   }

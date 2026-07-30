@@ -12,6 +12,8 @@ import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../domain/post.dart';
+import 'comment_provider.dart';
+import 'post_detail_screen.dart';
 import 'post_provider.dart';
 import 'widgets/board_menu.dart';
 import 'widgets/post_card.dart';
@@ -38,6 +40,7 @@ class CommunityScreen extends ConsumerWidget {
     final counts = ref.watch(postCountsProvider);
     final popular = ref.watch(popularPostIdsProvider);
     final total = ref.watch(boardPostsProvider).length;
+    final commentCounts = ref.watch(commentCountsProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -120,10 +123,17 @@ class CommunityScreen extends ConsumerWidget {
                             return PostCard(
                               post: post,
                               now: now,
+                              commentCount: commentCounts[post.id] ?? 0,
                               isPopular: popular.contains(post.id),
                               onToggleLike: () => ref
                                   .read(postFeedProvider.notifier)
                                   .toggleLike(post.id),
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) =>
+                                      PostDetailScreen(postId: post.id),
+                                ),
+                              ),
                             );
                           },
                         ),

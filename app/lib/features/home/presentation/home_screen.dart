@@ -6,8 +6,11 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../community/presentation/comment_provider.dart';
+import '../../community/presentation/post_detail_screen.dart';
 import '../../community/presentation/post_provider.dart';
 import '../../community/presentation/widgets/popular_post_tile.dart';
+import '../../event/presentation/event_detail_screen.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../event/presentation/widgets/upcoming_event_tile.dart';
 import '../../meetup/presentation/meetup_provider.dart';
@@ -26,6 +29,7 @@ class HomeScreen extends ConsumerWidget {
     final isToday = ref.watch(heroIsTodayProvider);
     final events = ref.watch(upcomingEventsProvider);
     final popular = ref.watch(popularPostsProvider);
+    final commentCounts = ref.watch(commentCountsProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -69,9 +73,14 @@ class HomeScreen extends ConsumerWidget {
                       UpcomingEventTile(
                         event: event,
                         now: now,
-                        onTap: () => ref
-                            .read(currentTabProvider.notifier)
-                            .select(AppTab.event),
+                        // 탭으로 보내지 않고 그 행사로 바로 들어간다. 홈에서
+                        // 눌렀는데 목록으로 떨어지면 다시 찾아야 한다.
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                EventDetailScreen(eventId: event.id),
+                          ),
+                        ),
                       ),
                   ],
                   // 인기글이 없으면 구획째 뺀다. 빈 목록에 제목만 남으면
@@ -91,9 +100,13 @@ class HomeScreen extends ConsumerWidget {
                         post: popular[i],
                         rank: i + 1,
                         now: now,
-                        onTap: () => ref
-                            .read(currentTabProvider.notifier)
-                            .select(AppTab.community),
+                        commentCount: commentCounts[popular[i].id] ?? 0,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                PostDetailScreen(postId: popular[i].id),
+                          ),
+                        ),
                       ),
                   ],
                 ],

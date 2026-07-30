@@ -104,6 +104,7 @@ class Meetup {
     required this.sessions,
     this.hostAvatarUrl,
     this.isRecurring = false,
+    this.description,
   });
 
   final String id;
@@ -129,6 +130,11 @@ class Meetup {
 
   /// 매주 되풀이되는 정기 모임인지
   final bool isRecurring;
+
+  /// 모임장이 적은 소개. 목록에는 안 보이고 상세에서만 읽는다.
+  ///
+  /// 없는 모임이 흔하다. 자리만 잡고 별말 없이 여는 경우가 많다.
+  final String? description;
 
   /// 시·도를 뗀 주소.
   ///
@@ -231,6 +237,7 @@ class Meetup {
       hostAvatarUrl: hostAvatarUrl,
       sessions: sessions ?? this.sessions,
       isRecurring: isRecurring,
+      description: description,
     );
   }
 }

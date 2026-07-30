@@ -1,0 +1,76 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../shared/providers/now_provider.dart';
+import '../../profile/data/mock_profile.dart';
+import '../data/mock_comments.dart';
+import '../domain/comment.dart';
+
+/// 모든 글의 댓글.
+///
+/// 글마다 나눠 담지 않고 한 곳에 두고 걸러 쓴다. 목록 화면은 글별 개수만
+/// 필요하고 상세 화면은 한 글의 댓글만 필요해서, 원본이 하나여야 두 쪽이
+/// 어긋나지 않는다.
+class CommentList extends Notifier<List<Comment>> {
+  @override
+  List<Comment> build() {
+    final now = ref.watch(nowProvider);
+    return MockComments.from(now);
+  }
+
+  /// 댓글을 단다. 빈 글은 받지 않는다.
+  ///
+  /// 목록 맨 뒤에 붙는다. 댓글은 대화라 위에서 아래로 읽는 게 자연스럽다.
+  void add(String postId, String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty) return;
+
+    state = [
+      ...state,
+      Comment(
+        // 서버가 붙으면 서버가 정한 id 가 온다. 그때까지는 겹치지 않을 만큼만.
+        id: 'local-${state.length}-${trimmed.hashCode}',
+        postId: postId,
+        author: MockProfile.nickname,
+        body: trimmed,
+        createdAt: ref.read(nowProvider),
+        isMine: true,
+      ),
+    ];
+  }
+
+  /// 내가 쓴 댓글만 지운다.
+  void remove(String commentId) {
+    state = [
+      for (final comment in state)
+        if (!(comment.id == commentId && comment.isMine)) comment,
+    ];
+  }
+}
+
+final commentListProvider = NotifierProvider<CommentList, List<Comment>>(
+  CommentList.new,
+);
+
+/// 한 글의 댓글. 단 순서대로.
+final commentsOfProvider = Provider.family<List<Comment>, String>((
+  ref,
+  postId,
+) {
+  return ref
+      .watch(commentListProvider)
+      .where((comment) => comment.postId == postId)
+      .toList()
+    ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+});
+
+/// 글별 댓글 수.
+///
+/// 목록에 찍히는 값이다. 글에 개수를 따로 들고 있으면 댓글을 달 때마다 두
+/// 곳을 맞춰야 하고, 한 번 어긋나면 목록과 상세가 다른 숫자를 말한다.
+final commentCountsProvider = Provider<Map<String, int>>((ref) {
+  final counts = <String, int>{};
+  for (final comment in ref.watch(commentListProvider)) {
+    counts[comment.postId] = (counts[comment.postId] ?? 0) + 1;
+  }
+  return counts;
+});

@@ -123,8 +123,10 @@ void main() {
       await tester.pumpScreen(const CommunityScreen());
       await tester.pumpAndSettle();
 
-      // 지역 상위 세 편 중 이야기 게시판에 있는 둘.
-      expect(find.text('인기'), findsNWidgets(2));
+      // 댓글 수가 실제 댓글을 센 값이 되면서 기준(20)을 넘는 글이 줄었다.
+      // 부산에서는 좋아요 47 짜리 회고 하나만 남는다. 기준을 낮춰 개수를
+      // 맞추지는 않는다. 좋아요 열두 개짜리 질문을 '인기'라 부를 수는 없다.
+      expect(find.text('인기'), findsOneWidget);
     });
 
     testWidgets('공지는 인기글로 세지 않는다', (tester) async {
