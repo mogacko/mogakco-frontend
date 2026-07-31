@@ -17,6 +17,7 @@ class MeetupCarousel extends StatefulWidget {
     required this.meetups,
     required this.now,
     required this.onToggleSession,
+    this.onOpenMeetup,
   });
 
   /// 모임과 화면에 세울 하루.
@@ -30,6 +31,12 @@ class MeetupCarousel extends StatefulWidget {
 
   /// (모임 id, 날짜 id)로 그 날의 참여를 뒤집는다.
   final void Function(String meetupId, String sessionId) onToggleSession;
+
+  /// 카드를 누르면 그 모임으로 들어간다.
+  ///
+  /// 참여 버튼은 그 자리에서 결정하는 곳이라 상세로 가지 않는다. 한 카드에
+  /// 목적이 둘이라 눌리는 자리를 나눠 둔다.
+  final void Function(String meetupId)? onOpenMeetup;
 
   @override
   State<MeetupCarousel> createState() => _MeetupCarouselState();
@@ -126,6 +133,7 @@ class _MeetupCarouselState extends State<MeetupCarousel> {
                   now: widget.now,
                   onToggle: () =>
                       widget.onToggleSession(entry.meetup.id, entry.session.id),
+                  onOpen: () => widget.onOpenMeetup?.call(entry.meetup.id),
                 ),
               );
             },
@@ -145,6 +153,7 @@ class _MeetupCard extends StatelessWidget {
     required this.session,
     required this.now,
     required this.onToggle,
+    required this.onOpen,
   });
 
   final Meetup meetup;
@@ -154,6 +163,7 @@ class _MeetupCard extends StatelessWidget {
 
   final DateTime now;
   final VoidCallback onToggle;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -178,65 +188,72 @@ class _MeetupCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        child: Stack(
-          children: [
-            // 로고를 크게 흐리게 깔아 카드가 밋밋해지지 않게 한다.
-            Positioned(
-              right: -20,
-              top: -16,
-              child: Opacity(
-                opacity: 0.13,
-                child: MogackoLogo.square(
-                  size: 132,
-                  color: const Color(0xFFFFFFFF),
+        // 카드 전체가 눌린다. 참여 버튼은 그 위에 있어 자기 탭을 먼저 받는다.
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onOpen,
+            child: Stack(
+              children: [
+                // 로고를 크게 흐리게 깔아 카드가 밋밋해지지 않게 한다.
+                Positioned(
+                  right: -20,
+                  top: -16,
+                  child: Opacity(
+                    opacity: 0.13,
+                    child: MogackoLogo.square(
+                      size: 132,
+                      color: const Color(0xFFFFFFFF),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 위쪽 한 줄에 어디서·언제를 나란히 둔다.
-                  // 왼쪽은 장소, 오른쪽은 시각과 정원이다.
-                  Row(
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: _Place(meetup: meetup)),
-                      const SizedBox(width: AppSpacing.md),
-                      _When(session: session, now: now),
-                    ],
-                  ),
-                  const Spacer(),
-                  // 아래 줄은 누가 열었는지와 결정 버튼이 나눠 갖는다.
-                  // 버튼은 엄지가 닿는 오른쪽에 둔다.
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _Host(
-                          name: meetup.host,
-                          avatarUrl: meetup.hostAvatarUrl,
-                        ),
+                      // 위쪽 한 줄에 어디서·언제를 나란히 둔다.
+                      // 왼쪽은 장소, 오른쪽은 시각과 정원이다.
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _Place(meetup: meetup)),
+                          const SizedBox(width: AppSpacing.md),
+                          _When(session: session, now: now),
+                        ],
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      _JoinButton(
-                        session: session,
-                        onTap: () async {
-                          final ok = await confirmJoinChange(
-                            context,
-                            meetup: meetup,
+                      const Spacer(),
+                      // 아래 줄은 누가 열었는지와 결정 버튼이 나눠 갖는다.
+                      // 버튼은 엄지가 닿는 오른쪽에 둔다.
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _Host(
+                              name: meetup.host,
+                              avatarUrl: meetup.hostAvatarUrl,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          _JoinButton(
                             session: session,
-                            now: now,
-                          );
-                          if (ok) onToggle();
-                        },
+                            onTap: () async {
+                              final ok = await confirmJoinChange(
+                                context,
+                                meetup: meetup,
+                                session: session,
+                                now: now,
+                              );
+                              if (ok) onToggle();
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

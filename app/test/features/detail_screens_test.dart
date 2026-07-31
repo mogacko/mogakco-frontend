@@ -96,6 +96,10 @@ void main() {
 
       expect(find.text('5/8'), findsOneWidget);
 
+      // 아래 댓글 입력줄이 목록 끝을 덮는다. 덮인 자리를 누르면 입력줄이
+      // 먼저 받아서 시트가 뜨지 않는다.
+      await tester.ensureVisible(find.text('신청').first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('신청').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('참여하기'));
@@ -104,6 +108,41 @@ void main() {
       // id 로 프로바이더를 다시 보므로 화면이 옛 값을 들고 있지 않다.
       expect(find.text('6/8'), findsOneWidget);
       expect(find.text('참여 중'), findsOneWidget);
+    });
+
+    testWidgets('모각코에도 댓글을 달 수 있다', (tester) async {
+      await tester.pumpScreen(const MeetupScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('모모스커피 온천장'));
+      await tester.pumpAndSettle();
+
+      // 지도와 일정 아래라 끌어올려야 나온다.
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+
+      // 가기 전에 물어보는 자리다.
+      expect(find.text('댓글 3'), findsOneWidget);
+      expect(find.textContaining('몇 시까지 가면 될까요'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '저도 갑니다');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(CupertinoIcons.arrow_up));
+      await tester.pumpAndSettle();
+
+      expect(find.text('댓글 4'), findsOneWidget);
+    });
+
+    testWidgets('글 댓글과 모각코 댓글이 섞이지 않는다', (tester) async {
+      await tester.pumpScreen(const MeetupScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('모모스커피 온천장'));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+
+      // 대상 종류를 함께 보므로 id 가 겹쳐도 갈린다.
+      expect(find.textContaining('혼자 했으면 두 번은 접었을'), findsNothing);
+      expect(find.textContaining('축하드려요. 3월에 뵀을 때'), findsNothing);
     });
   });
 

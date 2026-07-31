@@ -5,7 +5,10 @@ enum EventKind {
   seminar('세미나'),
   hackathon('해커톤'),
   networking('네트워킹'),
-  retrospective('회고');
+  retrospective('회고'),
+  // 위 넷에 들어가지 않는 자리. 분류를 억지로 맞추다 이름이 헐거워지는 것보다
+  // 여기로 보내는 편이 낫다.
+  other('기타');
 
   const EventKind(this.label);
 

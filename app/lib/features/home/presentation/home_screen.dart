@@ -6,13 +6,14 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../community/presentation/comment_provider.dart';
+import '../../comment/presentation/comment_provider.dart';
 import '../../community/presentation/post_detail_screen.dart';
 import '../../community/presentation/post_provider.dart';
 import '../../community/presentation/widgets/popular_post_tile.dart';
 import '../../event/presentation/event_detail_screen.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../event/presentation/widgets/upcoming_event_tile.dart';
+import '../../meetup/presentation/meetup_detail_screen.dart';
 import '../../meetup/presentation/meetup_provider.dart';
 import '../../shell/presentation/tab_provider.dart';
 import 'widgets/home_header.dart';
@@ -29,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
     final isToday = ref.watch(heroIsTodayProvider);
     final events = ref.watch(upcomingEventsProvider);
     final popular = ref.watch(popularPostsProvider);
-    final commentCounts = ref.watch(commentCountsProvider);
+    final commentCounts = ref.watch(postCommentCountsProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -56,6 +57,11 @@ class HomeScreen extends ConsumerWidget {
                     onToggleSession: (meetupId, sessionId) => ref
                         .read(meetupListProvider.notifier)
                         .toggleSession(meetupId, sessionId),
+                    onOpenMeetup: (meetupId) => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => MeetupDetailScreen(meetupId: meetupId),
+                      ),
+                    ),
                   ),
                   // 갈 자리를 먼저 모아 두고 읽을거리는 그 아래로 둔다.
                   // 행사는 날짜가 정해져 있어 놓치면 끝이지만 글은 그렇지 않다.

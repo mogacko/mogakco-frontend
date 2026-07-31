@@ -11,9 +11,10 @@ import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../domain/post.dart';
-import 'comment_provider.dart';
+import '../../comment/domain/comment.dart';
+import '../../comment/presentation/comment_provider.dart';
+import '../../comment/presentation/widgets/comment_section.dart';
 import 'post_provider.dart';
-import 'widgets/comment_section.dart';
 
 /// 글 하나.
 ///
@@ -23,6 +24,8 @@ class PostDetailScreen extends ConsumerWidget {
   const PostDetailScreen({super.key, required this.postId});
 
   final String postId;
+
+  CommentThread _threadOf(String id) => (target: CommentTarget.post, id: id);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,14 +48,14 @@ class PostDetailScreen extends ConsumerWidget {
       );
     }
 
-    final comments = ref.watch(commentsOfProvider(postId));
+    final comments = ref.watch(commentsOfProvider(_threadOf(postId)));
 
     return DetailScaffold(
       title: post.board.label,
       bottomAction: CommentField(
         onSubmit: (body) {
           Haptics.toggle();
-          ref.read(commentListProvider.notifier).add(postId, body);
+          ref.read(commentListProvider.notifier).add(_threadOf(postId), body);
         },
       ),
       children: [

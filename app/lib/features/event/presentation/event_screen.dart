@@ -8,9 +8,9 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/korean_particle.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
-import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/title_menu.dart';
 import '../domain/event.dart';
 import 'event_detail_screen.dart';
 import 'event_provider.dart';
@@ -32,8 +32,6 @@ class EventScreen extends ConsumerWidget {
     final now = ref.watch(nowProvider);
     final events = ref.watch(visibleEventsProvider);
     final kind = ref.watch(eventFilterProvider);
-    final counts = ref.watch(eventCountsProvider);
-    final total = ref.watch(chapterEventsProvider).length;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -42,16 +40,18 @@ class EventScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const ScreenHeader(title: '행사'),
-            FilterBar<EventKind?>(
-              options: _filters,
-              selected: kind,
-              labelOf: (kind) => kind?.label ?? '전체',
-              countOf: (kind) => kind == null ? total : (counts[kind] ?? 0),
-              onSelect: (kind) =>
-                  ref.read(eventFilterProvider.notifier).select(kind),
+            // 종류를 제목 자리로 올린다. 행사 탭이라는 건 탭 바가 이미
+            // 말하고 있어, 제목에 '행사'를 한 번 더 적을 이유가 없다.
+            ScreenHeader.custom(
+              titleWidget: TitleMenu<EventKind?>(
+                current: kind,
+                options: _filters,
+                labelOf: (kind) => kind?.label ?? '전체',
+                tooltip: '종류 바꾸기',
+                onSelected: (kind) =>
+                    ref.read(eventFilterProvider.notifier).select(kind),
+              ),
             ),
-            const SizedBox(height: AppSpacing.md),
             Expanded(
               child: PullToRefresh(
                 onRefresh: () => ref.read(eventListProvider.notifier).refresh(),

@@ -5,8 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
+import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../comment/domain/comment.dart';
+import '../../comment/presentation/comment_provider.dart';
+import '../../comment/presentation/widgets/comment_section.dart';
 import '../domain/event.dart';
 import 'event_provider.dart';
 import 'widgets/event_apply_sheet.dart';
@@ -25,6 +29,8 @@ class EventDetailScreen extends ConsumerWidget {
   const EventDetailScreen({super.key, required this.eventId});
 
   final String eventId;
+
+  CommentThread get _thread => (target: CommentTarget.event, id: eventId);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,8 +54,12 @@ class EventDetailScreen extends ConsumerWidget {
 
     final poster = event.posterUrl;
     final colors = context.colors;
+    final comments = ref.watch(commentsOfProvider(_thread));
 
     return DetailScaffold(
+      // 아래 고정 자리는 신청 버튼이 쓴다. 여기서 내리는 결정이 그것 하나라
+      // 댓글 입력줄은 본문 끝에 둔다. 두 줄이 겹치면 어느 쪽이 이 화면의
+      // 할 일인지 흐려진다.
       bottomAction: _ApplyButton(event: event, now: now),
       children: [
         if (poster != null) ...[
@@ -127,6 +137,27 @@ class EventDetailScreen extends ConsumerWidget {
                     '(${event.ddayLabel(now)})',
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xxl),
+        Divider(height: 1, color: colors.border),
+        const SizedBox(height: AppSpacing.xl),
+        CommentSection(
+          comments: comments,
+          now: now,
+          onDelete: (comment) =>
+              ref.read(commentListProvider.notifier).remove(comment.id),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenHorizontal,
+          ),
+          child: CommentField(
+            onSubmit: (body) {
+              Haptics.toggle();
+              ref.read(commentListProvider.notifier).add(_thread, body);
+            },
           ),
         ),
       ],

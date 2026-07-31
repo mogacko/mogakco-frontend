@@ -6,10 +6,14 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
+import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/static_map.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../comment/domain/comment.dart';
+import '../../comment/presentation/comment_provider.dart';
+import '../../comment/presentation/widgets/comment_section.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
 import 'widgets/meetup_session_list.dart';
@@ -26,6 +30,8 @@ class MeetupDetailScreen extends ConsumerWidget {
   const MeetupDetailScreen({super.key, required this.meetupId});
 
   final String meetupId;
+
+  CommentThread get _thread => (target: CommentTarget.meetup, id: meetupId);
 
   /// 길찾기는 지도 앱이 훨씬 잘한다. 여기서 흉내 내지 않고 넘긴다.
   ///
@@ -63,8 +69,18 @@ class MeetupDetailScreen extends ConsumerWidget {
     }
 
     final description = meetup.description;
+    final comments = ref.watch(commentsOfProvider(_thread));
 
     return DetailScaffold(
+      // 글 상세와 같은 자리에 같은 입력줄을 둔다. 물어볼 게 생기는 자리는
+      // 성격이 같다 — 글에는 '어떻게 하셨어요', 모각코에는 '몇 시까지 가면
+      // 되나요'.
+      bottomAction: CommentField(
+        onSubmit: (body) {
+          Haptics.toggle();
+          ref.read(commentListProvider.notifier).add(_thread, body);
+        },
+      ),
       children: [
         _Head(meetup: meetup),
         if (description != null) ...[
@@ -126,6 +142,15 @@ class MeetupDetailScreen extends ConsumerWidget {
                   .toggleSession(meetup.id, sessionId),
             ),
           ),
+        ),
+        const SizedBox(height: AppSpacing.xxl),
+        Divider(height: 1, color: context.colors.border),
+        const SizedBox(height: AppSpacing.xl),
+        CommentSection(
+          comments: comments,
+          now: now,
+          onDelete: (comment) =>
+              ref.read(commentListProvider.notifier).remove(comment.id),
         ),
       ],
     );

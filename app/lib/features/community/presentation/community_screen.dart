@@ -11,11 +11,11 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/title_menu.dart';
 import '../domain/post.dart';
-import 'comment_provider.dart';
+import '../../comment/presentation/comment_provider.dart';
 import 'post_detail_screen.dart';
 import 'post_provider.dart';
-import 'widgets/board_menu.dart';
 import 'widgets/post_card.dart';
 
 /// 커뮤니티 탭.
@@ -40,7 +40,7 @@ class CommunityScreen extends ConsumerWidget {
     final counts = ref.watch(postCountsProvider);
     final popular = ref.watch(popularPostIdsProvider);
     final total = ref.watch(boardPostsProvider).length;
-    final commentCounts = ref.watch(commentCountsProvider);
+    final commentCounts = ref.watch(postCommentCountsProvider);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -50,8 +50,11 @@ class CommunityScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ScreenHeader.custom(
-              titleWidget: BoardMenu(
+              titleWidget: TitleMenu<PostBoard>(
                 current: board,
+                options: PostBoard.values,
+                labelOf: (board) => board.label,
+                tooltip: '게시판 바꾸기',
                 onSelected: (board) =>
                     ref.read(postBoardProvider.notifier).select(board),
               ),

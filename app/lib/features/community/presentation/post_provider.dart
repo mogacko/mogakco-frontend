@@ -4,7 +4,7 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
-import 'comment_provider.dart';
+import '../../comment/presentation/comment_provider.dart';
 import '../domain/post.dart';
 
 /// 커뮤니티 글 목록과 좋아요 상태.
@@ -142,7 +142,7 @@ int _engagement(Post post, Map<String, int> commentCounts) =>
 /// 인기글 자리를 공지가 차지한다. 그건 인기가 아니라 공지다.
 final popularPostsProvider = Provider<List<Post>>((ref) {
   final now = ref.watch(nowProvider);
-  final commentCounts = ref.watch(commentCountsProvider);
+  final commentCounts = ref.watch(postCommentCountsProvider);
 
   final recent =
       ref

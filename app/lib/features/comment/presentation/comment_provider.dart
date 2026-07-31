@@ -5,10 +5,10 @@ import '../../profile/data/mock_profile.dart';
 import '../data/mock_comments.dart';
 import '../domain/comment.dart';
 
-/// 모든 글의 댓글.
+/// 모든 댓글.
 ///
-/// 글마다 나눠 담지 않고 한 곳에 두고 걸러 쓴다. 목록 화면은 글별 개수만
-/// 필요하고 상세 화면은 한 글의 댓글만 필요해서, 원본이 하나여야 두 쪽이
+/// 대상마다 나눠 담지 않고 한 곳에 두고 걸러 쓴다. 목록 화면은 대상별 개수만
+/// 필요하고 상세 화면은 한 대상의 댓글만 필요해서, 원본이 하나여야 두 쪽이
 /// 어긋나지 않는다.
 class CommentList extends Notifier<List<Comment>> {
   @override
@@ -20,7 +20,7 @@ class CommentList extends Notifier<List<Comment>> {
   /// 댓글을 단다. 빈 글은 받지 않는다.
   ///
   /// 목록 맨 뒤에 붙는다. 댓글은 대화라 위에서 아래로 읽는 게 자연스럽다.
-  void add(String postId, String body) {
+  void add(CommentThread thread, String body) {
     final trimmed = body.trim();
     if (trimmed.isEmpty) return;
 
@@ -29,7 +29,8 @@ class CommentList extends Notifier<List<Comment>> {
       Comment(
         // 서버가 붙으면 서버가 정한 id 가 온다. 그때까지는 겹치지 않을 만큼만.
         id: 'local-${state.length}-${trimmed.hashCode}',
-        postId: postId,
+        target: thread.target,
+        targetId: thread.id,
         author: MockProfile.nickname,
         body: trimmed,
         createdAt: ref.read(nowProvider),
@@ -51,14 +52,14 @@ final commentListProvider = NotifierProvider<CommentList, List<Comment>>(
   CommentList.new,
 );
 
-/// 한 글의 댓글. 단 순서대로.
-final commentsOfProvider = Provider.family<List<Comment>, String>((
+/// 한 대상의 댓글. 단 순서대로.
+final commentsOfProvider = Provider.family<List<Comment>, CommentThread>((
   ref,
-  postId,
+  thread,
 ) {
   return ref
       .watch(commentListProvider)
-      .where((comment) => comment.postId == postId)
+      .where((comment) => comment.thread == thread)
       .toList()
     ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 });
@@ -67,10 +68,11 @@ final commentsOfProvider = Provider.family<List<Comment>, String>((
 ///
 /// 목록에 찍히는 값이다. 글에 개수를 따로 들고 있으면 댓글을 달 때마다 두
 /// 곳을 맞춰야 하고, 한 번 어긋나면 목록과 상세가 다른 숫자를 말한다.
-final commentCountsProvider = Provider<Map<String, int>>((ref) {
+final postCommentCountsProvider = Provider<Map<String, int>>((ref) {
   final counts = <String, int>{};
   for (final comment in ref.watch(commentListProvider)) {
-    counts[comment.postId] = (counts[comment.postId] ?? 0) + 1;
+    if (comment.target != CommentTarget.post) continue;
+    counts[comment.targetId] = (counts[comment.targetId] ?? 0) + 1;
   }
   return counts;
 });
