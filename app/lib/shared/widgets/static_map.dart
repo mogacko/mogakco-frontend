@@ -181,18 +181,21 @@ class _Tile extends StatelessWidget {
 
 /// 지도 앱으로 넘기는 주소.
 ///
-/// 카카오맵 링크를 쓴다. 앱이 깔려 있으면 앱이 열리고 없으면 웹 지도가 열린다.
-/// 한국에서 길찾기는 대개 카카오나 네이버로 하므로 구글 지도로 보내면 한 번 더
-/// 옮겨 타야 한다.
-Uri kakaoMapLink({
+/// 네이버 지도 링크를 쓴다. 앱이 깔려 있으면 앱이 열리고 없으면 웹 지도가
+/// 열린다. 구글 지도로 보내면 한국에서는 길찾기를 한 번 더 옮겨 타야 한다.
+///
+/// 좌표를 경로가 아니라 질의로 싣는다. 경로에 쉼표로 이어 붙이는 형식은 장소
+/// 이름에 쉼표가 섞이면 좌표가 밀린다. [Uri.https] 가 인코딩까지 맡는다.
+Uri naverMapLink({
   required String name,
   required double latitude,
   required double longitude,
 }) {
-  return Uri.parse(
-    'https://map.kakao.com/link/map/'
-    '${Uri.encodeComponent(name)},$latitude,$longitude',
-  );
+  return Uri.https('map.naver.com', '/p', {
+    'title': name,
+    'lat': '$latitude',
+    'lng': '$longitude',
+  });
 }
 
 /// 지도 블록 아래에 두는 열기 버튼

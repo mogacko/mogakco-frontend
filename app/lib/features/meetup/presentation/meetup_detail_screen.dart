@@ -35,11 +35,11 @@ class MeetupDetailScreen extends ConsumerWidget {
 
   /// 길찾기는 지도 앱이 훨씬 잘한다. 여기서 흉내 내지 않고 넘긴다.
   ///
-  /// 앱이 없으면 브라우저의 카카오맵이 열린다. 열지 못하는 환경이라도
+  /// 앱이 없으면 브라우저의 네이버 지도가 열린다. 열지 못하는 환경이라도
   /// 주소가 화면에 그대로 있으므로 막히지 않는다.
   Future<void> _openMap(Meetup meetup) async {
     await launchUrl(
-      kakaoMapLink(
+      naverMapLink(
         name: meetup.placeName,
         latitude: meetup.latitude!,
         longitude: meetup.longitude!,

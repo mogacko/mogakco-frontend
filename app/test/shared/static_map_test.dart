@@ -69,17 +69,31 @@ void main() {
     });
   });
 
-  group('kakaoMapLink', () {
+  group('naverMapLink', () {
+    test('좌표를 질의로 싣는다', () {
+      final link = naverMapLink(
+        name: '카페 오리진',
+        latitude: 35.1631,
+        longitude: 129.1636,
+      );
+
+      expect(link.host, 'map.naver.com');
+      expect(link.queryParameters['lat'], '35.1631');
+      expect(link.queryParameters['lng'], '129.1636');
+      expect(link.queryParameters['title'], '카페 오리진');
+    });
+
     test('이름에 쉼표가 섞여도 좌표와 갈리지 않는다', () {
-      final link = kakaoMapLink(
+      final link = naverMapLink(
         name: '카페 오리진, 2층',
         latitude: 35.1631,
         longitude: 129.1636,
       );
 
-      // 이름을 그대로 붙이면 쉼표가 구분자로 읽혀 좌표가 밀린다.
-      expect(link.toString(), contains('%2C'));
-      expect(link.toString(), endsWith(',35.1631,129.1636'));
+      // 좌표를 경로에 쉼표로 이어 붙이던 시절에는 이름 속 쉼표가 구분자로
+      // 읽혀 위치가 밀렸다. 질의로 실으면 그 일이 생기지 않는다.
+      expect(link.queryParameters['title'], '카페 오리진, 2층');
+      expect(link.queryParameters['lat'], '35.1631');
     });
   });
 }
