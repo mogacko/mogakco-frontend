@@ -57,6 +57,12 @@ class EventDetailScreen extends ConsumerWidget {
     final comments = ref.watch(commentsOfProvider(_thread));
 
     return DetailScaffold(
+      // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
+      // 새로고침이 반쯤 된 것처럼 보인다.
+      onRefresh: () => Future.wait([
+        ref.read(eventListProvider.notifier).refresh(),
+        ref.read(commentListProvider.notifier).refresh(),
+      ]),
       // 아래 고정 자리는 신청 버튼이 쓴다. 여기서 내리는 결정이 그것 하나라
       // 댓글 입력줄은 본문 끝에 둔다. 두 줄이 겹치면 어느 쪽이 이 화면의
       // 할 일인지 흐려진다.

@@ -117,7 +117,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 지도와 일정 아래라 끌어올려야 나온다.
-      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
 
       // 가기 전에 물어보는 자리다.
@@ -137,7 +137,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('모모스커피 온천장'));
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
 
       // 대상 종류를 함께 보므로 id 가 겹쳐도 갈린다.
@@ -156,7 +156,7 @@ void main() {
 
       // 테스트 화면이 폰보다 넓어 4:3 포스터가 그만큼 커진다. 정보 카드가
       // 뷰포트 아래로 밀리므로 끌어올려 확인한다.
-      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
 
       expect(find.text('일시'), findsOneWidget);

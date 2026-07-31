@@ -43,6 +43,29 @@ void main() {
     });
   }
 
+  testWidgets('상세 화면도 당겨진다', (tester) async {
+    // 댓글이 달리고 정원이 차는 자리라 목록보다 더 필요하다.
+    await tester.pumpScreen(const MeetupScreen(), animations: true);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('모모스커피 온천장'));
+    await tester.pumpAndSettle();
+
+    await tester.fling(
+      find.byType(CustomScrollView),
+      const Offset(0, 320),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
+  });
+
   testWidgets('당기지 않았을 때는 목록이 맨 위에 붙어 있다', (tester) async {
     await tester.pumpScreen(const MeetupScreen(), animations: true);
     await tester.pumpAndSettle();

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../profile/data/mock_profile.dart';
 import '../data/mock_comments.dart';
@@ -28,7 +29,7 @@ class CommentList extends Notifier<List<Comment>> {
       ...state,
       Comment(
         // 서버가 붙으면 서버가 정한 id 가 온다. 그때까지는 겹치지 않을 만큼만.
-        id: 'local-${state.length}-${trimmed.hashCode}',
+        id: '$_localPrefix${state.length}-${trimmed.hashCode}',
         target: thread.target,
         targetId: thread.id,
         author: MockProfile.nickname,
@@ -46,6 +47,30 @@ class CommentList extends Notifier<List<Comment>> {
         if (!(comment.id == commentId && comment.isMine)) comment,
     ];
   }
+
+  /// 당겨서 새로고침.
+  ///
+  /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 단 댓글도 응답에 실려
+  /// 오므로 아래 옮겨 담기는 지운다.
+  ///
+  /// 지금 목업을 다시 읽으면 두 가지가 어긋난다. 방금 단 댓글이 사라지고,
+  /// 지웠던 댓글이 되살아난다. 새로고침이 되돌리기처럼 보이는 자리다.
+  Future<void> refresh() async {
+    // 목업에 없던 것 = 내가 여기서 단 것
+    final mine = state.where((comment) => comment.id.startsWith(_localPrefix));
+    final kept = {for (final comment in state) comment.id};
+
+    await Future<void>.delayed(mockNetworkDelay);
+
+    state = [
+      for (final comment in MockComments.from(ref.read(nowProvider)))
+        if (kept.contains(comment.id)) comment,
+      ...mine,
+    ];
+  }
+
+  /// 서버가 아직 id 를 주지 못하는 동안 쓰는 앞머리.
+  static const _localPrefix = 'local-';
 }
 
 final commentListProvider = NotifierProvider<CommentList, List<Comment>>(

@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mogacko/features/comment/domain/comment.dart';
+import 'package:mogacko/features/comment/presentation/comment_provider.dart';
 import 'package:mogacko/features/community/presentation/post_provider.dart';
 import 'package:mogacko/features/event/presentation/event_provider.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_provider.dart';
@@ -43,6 +45,52 @@ void main() {
           .firstWhere((post) => post.id == 'busan-t1');
       expect(post.isLiked, isFalse);
       expect(post.likeCount, 46);
+    });
+  });
+
+  group('댓글', () {
+    const thread = (target: CommentTarget.post, id: 'busan-t1');
+
+    test('방금 단 댓글이 새로고침 후에도 남는다', () async {
+      final container = makeContainer();
+      container.read(commentListProvider.notifier).add(thread, '축하드려요');
+
+      await container.read(commentListProvider.notifier).refresh();
+
+      final bodies = container
+          .read(commentsOfProvider(thread))
+          .map((comment) => comment.body);
+      expect(bodies, contains('축하드려요'));
+    });
+
+    test('지운 댓글이 새로고침으로 되살아나지 않는다', () async {
+      final container = makeContainer();
+      // 목업에 내가 쓴 댓글이 하나 있다.
+      final mine = container
+          .read(commentsOfProvider(thread))
+          .firstWhere((comment) => comment.isMine);
+      container.read(commentListProvider.notifier).remove(mine.id);
+
+      await container.read(commentListProvider.notifier).refresh();
+
+      final ids = container
+          .read(commentsOfProvider(thread))
+          .map((comment) => comment.id);
+      expect(ids, isNot(contains(mine.id)));
+    });
+
+    test('남의 댓글은 지워지지 않는다', () async {
+      final container = makeContainer();
+      final theirs = container
+          .read(commentsOfProvider(thread))
+          .firstWhere((comment) => !comment.isMine);
+
+      container.read(commentListProvider.notifier).remove(theirs.id);
+
+      final ids = container
+          .read(commentsOfProvider(thread))
+          .map((comment) => comment.id);
+      expect(ids, contains(theirs.id));
     });
   });
 

@@ -72,6 +72,12 @@ class MeetupDetailScreen extends ConsumerWidget {
     final comments = ref.watch(commentsOfProvider(_thread));
 
     return DetailScaffold(
+      // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
+      // 새로고침이 반쯤 된 것처럼 보인다.
+      onRefresh: () => Future.wait([
+        ref.read(meetupListProvider.notifier).refresh(),
+        ref.read(commentListProvider.notifier).refresh(),
+      ]),
       // 글 상세와 같은 자리에 같은 입력줄을 둔다. 물어볼 게 생기는 자리는
       // 성격이 같다 — 글에는 '어떻게 하셨어요', 모각코에는 '몇 시까지 가면
       // 되나요'.

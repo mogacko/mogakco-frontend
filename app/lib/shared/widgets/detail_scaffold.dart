@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import 'pull_to_refresh.dart';
 
 /// 상세 화면의 골격.
 ///
@@ -18,6 +19,7 @@ class DetailScaffold extends StatelessWidget {
     this.title,
     this.actions = const [],
     this.bottomAction,
+    this.onRefresh,
   });
 
   /// 스크롤되는 본문. 좌우 여백은 각 조각이 알아서 맞춘다.
@@ -33,6 +35,26 @@ class DetailScaffold extends StatelessWidget {
 
   /// 화면 아래에 붙는 결정 버튼. 없으면 본문만 놓인다.
   final Widget? bottomAction;
+
+  /// 당겨서 새로고침. 없으면 그냥 스크롤만 한다.
+  ///
+  /// 상세는 목록보다 더 필요하다. 댓글이 달리고 정원이 차는 자리라, 열어둔
+  /// 채로 두면 화면이 금세 낡는다.
+  final Future<void> Function()? onRefresh;
+
+  /// 본문. 새로고침이 있으면 그 껍데기가 스크롤을 맡는다.
+  Widget _body() {
+    final content = SliverPadding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.huge),
+      sliver: SliverList.list(children: children),
+    );
+
+    final onRefresh = this.onRefresh;
+    if (onRefresh == null) {
+      return CustomScrollView(slivers: [content]);
+    }
+    return PullToRefresh(onRefresh: onRefresh, slivers: [content]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,12 +94,7 @@ class DetailScaffold extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: AppSpacing.huge),
-                children: children,
-              ),
-            ),
+            Expanded(child: _body()),
             if (bottomAction != null)
               // 버튼이 본문 위에 떠 있는 게 아니라 화면 바닥에 붙는다.
               // 위에 선을 한 줄 둬서 본문이 그 아래로 이어지지 않는다는 걸 알린다.
