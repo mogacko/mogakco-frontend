@@ -55,21 +55,20 @@ class EventScreen extends ConsumerWidget {
             Expanded(
               child: PullToRefresh(
                 onRefresh: () => ref.read(eventListProvider.notifier).refresh(),
-                child: events.isEmpty
-                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                    ? Center(
-                        child: SingleChildScrollView(
-                          physics: alwaysScrollable,
-                          child: _Empty(kind: kind),
-                        ),
-                      )
-                    : ListView.separated(
-                        physics: alwaysScrollable,
-                        padding: EdgeInsets.only(
-                          bottom:
-                              AppBottomNav.contentInset(context) +
-                              AppSpacing.xl,
-                        ),
+                slivers: [
+                  if (events.isEmpty)
+                    // 남는 자리를 다 차지해 가운데 세운다.
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: _Empty(kind: kind)),
+                    )
+                  else
+                    SliverPadding(
+                      padding: EdgeInsets.only(
+                        bottom:
+                            AppBottomNav.contentInset(context) + AppSpacing.xl,
+                      ),
+                      sliver: SliverList.separated(
                         itemCount: events.length,
                         separatorBuilder: (_, _) =>
                             const SizedBox(height: AppSpacing.md),
@@ -90,6 +89,8 @@ class EventScreen extends ConsumerWidget {
                           );
                         },
                       ),
+                    ),
+                ],
               ),
             ),
           ],

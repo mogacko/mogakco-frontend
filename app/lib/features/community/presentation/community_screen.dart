@@ -98,21 +98,24 @@ class CommunityScreen extends ConsumerWidget {
                 child: PullToRefresh(
                   onRefresh: () =>
                       ref.read(postFeedProvider.notifier).refresh(),
-                  child: posts.isEmpty
-                      // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                      ? Center(
-                          child: SingleChildScrollView(
-                            physics: alwaysScrollable,
-                            child: _Empty(board: board, category: selected),
-                          ),
-                        )
-                      : ListView.separated(
-                          physics: alwaysScrollable,
-                          padding: EdgeInsets.only(
-                            bottom:
-                                AppBottomNav.contentInset(context) +
-                                AppSpacing.xl,
-                          ),
+                  slivers: [
+                    if (posts.isEmpty)
+                      // 남는 자리를 다 차지해 가운데 세운다. 글자를 키운
+                      // 기기에서 넘치면 그때는 스크롤된다.
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: _Empty(board: board, category: selected),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        sliver: SliverList.separated(
                           itemCount: posts.length,
                           separatorBuilder: (context, _) => Divider(
                             height: 1,
@@ -140,6 +143,8 @@ class CommunityScreen extends ConsumerWidget {
                             );
                           },
                         ),
+                      ),
+                  ],
                 ),
               ),
             ),

@@ -61,21 +61,20 @@ class MeetupScreen extends ConsumerWidget {
               child: PullToRefresh(
                 onRefresh: () =>
                     ref.read(meetupListProvider.notifier).refresh(),
-                child: meetups.isEmpty
-                    // 화면 가운데 세우되, 글자를 키운 기기에서 넘치면 스크롤한다.
-                    ? Center(
-                        child: SingleChildScrollView(
-                          physics: alwaysScrollable,
-                          child: _Empty(filter: filter),
-                        ),
-                      )
-                    : ListView.separated(
-                        physics: alwaysScrollable,
-                        padding: EdgeInsets.only(
-                          bottom:
-                              AppBottomNav.contentInset(context) +
-                              AppSpacing.xl,
-                        ),
+                slivers: [
+                  if (meetups.isEmpty)
+                    // 남는 자리를 다 차지해 가운데 세운다.
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: _Empty(filter: filter)),
+                    )
+                  else
+                    SliverPadding(
+                      padding: EdgeInsets.only(
+                        bottom:
+                            AppBottomNav.contentInset(context) + AppSpacing.xl,
+                      ),
+                      sliver: SliverList.separated(
                         itemCount: meetups.length,
                         separatorBuilder: (_, _) =>
                             const SizedBox(height: AppSpacing.md),
@@ -96,6 +95,8 @@ class MeetupScreen extends ConsumerWidget {
                           );
                         },
                       ),
+                    ),
+                ],
               ),
             ),
           ],
