@@ -39,15 +39,19 @@ class MeetupListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
-      // 테두리 대신 면으로 카드를 세운다. 카드가 세로로 쌓이는 자리라
-      // 테두리를 두르면 선이 층층이 겹쳐 목록이 사나워진다.
+      // 라이트에서는 면으로만 세운다(cardBorder 가 투명). 카드가 세로로
+      // 쌓이는 자리라 선을 두르면 층층이 겹쳐 목록이 사나워진다.
       //
       // Material 로 세우는 이유는 안에 눌리는 줄이 있어서다. 잉크 효과는
       // 가장 가까운 Material 이 그 모양대로 잘라 그린다.
       child: Material(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
         clipBehavior: Clip.antiAlias,
+        // 다크에서만 보이는 선. 어두운 쪽에서는 면 차이로 경계가 안 잡힌다.
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: BorderSide(color: colors.cardBorder),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

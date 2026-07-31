@@ -136,8 +136,11 @@ class MeetupDetailScreen extends ConsumerWidget {
           ),
           child: Material(
             color: context.colors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
             clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              side: BorderSide(color: context.colors.cardBorder),
+            ),
             child: MeetupSessionList(
               meetup: meetup,
               now: now,

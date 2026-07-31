@@ -44,8 +44,12 @@ class SettingsGroup extends StatelessWidget {
         // 삐져나온다.
         Material(
           color: colors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
           clipBehavior: Clip.antiAlias,
+          // 다크에서만 보이는 선. 어두운 쪽에서는 면 차이로 경계가 안 잡힌다.
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            side: BorderSide(color: colors.cardBorder),
+          ),
           child: Column(
             children: [
               for (var i = 0; i < children.length; i++) ...[

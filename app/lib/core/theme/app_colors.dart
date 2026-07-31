@@ -11,6 +11,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.surface,
     required this.surfaceAlt,
     required this.border,
+    required this.cardBorder,
     required this.textPrimary,
     required this.textSecondary,
     required this.textTertiary,
@@ -36,6 +37,17 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color surfaceAlt;
 
   final Color border;
+
+  /// 카드 테두리.
+  ///
+  /// 라이트에서는 투명하다. 흰 카드가 옅은 회색 바탕 위에서 이미 떠 보이고,
+  /// 카드가 세로로 쌓이는 자리에 선을 두르면 층층이 겹쳐 사나워진다.
+  ///
+  /// 다크에서는 보인다. 어두운 쪽에서는 명도 차이만으로 경계가 잡히지 않는다.
+  /// 라이트의 카드/바탕 대비는 1.08:1 인데도 잘 보이지만, 같은 1.12:1 를 다크에
+  /// 두면 두 면이 붙어 보인다. 밝은 쪽에서는 눈이 미세한 차이를 잘 가리고
+  /// 어두운 쪽에서는 못 가려서다. 그래서 선으로 긋는다.
+  final Color cardBorder;
 
   /// 본문·제목
   final Color textPrimary;
@@ -65,6 +77,7 @@ class AppColors extends ThemeExtension<AppColors> {
     surface: Color(0xFFFFFFFF),
     surfaceAlt: Color(0xFFEBEEF3),
     border: Color(0xFFE1E5EC),
+    cardBorder: Color(0x00000000),
     textPrimary: Color(0xFF13161C),
     textSecondary: Color(0xFF667085),
     textTertiary: Color(0xFF98A2B3),
@@ -76,15 +89,20 @@ class AppColors extends ThemeExtension<AppColors> {
   );
 
   static const dark = AppColors(
-    background: Color(0xFF0E1013),
-    surface: Color(0xFF181C23),
-    surfaceAlt: Color(0xFF232833),
-    border: Color(0xFF282D38),
-    textPrimary: Color(0xFFF2F4F7),
-    textSecondary: Color(0xFF98A2B3),
-    textTertiary: Color(0xFF667085),
+    // 순흑에 가까우면 흰 글자와의 대비가 17:1 까지 올라가 글자 둘레가 번져
+    // 보인다(할레이션). 바탕을 한 단계 올려 14:1 로 낮춘다. AAA 기준(7:1)에는
+    // 여전히 여유가 있다.
+    background: Color(0xFF15181E),
+    surface: Color(0xFF1E222B),
+    surfaceAlt: Color(0xFF2A2F3A),
+    border: Color(0xFF333845),
+    cardBorder: Color(0xFF333A47),
+    textPrimary: Color(0xFFE6E9EF),
+    textSecondary: Color(0xFF9BA3B4),
+    textTertiary: Color(0xFF6B7385),
     primary: brandBlueDark,
-    primaryForeground: Color(0xFF0F1115),
+    // 파란 버튼 위에 얹는 글자. 새 바탕색과 맞춰 둔다.
+    primaryForeground: Color(0xFF15181E),
     danger: Color(0xFFF87171),
     hot: Color(0xFFFF6B5E),
   );
@@ -95,6 +113,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? surface,
     Color? surfaceAlt,
     Color? border,
+    Color? cardBorder,
     Color? textPrimary,
     Color? textSecondary,
     Color? textTertiary,
@@ -108,6 +127,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surface: surface ?? this.surface,
       surfaceAlt: surfaceAlt ?? this.surfaceAlt,
       border: border ?? this.border,
+      cardBorder: cardBorder ?? this.cardBorder,
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textTertiary: textTertiary ?? this.textTertiary,
@@ -126,6 +146,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surface: Color.lerp(surface, other.surface, t)!,
       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
       border: Color.lerp(border, other.border, t)!,
+      cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,

@@ -178,6 +178,8 @@ class _Stats extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        // 다크에서만 보이는 선.
+        border: Border.all(color: colors.cardBorder),
       ),
       child: IntrinsicHeight(
         child: Row(
