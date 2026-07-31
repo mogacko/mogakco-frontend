@@ -35,7 +35,8 @@ class EventMetaLine extends StatelessWidget {
         children: [
           bold(event.shortDateLabel, colors.textSecondary),
           const TextSpan(text: ' · '),
-          bold(event.kind.label, colors.primary),
+          // 종류는 구분이지 누를 것이 아니다. 파랗게 두면 눌리는 것처럼 보인다.
+          bold(event.kind.label, colors.textSecondary),
           const TextSpan(text: ' · '),
           bold(
             event.ddayLabel(now),

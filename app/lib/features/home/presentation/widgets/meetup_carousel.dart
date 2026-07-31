@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/mogacko_logo.dart';
@@ -167,22 +166,23 @@ class _MeetupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return DecoratedBox(
+      // 색으로 세우지 않는다. 이 카드가 첫째라는 건 크기와 자리가 이미
+      // 말하고 있다 — 화면 맨 위, 제일 크고, 옆으로 넘겨 보는 것.
+      //
+      // 대신 그림자로 띄운다. 색을 빼면 위계까지 같이 빠질 수 있는데,
+      // 떠 있는 정도는 색 없이도 순서를 만든다.
       decoration: BoxDecoration(
+        color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.brandBlue,
-            Color.lerp(AppColors.brandBlue, const Color(0xFF7C4DFF), 0.45)!,
-          ],
-        ),
+        border: Border.all(color: colors.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.brandBlue.withValues(alpha: 0.25),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -196,16 +196,12 @@ class _MeetupCard extends StatelessWidget {
             child: Stack(
               children: [
                 // 로고를 크게 흐리게 깔아 카드가 밋밋해지지 않게 한다.
+                // 색이 아니라 결로만 남을 만큼 옅게 둔다. 우상단 글자가 이 위에 얹히므로
+                // 읽기를 방해하지 않을 만큼까지 낮춘다.
                 Positioned(
                   right: -20,
                   top: -16,
-                  child: Opacity(
-                    opacity: 0.13,
-                    child: MogackoLogo.square(
-                      size: 132,
-                      color: const Color(0xFFFFFFFF),
-                    ),
-                  ),
+                  child: MogackoLogo.square(size: 132, color: colors.surfaceAlt),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.xl),
@@ -275,7 +271,7 @@ class _Place extends StatelessWidget {
           meetup.placeName,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: context.texts.headlineMedium?.copyWith(color: Colors.white),
+          style: context.texts.headlineMedium,
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
@@ -283,7 +279,7 @@ class _Place extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: context.texts.bodyMedium?.copyWith(
-            color: Colors.white.withValues(alpha: 0.82),
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -303,23 +299,14 @@ class _Host extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        UserAvatar(
-          name: name,
-          imageUrl: avatarUrl,
-          size: 24,
-          // 카드가 파란 그라디언트라 흰 반투명 원이 배경 위에서 도드라진다.
-          background: Colors.white.withValues(alpha: 0.24),
-          foreground: Colors.white,
-        ),
+        UserAvatar(name: name, imageUrl: avatarUrl, size: 24),
         const SizedBox(width: AppSpacing.sm),
         Flexible(
           child: Text(
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.texts.labelMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
+            style: context.texts.labelMedium,
           ),
         ),
       ],
@@ -339,10 +326,7 @@ class _When extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          session.whenLabel(now),
-          style: context.texts.labelLarge?.copyWith(color: Colors.white),
-        ),
+        Text(session.whenLabel(now), style: context.texts.labelLarge),
         const SizedBox(height: AppSpacing.xs),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -350,14 +334,12 @@ class _When extends StatelessWidget {
             Icon(
               CupertinoIcons.person_fill,
               size: AppSize.iconSm - 2,
-              color: Colors.white.withValues(alpha: 0.8),
+              color: context.colors.textTertiary,
             ),
             const SizedBox(width: 3),
             Text(
               '${session.participantCount} / ${session.capacity}',
-              style: context.texts.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
+              style: context.texts.labelSmall,
             ),
           ],
         ),
@@ -381,13 +363,16 @@ class _JoinButton extends StatelessWidget {
 
     // 신청을 마친 뒤에는 그 사실을 알리기만 하면 된다. '참여 취소'라고 써 두면
     // 다음에 할 일이 취소인 것처럼 읽힌다. 취소는 눌렀을 때 시트에서 묻는다.
+    final colors = context.colors;
+
+    // 이 화면이 묻는 건 '오늘 갈까' 하나다. 그 답을 내리는 버튼만 색을 갖고,
+    // 나머지는 물러난다. 이미 정한 뒤(참여 중)에는 더 재촉할 게 없다.
     final label = blocked ? '마감' : (joined ? '참여 중' : '참여 신청');
-    final background = blocked
-        ? Colors.white.withValues(alpha: 0.16)
-        : (joined ? Colors.transparent : Colors.white);
-    final foreground = blocked
-        ? Colors.white.withValues(alpha: 0.55)
-        : (joined ? Colors.white : AppColors.brandBlue);
+    final (background, foreground) = switch ((joined, blocked)) {
+      (_, true) => (colors.surfaceAlt, colors.textTertiary),
+      (true, _) => (colors.surfaceAlt, colors.primary),
+      _ => (colors.primary, colors.primaryForeground),
+    };
 
     return Semantics(
       button: true,

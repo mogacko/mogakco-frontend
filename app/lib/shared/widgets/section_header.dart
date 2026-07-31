@@ -17,6 +17,7 @@ class SectionHeader extends StatelessWidget {
     required this.title,
     this.actionLabel,
     this.onAction,
+    this.divided = false,
   });
 
   final String title;
@@ -25,19 +26,27 @@ class SectionHeader extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
 
+  /// 제목 위에 얇은 선을 긋는다.
+  ///
+  /// 여백만으로 끊으면 스크롤 중에 어디서 구획이 갈리는지 모호하다. 다만
+  /// 상자를 두르지는 않는다 — 선은 구조를 표시하는 데까지만 쓰고, 화면 끝까지
+  /// 긋지 않고 본문 여백에 맞춰 들여 쓴다.
+  final bool divided;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final label = actionLabel;
     final onAction = this.onAction;
 
-    return Padding(
+    final header = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
       child: Row(
         children: [
-          Expanded(child: Text(title, style: context.texts.headlineMedium)),
+          // 구획 이름은 내용보다 작다. 같은 크기면 무엇이 본문인지 흐려진다.
+          Expanded(child: Text(title, style: context.texts.titleLarge)),
           if (label != null && onAction != null)
             // 제목과 같은 줄이라 버튼처럼 보일 필요가 없다. 색과 화살표로
             // 누를 수 있다는 것만 알린다.
@@ -73,6 +82,22 @@ class SectionHeader extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    if (!divided) return header;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Divider(
+          height: 1,
+          indent: AppSpacing.screenHorizontal,
+          endIndent: AppSpacing.screenHorizontal,
+          color: colors.border,
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        header,
+      ],
     );
   }
 }

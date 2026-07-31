@@ -53,8 +53,10 @@ class PopularPostTile extends StatelessWidget {
               width: 20,
               child: Text(
                 '$rank',
+                // 순위는 제목보다 늦게 읽혀야 한다. 색을 주면 먼저 눈에 든다.
+                // 굵기만으로도 왼쪽 기준선 노릇은 충분히 한다.
                 style: context.texts.labelLarge?.copyWith(
-                  color: colors.primary,
+                  color: colors.textTertiary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
