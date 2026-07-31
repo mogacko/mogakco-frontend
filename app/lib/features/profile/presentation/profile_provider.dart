@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/now_provider.dart';
+import '../../auth/presentation/session_provider.dart';
 import '../../community/presentation/post_provider.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../meetup/presentation/meetup_provider.dart';
@@ -9,7 +10,10 @@ import '../domain/user_profile.dart';
 
 final profileProvider = Provider<UserProfile>((ref) {
   final now = ref.watch(nowProvider);
-  return MockProfile.from(now);
+  // 지역은 목업이 아니라 로그인한 계정에서 온다. 둘이 어긋나면 내 정보에
+  // 적힌 지역과 실제로 보고 있는 지부가 달라진다.
+  final chapter = ref.watch(sessionProvider)?.chapter;
+  return MockProfile.from(now, chapter: chapter);
 });
 
 /// 내 활동 요약.

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/app_router.dart';
@@ -8,20 +9,22 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/full_height_scroll_view.dart';
 import '../../../shared/widgets/mogacko_logo.dart';
 import '../../../shared/domain/chapter.dart';
+import '../../auth/presentation/session_provider.dart';
 import 'widgets/signup_progress.dart';
 
 /// 활동 지역 선택.
 ///
 /// 운영 중인 지역([Chapter.open])만 고를 수 있다. 아직 열지 않은 지역은
 /// 로고가 준비돼 있어도 노출하지 않고, 대신 안내 문구로 확장 예정을 알린다.
-class ChapterSelectScreen extends StatefulWidget {
+class ChapterSelectScreen extends ConsumerStatefulWidget {
   const ChapterSelectScreen({super.key});
 
   @override
-  State<ChapterSelectScreen> createState() => _ChapterSelectScreenState();
+  ConsumerState<ChapterSelectScreen> createState() =>
+      _ChapterSelectScreenState();
 }
 
-class _ChapterSelectScreenState extends State<ChapterSelectScreen> {
+class _ChapterSelectScreenState extends ConsumerState<ChapterSelectScreen> {
   Chapter? _selected;
 
   @override
@@ -66,7 +69,14 @@ class _ChapterSelectScreenState extends State<ChapterSelectScreen> {
               FilledButton(
                 onPressed: _selected == null
                     ? null
-                    : () => context.push(AppRoute.signupProfile),
+                    : () {
+                        // 가입을 마칠 때 세션으로 옮겨 간다. 여기서 버리면
+                        // 고른 지역이 어디에도 남지 않는다.
+                        ref
+                            .read(signupChapterProvider.notifier)
+                            .select(_selected!);
+                        context.push(AppRoute.signupProfile);
+                      },
                 child: const Text('다음'),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -117,7 +127,9 @@ class _ChapterTile extends StatelessWidget {
             MogackoLogo.chapter(chapter: chapter, size: 26),
             const Spacer(),
             Icon(
-              selected ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+              selected
+                  ? CupertinoIcons.checkmark_circle_fill
+                  : CupertinoIcons.circle,
               color: selected ? colors.primary : colors.textTertiary,
               size: AppSize.iconMd,
             ),

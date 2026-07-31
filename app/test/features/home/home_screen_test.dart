@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/meetup/domain/meetup.dart';
 import 'package:mogacko/features/home/presentation/home_screen.dart';
+import 'package:mogacko/features/auth/presentation/session_provider.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
 import 'package:mogacko/shared/providers/current_chapter_provider.dart';
 import 'package:mogacko/shared/widgets/mogacko_logo.dart';
@@ -371,23 +372,35 @@ void main() {
   });
 
   group('CurrentChapter', () {
-    test('열지 않은 지역으로는 바뀌지 않는다', () {
+    ProviderContainer signedIn(Chapter chapter) {
       final container = ProviderContainer();
       addTearDown(container.dispose);
+      container.read(sessionProvider.notifier).signIn(chapter: chapter);
+      return container;
+    }
 
-      final notifier = container.read(currentChapterProvider.notifier);
-      notifier.change(Chapter.jeju);
+    test('계정에 붙은 지역에서 시작한다', () {
+      final container = signedIn(Chapter.seoul);
+
+      expect(container.read(currentChapterProvider), Chapter.seoul);
+    });
+
+    test('열지 않은 지역으로는 바뀌지 않는다', () {
+      final container = signedIn(Chapter.busan);
+
+      container.read(currentChapterProvider.notifier).change(Chapter.jeju);
 
       expect(container.read(currentChapterProvider), Chapter.busan);
     });
 
     test('열린 지역으로는 바뀐다', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+      final container = signedIn(Chapter.busan);
 
       container.read(currentChapterProvider.notifier).change(Chapter.seoul);
 
+      // 잠깐 다른 지부를 구경해도 계정 지역은 그대로다.
       expect(container.read(currentChapterProvider), Chapter.seoul);
+      expect(container.read(sessionProvider)?.chapter, Chapter.busan);
     });
   });
 }

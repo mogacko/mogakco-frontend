@@ -19,7 +19,7 @@ class MogackoApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       // 기본은 기기 설정을 따르고, 내 정보에서 바꿀 수 있다.
       themeMode: ref.watch(themeModeProvider),
-      routerConfig: appRouter,
+      routerConfig: ref.watch(routerProvider),
       // 웹에서 마우스로도 캐러셀을 넘길 수 있게 한다.
       scrollBehavior: const AppScrollBehavior(),
       builder: (context, child) {

@@ -12,11 +12,11 @@ abstract final class MockProfile {
   /// 연 모임', '내가 쓴 글'이 실제로 집계되어 숫자가 살아 있는 것처럼 보인다.
   static const nickname = 'evan';
 
-  static UserProfile from(DateTime now) {
+  static UserProfile from(DateTime now, {Chapter? chapter}) {
     return UserProfile(
       nickname: nickname,
       field: '프론트엔드',
-      chapter: Chapter.busan,
+      chapter: chapter ?? Chapter.seoul,
       // 가입일을 박아두면 '함께한 지 N일'이 실행할 때마다 늘어난다.
       joinedAt: now.subtract(const Duration(days: 274)),
       bio: '카페에서 각자 코딩하는 자리를 좋아합니다. 요즘은 Flutter로 앱 만드는 중이에요.',

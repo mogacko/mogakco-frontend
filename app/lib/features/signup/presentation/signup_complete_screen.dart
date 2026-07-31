@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/app_router.dart';
+import '../../../shared/domain/chapter.dart';
+import '../../auth/presentation/session_provider.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/mogacko_logo.dart';
 
-class SignupCompleteScreen extends StatefulWidget {
+class SignupCompleteScreen extends ConsumerStatefulWidget {
   const SignupCompleteScreen({super.key});
 
   @override
-  State<SignupCompleteScreen> createState() => _SignupCompleteScreenState();
+  ConsumerState<SignupCompleteScreen> createState() =>
+      _SignupCompleteScreenState();
 }
 
-class _SignupCompleteScreenState extends State<SignupCompleteScreen>
+class _SignupCompleteScreenState extends ConsumerState<SignupCompleteScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -74,7 +78,17 @@ class _SignupCompleteScreenState extends State<SignupCompleteScreen>
               ),
               const Spacer(flex: 4),
               FilledButton(
-                onPressed: () => context.go(AppRoute.home),
+                onPressed: () {
+                  // 가입을 마치면 로그인한 것으로 친다. 서버가 붙으면 여기서
+                  // 발급받은 토큰을 세션에 담는다.
+                  ref
+                      .read(sessionProvider.notifier)
+                      .signIn(
+                        chapter:
+                            ref.read(signupChapterProvider) ?? Chapter.seoul,
+                      );
+                  context.go(AppRoute.home);
+                },
                 child: const Text('시작하기'),
               ),
               const SizedBox(height: AppSpacing.xxl),
