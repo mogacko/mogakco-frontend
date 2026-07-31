@@ -8,7 +8,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
+import '../../../shared/providers/theme_mode_provider.dart';
 import '../../../shared/widgets/coming_soon.dart';
+import '../../../shared/widgets/option_sheet.dart';
 import '../../../shared/widgets/confirm_sheet.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/settings_group.dart';
@@ -297,9 +299,28 @@ class _Settings extends ConsumerWidget {
     ).push(MaterialPageRoute(builder: (_) => TermDetailScreen(term: term)));
   }
 
+  Future<void> _pickThemeMode(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode current,
+  ) async {
+    final picked = await showOptionSheet<ThemeMode>(
+      context,
+      title: '화면 모드',
+      options: ThemeMode.values,
+      selected: current,
+      labelOf: (mode) => mode.label,
+      descriptionOf: (mode) => mode.description,
+    );
+
+    if (picked == null) return;
+    ref.read(themeModeProvider.notifier).select(picked);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final marketing = ref.watch(marketingOptInProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -324,9 +345,8 @@ class _Settings extends ConsumerWidget {
               SettingsTile(
                 icon: CupertinoIcons.moon,
                 label: '화면 모드',
-                // 아직 시스템 설정을 따라가기만 한다. 바꿀 수 없는 값이라
-                // 화살표 없이 지금 상태만 알린다.
-                value: '시스템 설정',
+                value: themeMode.label,
+                onTap: () => _pickThemeMode(context, ref, themeMode),
               ),
             ],
           ),
