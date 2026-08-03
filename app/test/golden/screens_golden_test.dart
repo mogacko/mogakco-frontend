@@ -15,6 +15,7 @@ import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
+import 'package:mogacko/features/meetup/presentation/meetup_create_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
 import 'package:mogacko/shared/widgets/app_bottom_nav.dart';
 
@@ -151,6 +152,14 @@ void main() {
         tester,
         const EventDetailScreen(eventId: 'busan-e1'),
         'event_detail_light',
+      );
+    });
+
+    testWidgets('모각코 만들기', (tester) async {
+      await expectGolden(
+        tester,
+        const MeetupCreateScreen(),
+        'meetup_create_light',
       );
     });
 

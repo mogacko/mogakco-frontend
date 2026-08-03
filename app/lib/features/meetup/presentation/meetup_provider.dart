@@ -33,11 +33,24 @@ class MeetupList extends Notifier<List<Meetup>> {
     ];
   }
 
+  /// 새 모각코를 연다.
+  ///
+  /// 목록 맨 앞이 아니라 날짜순 제자리에 꽂는다. 방금 만든 것이 위에 있으면
+  /// 기분은 좋지만, 이 목록은 '가까운 날부터'가 규칙이라 한 줄만 어긋나도
+  /// 나머지 순서를 못 믿게 된다.
+  void add(Meetup meetup) {
+    state = [...state, meetup]
+      ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
+  }
+
   /// 당겨서 새로고침.
   ///
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 신청한 날도 응답에
   /// 실려 오므로 아래 옮겨 담기는 지운다.
   Future<void> refresh() async {
+    // 목업에 없던 것 = 여기서 내가 연 것. 서버가 붙으면 응답에 실려 오므로
+    // 이 옮겨 담기는 지운다.
+    final mine = state.where((meetup) => meetup.id.startsWith(localPrefix));
     final joined = {
       for (final meetup in state)
         for (final session in meetup.sessions)
@@ -59,10 +72,13 @@ class MeetupList extends Notifier<List<Meetup>> {
             }
           }
           return restored;
-        }).toList()..sort(
-          (a, b) => a.firstStartsAt.compareTo(b.firstStartsAt),
-        );
+        }).toList()
+          ..addAll(mine)
+          ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
   }
+
+  /// 서버가 아직 id 를 주지 못하는 동안 쓰는 앞머리.
+  static const localPrefix = 'local-';
 }
 
 final meetupListProvider = NotifierProvider<MeetupList, List<Meetup>>(

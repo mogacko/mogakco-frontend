@@ -6,6 +6,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/session_provider.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
+import '../../features/meetup/presentation/meetup_create_screen.dart';
 import '../../features/meetup/presentation/meetup_detail_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/signup/domain/term.dart';
@@ -35,6 +36,7 @@ abstract final class AppRoute {
   /// 함께 민다.
   static String post(String id) => '/post/$id';
   static String meetup(String id) => '/meetup/$id';
+  static const meetupCreate = '/meetup/new';
   static String event(String id) => '/event/$id';
   static String term(Term value) => '/signup/terms/${value.name}';
 
@@ -114,6 +116,12 @@ final detailRoutes = <RouteBase>[
     path: '/post/:id',
     builder: (_, state) =>
         PostDetailScreen(postId: state.pathParameters['id']!),
+  ),
+  // '/meetup/new' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어서 'new' 라는
+  // id 를 가진 모임을 찾다가 '찾을 수 없어요' 가 뜬다.
+  GoRoute(
+    path: AppRoute.meetupCreate,
+    builder: (_, _) => const MeetupCreateScreen(),
   ),
   GoRoute(
     path: '/meetup/:id',

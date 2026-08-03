@@ -19,7 +19,7 @@ extension PumpApp on WidgetTester {
   /// 이 화면들은 로그인해야 닿는 자리다. 세션 없이 띄우면 지역이 정해지지 않아
   /// 어느 지부의 목업을 보는지가 흐려진다. 목업이 가장 두툼한 부산을 기본으로
   /// 둔다 — 지역별 걸러내기를 확인하려면 서울 것과 견줘야 해서다.
-  Future<void> pumpScreen(
+  Future<ProviderContainer> pumpScreen(
     Widget screen, {
     Brightness brightness = Brightness.light,
     bool animations = false,
@@ -85,5 +85,7 @@ extension PumpApp on WidgetTester {
         ),
       ),
     );
+
+    return container;
   }
 }

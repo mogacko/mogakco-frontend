@@ -8,7 +8,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
-import '../../../shared/widgets/coming_soon.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
@@ -45,7 +44,7 @@ class MeetupScreen extends ConsumerWidget {
                   icon: CupertinoIcons.add,
                   label: '모각코 만들기',
                   emphasized: true,
-                  onTap: () => showComingSoon(context, '모각코 만들기'),
+                  onTap: () => context.push(AppRoute.meetupCreate),
                 ),
               ],
             ),
@@ -127,7 +126,7 @@ class _Empty extends StatelessWidget {
         title: '이번 주에 열리는 모각코가 없어요',
         description: '먼저 자리를 만들어 사람을 모아보세요',
         actionLabel: '모각코 만들기',
-        onAction: () => showComingSoon(context, '모각코 만들기'),
+        onAction: () => context.push(AppRoute.meetupCreate),
       ),
     };
   }
