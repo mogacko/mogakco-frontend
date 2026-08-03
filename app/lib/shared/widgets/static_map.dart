@@ -184,17 +184,20 @@ class _Tile extends StatelessWidget {
 /// 네이버 지도 링크를 쓴다. 앱이 깔려 있으면 앱이 열리고 없으면 웹 지도가
 /// 열린다. 구글 지도로 보내면 한국에서는 길찾기를 한 번 더 옮겨 타야 한다.
 ///
-/// 좌표를 경로가 아니라 질의로 싣는다. 경로에 쉼표로 이어 붙이는 형식은 장소
-/// 이름에 쉼표가 섞이면 좌표가 밀린다. [Uri.https] 가 인코딩까지 맡는다.
+/// 장소 이름으로 검색한 화면을 연다. 네이버 지도 웹은 경로로 길을 가리키고
+/// (`/p/search/<검색어>`), 카메라 위치는 `c` 로 받는다. `title`·`lat`·`lng` 를
+/// 질의로 붙이는 형식은 앱 스킴(nmap://) 쪽이라 웹에서는 그냥 무시된다 —
+/// 그렇게 두면 눌렀을 때 엉뚱한 기본 화면이 열린다.
+///
+/// `c` 가 먹지 않더라도 검색어로 이미 그 장소를 찾아 놓은 상태라 못 쓰게 되지는
+/// 않는다. 순서는 경도, 위도다.
 Uri naverMapLink({
   required String name,
   required double latitude,
   required double longitude,
 }) {
-  return Uri.https('map.naver.com', '/p', {
-    'title': name,
-    'lat': '$latitude',
-    'lng': '$longitude',
+  return Uri.https('map.naver.com', '/p/search/$name', {
+    'c': '$longitude,$latitude,16,0,0,0,dh',
   });
 }
 

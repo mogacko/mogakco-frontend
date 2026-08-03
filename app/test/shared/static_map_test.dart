@@ -70,7 +70,7 @@ void main() {
   });
 
   group('naverMapLink', () {
-    test('좌표를 질의로 싣는다', () {
+    test('이름으로 검색한 화면을 연다', () {
       final link = naverMapLink(
         name: '카페 오리진',
         latitude: 35.1631,
@@ -78,9 +78,13 @@ void main() {
       );
 
       expect(link.host, 'map.naver.com');
-      expect(link.queryParameters['lat'], '35.1631');
-      expect(link.queryParameters['lng'], '129.1636');
-      expect(link.queryParameters['title'], '카페 오리진');
+      // 네이버 지도 웹은 경로로 길을 가리킨다. title/lat/lng 를 질의로 붙이면
+      // 앱 스킴 형식이라 웹에서는 무시되고 기본 화면이 열린다.
+      //
+      // path 는 퍼센트 인코딩된 채로 나온다. 디코드된 조각으로 견준다.
+      expect(link.pathSegments, ['p', 'search', '카페 오리진']);
+      // 카메라는 경도, 위도 순이다. 뒤집으면 태평양이 열린다.
+      expect(link.queryParameters['c'], startsWith('129.1636,35.1631,'));
     });
 
     test('이름에 쉼표가 섞여도 좌표와 갈리지 않는다', () {
@@ -90,10 +94,10 @@ void main() {
         longitude: 129.1636,
       );
 
-      // 좌표를 경로에 쉼표로 이어 붙이던 시절에는 이름 속 쉼표가 구분자로
-      // 읽혀 위치가 밀렸다. 질의로 실으면 그 일이 생기지 않는다.
-      expect(link.queryParameters['title'], '카페 오리진, 2층');
-      expect(link.queryParameters['lat'], '35.1631');
+      // 좌표와 이름이 다른 자리에 있어 섞일 일이 없다. 쉼표가 조각을 가르지도
+      // 않는다 — 경로 조각을 [Uri.https] 가 하나로 묶어 인코딩한다.
+      expect(link.pathSegments, ['p', 'search', '카페 오리진, 2층']);
+      expect(link.queryParameters['c'], startsWith('129.1636,35.1631,'));
     });
   });
 }
