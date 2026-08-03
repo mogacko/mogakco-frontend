@@ -4,7 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/session_provider.dart';
+import '../../features/community/presentation/post_detail_screen.dart';
+import '../../features/event/presentation/event_detail_screen.dart';
+import '../../features/meetup/presentation/meetup_detail_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
+import '../../features/signup/domain/term.dart';
+import '../../features/signup/presentation/term_detail_screen.dart';
 import '../../features/signup/presentation/chapter_select_screen.dart';
 import '../../features/signup/presentation/profile_setup_screen.dart';
 import '../../features/signup/presentation/signup_complete_screen.dart';
@@ -20,22 +25,32 @@ abstract final class AppRoute {
   static const signupComplete = '/signup/complete';
   static const home = '/home';
 
+  /// 하나를 열어 보는 자리.
+  ///
+  /// Navigator 로만 올리면 주소가 바뀌지 않는다. 네이티브는 그래도 되지만
+  /// 웹과 PWA 는 뒤로가기가 주소를 기준으로 움직여서, 상세를 건너뛰고 그
+  /// 이전 주소로 가버린다. iOS 를 PWA 로 쓰는 동안은 그게 곧 실사용이다.
+  ///
+  /// 라우트로 두면 한 코드로 둘 다 맞는다 — context.push 가 스택과 주소를
+  /// 함께 민다.
+  static String post(String id) => '/post/$id';
+  static String meetup(String id) => '/meetup/$id';
+  static String event(String id) => '/event/$id';
+  static String term(Term value) => '/signup/terms/${value.name}';
+
   /// 로그인하지 않은 사람만 머무는 자리.
   ///
   /// 로그인한 채로 여기 들어오면 홈으로 되돌린다. 브라우저 뒤로가기로 가입
   /// 화면에 돌아가는 것도 이 규칙이 막는다 — 라우트 스택은 비었는데 브라우저
   /// 히스토리에는 항목이 남아 있어서 생기는 일이다.
-  static const _signedOutOnly = {
-    splash,
-    login,
-    signupTerms,
-    signupChapter,
-    signupProfile,
-    signupComplete,
-  };
-
+  ///
+  /// 가입은 하위 경로(약관 전문)까지 포함해야 한다. 목록으로 적어 두면 새
+  /// 하위 화면을 만들 때마다 여기를 같이 고쳐야 하고, 빠뜨리면 가입 도중
+  /// 로그인 화면으로 튕긴다.
   static bool isSignedOutOnly(String location) =>
-      _signedOutOnly.contains(location);
+      location == splash ||
+      location == login ||
+      location.startsWith('/signup');
 }
 
 /// 라우터.
@@ -85,9 +100,38 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const SignupCompleteScreen(),
       ),
       GoRoute(path: AppRoute.home, builder: (_, _) => const AppShell()),
+      ...detailRoutes,
     ],
   );
 });
+
+/// 하나를 열어 보는 화면들.
+///
+/// 테스트 하네스도 같은 목록을 쓴다. 두 곳에 따로 적으면 새 상세를 만들 때
+/// 한쪽만 고쳐 두고 테스트에서만 길이 없어진다.
+final detailRoutes = <RouteBase>[
+  GoRoute(
+    path: '/post/:id',
+    builder: (_, state) =>
+        PostDetailScreen(postId: state.pathParameters['id']!),
+  ),
+  GoRoute(
+    path: '/meetup/:id',
+    builder: (_, state) =>
+        MeetupDetailScreen(meetupId: state.pathParameters['id']!),
+  ),
+  GoRoute(
+    path: '/event/:id',
+    builder: (_, state) =>
+        EventDetailScreen(eventId: state.pathParameters['id']!),
+  ),
+  GoRoute(
+    path: '/signup/terms/:term',
+    builder: (_, state) => TermDetailScreen(
+      term: Term.values.byName(state.pathParameters['term']!),
+    ),
+  ),
+];
 
 /// 스플래시 → 로그인은 밀려나는 느낌 없이 부드럽게 넘긴다.
 CustomTransitionPage<void> _fadeThrough(GoRouterState state, Widget child) {

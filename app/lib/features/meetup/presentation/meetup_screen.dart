@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
@@ -11,7 +13,6 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
-import 'meetup_detail_screen.dart';
 import 'meetup_provider.dart';
 import 'widgets/meetup_list_card.dart';
 
@@ -86,12 +87,7 @@ class MeetupScreen extends ConsumerWidget {
                             onToggleSession: (sessionId) => ref
                                 .read(meetupListProvider.notifier)
                                 .toggleSession(meetup.id, sessionId),
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    MeetupDetailScreen(meetupId: meetup.id),
-                              ),
-                            ),
+                            onTap: () => context.push(AppRoute.meetup(meetup.id)),
                           );
                         },
                       ),

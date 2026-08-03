@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
@@ -14,7 +16,6 @@ import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/title_menu.dart';
 import '../domain/post.dart';
 import '../../comment/presentation/comment_provider.dart';
-import 'post_detail_screen.dart';
 import 'post_provider.dart';
 import 'widgets/post_card.dart';
 
@@ -134,12 +135,8 @@ class CommunityScreen extends ConsumerWidget {
                               onToggleLike: () => ref
                                   .read(postFeedProvider.notifier)
                                   .toggleLike(post.id),
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) =>
-                                      PostDetailScreen(postId: post.id),
-                                ),
-                              ),
+                              onTap: () =>
+                                  context.push(AppRoute.post(post.id)),
                             );
                           },
                         ),

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
@@ -16,7 +18,6 @@ import '../../../shared/widgets/tag_chip.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../auth/presentation/session_provider.dart';
 import '../../signup/domain/term.dart';
-import '../../signup/presentation/term_detail_screen.dart';
 import '../domain/user_profile.dart';
 import 'profile_provider.dart';
 
@@ -295,9 +296,7 @@ class _Settings extends ConsumerWidget {
   }
 
   void _openTerm(BuildContext context, Term term) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => TermDetailScreen(term: term)));
+    context.push(AppRoute.term(term));
   }
 
   Future<void> _pickThemeMode(

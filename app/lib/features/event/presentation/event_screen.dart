@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
@@ -12,7 +14,6 @@ import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/title_menu.dart';
 import '../domain/event.dart';
-import 'event_detail_screen.dart';
 import 'event_provider.dart';
 import 'widgets/event_card.dart';
 
@@ -80,12 +81,7 @@ class EventScreen extends ConsumerWidget {
                             onToggleApply: () => ref
                                 .read(eventListProvider.notifier)
                                 .toggleApply(event.id),
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    EventDetailScreen(eventId: event.id),
-                              ),
-                            ),
+                            onTap: () => context.push(AppRoute.event(event.id)),
                           );
                         },
                       ),

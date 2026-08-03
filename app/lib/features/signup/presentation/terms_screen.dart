@@ -7,7 +7,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/full_height_scroll_view.dart';
 import '../domain/term.dart';
-import 'term_detail_screen.dart';
 import 'widgets/signup_progress.dart';
 
 class TermsScreen extends StatefulWidget {
@@ -75,11 +74,7 @@ class TermsScreenState extends State<TermsScreen> {
                   term: term,
                   value: _agreed.contains(term),
                   onChanged: (v) => _toggle(term, v),
-                  onOpenDetail: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => TermDetailScreen(term: term),
-                    ),
-                  ),
+                  onOpenDetail: () => context.push(AppRoute.term(term)),
                 ),
               const Spacer(),
               FilledButton(

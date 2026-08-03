@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../comment/presentation/comment_provider.dart';
-import '../../community/presentation/post_detail_screen.dart';
 import '../../community/presentation/post_provider.dart';
 import '../../community/presentation/widgets/popular_post_tile.dart';
-import '../../event/presentation/event_detail_screen.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../event/presentation/widgets/upcoming_event_tile.dart';
-import '../../meetup/presentation/meetup_detail_screen.dart';
 import '../../meetup/presentation/meetup_provider.dart';
 import '../../shell/presentation/tab_provider.dart';
 import 'widgets/home_header.dart';
@@ -57,11 +56,7 @@ class HomeScreen extends ConsumerWidget {
                     onToggleSession: (meetupId, sessionId) => ref
                         .read(meetupListProvider.notifier)
                         .toggleSession(meetupId, sessionId),
-                    onOpenMeetup: (meetupId) => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => MeetupDetailScreen(meetupId: meetupId),
-                      ),
-                    ),
+                    onOpenMeetup: (meetupId) => context.push(AppRoute.meetup(meetupId)),
                   ),
                   // 갈 자리를 먼저 모아 두고 읽을거리는 그 아래로 둔다.
                   // 행사는 날짜가 정해져 있어 놓치면 끝이지만 글은 그렇지 않다.
@@ -82,12 +77,7 @@ class HomeScreen extends ConsumerWidget {
                         now: now,
                         // 탭으로 보내지 않고 그 행사로 바로 들어간다. 홈에서
                         // 눌렀는데 목록으로 떨어지면 다시 찾아야 한다.
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                EventDetailScreen(eventId: event.id),
-                          ),
-                        ),
+                        onTap: () => context.push(AppRoute.event(event.id)),
                       ),
                   ],
                   // 인기글이 없으면 구획째 뺀다. 빈 목록에 제목만 남으면
@@ -109,12 +99,7 @@ class HomeScreen extends ConsumerWidget {
                         rank: i + 1,
                         now: now,
                         commentCount: commentCounts[popular[i].id] ?? 0,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                PostDetailScreen(postId: popular[i].id),
-                          ),
-                        ),
+                        onTap: () => context.push(AppRoute.post(popular[i].id)),
                       ),
                   ],
                 ],

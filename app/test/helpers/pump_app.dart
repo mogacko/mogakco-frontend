@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mogacko/core/router/app_router.dart';
 import 'package:mogacko/core/theme/app_theme.dart';
 import 'package:mogacko/features/auth/presentation/session_provider.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
@@ -54,6 +55,9 @@ extension PumpApp on WidgetTester {
           path: '/home',
           builder: (_, _) => const Scaffold(body: Text('home-landed')),
         ),
+        // 상세는 앱과 같은 목록을 쓴다. 여기 따로 적으면 새 상세를 만들 때
+        // 한쪽만 고쳐 두고 테스트에서만 길이 없어진다.
+        ...detailRoutes,
       ],
     );
 
