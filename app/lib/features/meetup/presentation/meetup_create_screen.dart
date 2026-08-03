@@ -13,6 +13,8 @@ import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/form_field_block.dart';
 import '../../auth/presentation/session_provider.dart';
+import '../../place/domain/place.dart';
+import '../../place/presentation/place_picker_field.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
 
@@ -34,9 +36,10 @@ class MeetupCreateScreen extends ConsumerStatefulWidget {
 typedef _Day = ({int hour, int minute, int capacity});
 
 class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
-  final _placeName = TextEditingController();
-  final _address = TextEditingController();
   final _description = TextEditingController();
+
+  /// 검색으로 고른 장소. 이름·주소·좌표가 함께 온다.
+  Place? _place;
 
   /// 고른 날짜와 그 날의 시각·정원. 열쇠는 시:분을 뗀 날짜다.
   final _days = <DateTime, _Day>{};
@@ -51,8 +54,6 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
 
   @override
   void dispose() {
-    _placeName.dispose();
-    _address.dispose();
     _description.dispose();
     super.dispose();
   }
@@ -63,10 +64,7 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
     return [for (var i = 0; i < 7; i++) today.add(Duration(days: i))];
   }
 
-  bool get _canSubmit =>
-      _placeName.text.trim().isNotEmpty &&
-      _address.text.trim().isNotEmpty &&
-      _days.isNotEmpty;
+  bool get _canSubmit => _place != null && _days.isNotEmpty;
 
   void _toggleDay(DateTime day) {
     setState(() {
@@ -110,6 +108,7 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
 
     final days = _days.keys.toList()..sort();
     final id = '${MeetupList.localPrefix}${now.microsecondsSinceEpoch}';
+    final place = _place!;
 
     ref
         .read(meetupListProvider.notifier)
@@ -117,15 +116,16 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
           Meetup(
             id: id,
             chapter: chapter,
-            placeName: _placeName.text.trim(),
-            address: _address.text.trim(),
+            placeName: place.name,
+            address: place.address,
             host: session?.nickname ?? '나',
             isRecurring: _recurring,
             description: _description.text.trim().isEmpty
                 ? null
                 : _description.text.trim(),
-            // 좌표는 비워 둔다. 주소를 좌표로 바꾸는 건 지오코딩이 하는
-            // 일이라 서버가 붙어야 채워진다. 그때까지 상세에서 지도가 빠진다.
+            // 검색으로 고른 곳이라 좌표가 딸려 온다. 상세에서 바로 지도가 뜬다.
+            latitude: place.latitude,
+            longitude: place.longitude,
             sessions: [
               for (final day in days)
                 MeetupSession(
@@ -170,26 +170,9 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              FormFieldBlock(
-                label: '어디서',
-                child: TextField(
-                  controller: _placeName,
-                  onChanged: (_) => setState(() {}),
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(hintText: '예) 모모스커피 온천장'),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              FormFieldBlock(
-                label: '주소',
-                hint: '지도 앱에 그대로 넣을 수 있게 적어주세요',
-                child: TextField(
-                  controller: _address,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    hintText: '예) 부산광역시 동래구 온천동',
-                  ),
-                ),
+              PlacePickerField(
+                value: _place,
+                onChanged: (place) => setState(() => _place = place),
               ),
               const SizedBox(height: AppSpacing.lg),
               FormFieldBlock(
@@ -293,6 +276,9 @@ class _WeekPicker extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: AppSpacing.xs),
               child: _DayChip(
+                // 날짜를 열쇠로 둔다. 알약 자리는 오늘이 며칠이냐에 따라
+                // 매일 한 칸씩 밀리므로 순서로 가리키면 잡을 수 없다.
+                key: ValueKey(day),
                 weekday: weekdays[day.weekday - 1],
                 dayOfMonth: day.day,
                 // 토·일은 달력에서 하듯 색을 달리한다.
@@ -310,6 +296,7 @@ class _WeekPicker extends StatelessWidget {
 
 class _DayChip extends StatelessWidget {
   const _DayChip({
+    super.key,
     required this.weekday,
     required this.dayOfMonth,
     required this.weekend,

@@ -13,6 +13,7 @@ import 'package:mogacko/features/signup/domain/term.dart';
 import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
+import 'package:mogacko/shared/data/mock_delay.dart';
 import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/community/presentation/post_write_screen.dart';
@@ -112,6 +113,43 @@ void main() {
     );
   }
 
+  /// 장소 검색 칸을 실제로 써 본 모습.
+  ///
+  /// 검색 결과 목록과 고른 뒤의 지도는 폼을 띄우기만 해서는 안 나온다.
+  /// 눈으로 볼 곳이 정작 그 두 상태라 여기서 따로 담는다.
+  Future<void> expectPlaceGolden(
+    WidgetTester tester,
+    String name, {
+    bool pick = false,
+    Brightness brightness = Brightness.light,
+  }) async {
+    tester.view
+      ..physicalSize = viewport
+      ..devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpScreen(const MeetupCreateScreen(), brightness: brightness);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, '모모스');
+    // 디바운스가 지나야 검색이 나가고, 목업 왕복이 끝나야 결과가 온다.
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(mockNetworkDelay);
+    await tester.pumpAndSettle();
+
+    if (pick) {
+      await tester.tap(find.text('모모스커피 온천장'));
+      await tester.pumpAndSettle();
+    }
+
+    await settleImages(tester);
+
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('images/$name.png'),
+    );
+  }
+
   group('라이트 모드', () {
     testWidgets('홈', (tester) async {
       await expectGolden(tester, const AppShell(), 'home_light');
@@ -170,6 +208,18 @@ void main() {
         tester,
         const PostWriteScreen(board: PostBoard.talk),
         'post_write_light',
+      );
+    });
+
+    testWidgets('장소 검색 결과', (tester) async {
+      await expectPlaceGolden(tester, 'meetup_place_search_light');
+    });
+
+    testWidgets('장소 고른 뒤', (tester) async {
+      await expectPlaceGolden(
+        tester,
+        'meetup_place_picked_light',
+        pick: true,
       );
     });
 
