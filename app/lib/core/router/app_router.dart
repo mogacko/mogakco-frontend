@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/session_provider.dart';
+import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
+import '../../features/community/presentation/post_write_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
 import '../../features/meetup/presentation/meetup_create_screen.dart';
 import '../../features/meetup/presentation/meetup_detail_screen.dart';
@@ -35,6 +37,10 @@ abstract final class AppRoute {
   /// 라우트로 두면 한 코드로 둘 다 맞는다 — context.push 가 스택과 주소를
   /// 함께 민다.
   static String post(String id) => '/post/$id';
+
+  /// 어느 게시판에 쓰는지를 주소에 담는다. 새로고침해도 고른 게시판이 남고,
+  /// 뒤로 갔다 와도 자유로 되돌아가지 않는다.
+  static String postWrite(PostBoard board) => '/post/new/${board.name}';
   static String meetup(String id) => '/meetup/$id';
   static const meetupCreate = '/meetup/new';
   static String event(String id) => '/event/$id';
@@ -112,6 +118,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// 테스트 하네스도 같은 목록을 쓴다. 두 곳에 따로 적으면 새 상세를 만들 때
 /// 한쪽만 고쳐 두고 테스트에서만 길이 없어진다.
 final detailRoutes = <RouteBase>[
+  // '/post/new/...' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어 'new' 라는
+  // id 를 가진 글을 찾다가 '찾을 수 없어요' 가 뜬다.
+  GoRoute(
+    path: '/post/new/:board',
+    builder: (_, state) => PostWriteScreen(
+      board: PostBoard.values.byName(state.pathParameters['board']!),
+    ),
+  ),
   GoRoute(
     path: '/post/:id',
     builder: (_, state) =>

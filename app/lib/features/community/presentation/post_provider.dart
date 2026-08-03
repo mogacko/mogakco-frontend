@@ -28,12 +28,22 @@ class PostFeed extends Notifier<List<Post>> {
     ];
   }
 
+  /// 새 글을 올린다.
+  ///
+  /// 맨 앞에 꽂는다. 목록이 최신순이라 방금 쓴 글이 위에 오는 게 규칙과 맞고,
+  /// 아래로 내려가 찾게 두면 올라간 게 맞는지 확인할 길이 없다.
+  void add(Post post) => state = [post, ...state];
+
   /// 당겨서 새로고침.
   ///
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 누른 좋아요도 응답에
   /// 실려 오므로 아래 옮겨 담기는 지운다. 지금은 목업을 다시 읽으면 내가
   /// 눌러 둔 것이 사라져서, 새로고침이 되돌리기처럼 보인다.
   Future<void> refresh() async {
+    // 목업에 없던 것 = 여기서 내가 쓴 것. 서버가 붙으면 응답에 실려 온다.
+    final mine = state
+        .where((post) => post.id.startsWith(localPrefix))
+        .toList();
     final liked = {
       for (final post in state)
         if (post.isLiked) post.id,
@@ -45,11 +55,15 @@ class PostFeed extends Notifier<List<Post>> {
         MockPosts.from(ref.read(nowProvider)).map((post) {
           // 목업에도 미리 눌러 둔 글이 있어서, 무조건 뒤집으면 어긋난다.
           // 내 상태와 다를 때만 맞춘다.
-          final mine = liked.contains(post.id);
-          return post.isLiked == mine ? post : post.toggleLike();
+          final byMe = liked.contains(post.id);
+          return post.isLiked == byMe ? post : post.toggleLike();
         }).toList()
+          ..addAll(mine)
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
+
+  /// 서버가 아직 id 를 주지 못하는 동안 쓰는 앞머리.
+  static const localPrefix = 'local-';
 }
 
 final postFeedProvider = NotifierProvider<PostFeed, List<Post>>(PostFeed.new);

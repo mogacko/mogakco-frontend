@@ -72,7 +72,7 @@ class CommunityScreen extends ConsumerWidget {
                     icon: CupertinoIcons.square_pencil,
                     label: '글쓰기',
                     emphasized: true,
-                    onTap: () => showComingSoon(context, '글쓰기'),
+                    onTap: () => context.push(AppRoute.postWrite(board)),
                   ),
               ],
             ),
@@ -184,14 +184,14 @@ class _Empty extends StatelessWidget {
         title: '첫 질문을 기다리고 있어요',
         description: '막히는 부분이 있으면 편하게 물어보세요',
         actionLabel: '질문하기',
-        onAction: () => showComingSoon(context, '글쓰기'),
+        onAction: () => context.push(AppRoute.postWrite(PostBoard.question)),
       ),
       PostBoard.talk => EmptyState(
         icon: CupertinoIcons.bubble_left_bubble_right,
         title: '첫 글을 기다리고 있어요',
         description: '후기든 기록이든 편하게 남겨주세요',
         actionLabel: '글쓰기',
-        onAction: () => showComingSoon(context, '글쓰기'),
+        onAction: () => context.push(AppRoute.postWrite(PostBoard.talk)),
       ),
     };
   }

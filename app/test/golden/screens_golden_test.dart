@@ -13,7 +13,9 @@ import 'package:mogacko/features/signup/domain/term.dart';
 import 'package:mogacko/features/signup/presentation/term_detail_screen.dart';
 import 'package:mogacko/features/signup/presentation/terms_screen.dart';
 import 'package:mogacko/features/splash/presentation/splash_screen.dart';
+import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
+import 'package:mogacko/features/community/presentation/post_write_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_create_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
@@ -163,6 +165,14 @@ void main() {
       );
     });
 
+    testWidgets('글쓰기', (tester) async {
+      await expectGolden(
+        tester,
+        const PostWriteScreen(board: PostBoard.talk),
+        'post_write_light',
+      );
+    });
+
     testWidgets('참여 확인 시트', (tester) async {
       tester.view
         ..physicalSize = const Size(390, 844)
@@ -286,6 +296,15 @@ void main() {
         tester,
         const PostDetailScreen(postId: 'busan-t1'),
         'post_detail_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('글쓰기', (tester) async {
+      await expectGolden(
+        tester,
+        const PostWriteScreen(board: PostBoard.talk),
+        'post_write_dark',
         brightness: Brightness.dark,
       );
     });
