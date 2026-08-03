@@ -79,6 +79,7 @@ class SettingsTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.label,
+    this.description,
     this.value,
     this.trailing,
     this.onTap,
@@ -87,6 +88,12 @@ class SettingsTile extends StatelessWidget {
 
   final IconData icon;
   final String label;
+
+  /// 라벨 아래 한 줄 설명.
+  ///
+  /// 무엇을 끄고 켜는지가 라벨만으로 갈리지 않는 줄에 쓴다. 끄면 무슨 일이
+  /// 생기는지 모르면 사람은 그냥 다 켜둔 채로 둔다.
+  final String? description;
 
   /// 오른쪽에 딸려 붙는 현재 값. '시스템 설정' 같은 것.
   final String? value;
@@ -102,6 +109,7 @@ class SettingsTile extends StatelessWidget {
     final colors = context.colors;
     final value = this.value;
     final trailing = this.trailing;
+    final description = this.description;
 
     final foreground = switch (tone) {
       SettingsTone.normal => colors.textPrimary,
@@ -129,9 +137,20 @@ class SettingsTile extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text(
-                  label,
-                  style: context.texts.bodyLarge?.copyWith(color: foreground),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: context.texts.bodyLarge?.copyWith(
+                        color: foreground,
+                      ),
+                    ),
+                    if (description != null) ...[
+                      const SizedBox(height: 2),
+                      Text(description, style: context.texts.labelSmall),
+                    ],
+                  ],
                 ),
               ),
               if (value != null)

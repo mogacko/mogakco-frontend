@@ -22,6 +22,16 @@ class SessionState extends Notifier<Session?> {
     state = Session(nickname: MockProfile.nickname, chapter: chapter);
   }
 
+  /// 닉네임을 바꾼다. 프로필을 고칠 때 함께 따라온다.
+  ///
+  /// 세션이 '지금 나'를 가리키는 유일한 값이라, 여기가 안 바뀌면 새로 쓴 글의
+  /// 글쓴이만 옛 이름으로 남는다.
+  void rename(String nickname) {
+    final current = state;
+    if (current == null) return;
+    state = Session(nickname: nickname, chapter: current.chapter);
+  }
+
   void signOut() => state = null;
 }
 

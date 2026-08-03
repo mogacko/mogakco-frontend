@@ -34,6 +34,18 @@ class PostFeed extends Notifier<List<Post>> {
   /// 아래로 내려가 찾게 두면 올라간 게 맞는지 확인할 길이 없다.
   void add(Post post) => state = [post, ...state];
 
+  /// 글쓴이 이름을 바꾼다.
+  ///
+  /// 서버라면 글이 사용자 id 를 들고 있어 이름만 갈아 끼우면 끝난다. 목업은
+  /// 이름 문자열이 곧 글쓴이라, 프로필에서 닉네임을 고치면 내가 쓴 글이
+  /// 남의 글이 되어 버린다. 그 자리를 여기서 맞춘다.
+  void renameAuthor(String from, String to) {
+    state = [
+      for (final post in state)
+        if (post.author != from) post else post.withAuthor(to),
+    ];
+  }
+
   /// 당겨서 새로고침.
   ///
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 누른 좋아요도 응답에
@@ -133,6 +145,33 @@ final postCountsProvider = Provider<Map<PostCategory, int>>((ref) {
     counts[category] = (counts[category] ?? 0) + 1;
   }
   return counts;
+});
+
+/// 검색 결과.
+///
+/// 게시판·분류를 가리지 않고 지금 지역의 글 전체에서 찾는다. 찾는 사람은
+/// 그 글이 어느 게시판에 있었는지까지 기억하고 오지 않는다.
+///
+/// 제목·본문·글쓴이를 다 훑는다. 제목만 보면 '그 사람이 올렸던 글'을 찾을 수
+/// 없고, 본문을 빼면 제목에 안 쓰인 낱말로는 못 찾는다.
+final searchedPostsProvider = Provider.family<List<Post>, String>((
+  ref,
+  keyword,
+) {
+  final query = keyword.trim();
+  if (query.isEmpty) return const [];
+
+  // 영문 스택 이름을 대소문자 가리지 않고 찾게 한다. 'flutter' 로 쳐도
+  // 'Flutter' 가 걸려야 한다.
+  final needle = query.toLowerCase();
+  bool has(String text) => text.toLowerCase().contains(needle);
+
+  return ref
+      .watch(chapterPostsProvider)
+      .where(
+        (post) => has(post.title) || has(post.body) || has(post.author),
+      )
+      .toList();
 });
 
 /// 인기글로 셀 최소 반응 수.

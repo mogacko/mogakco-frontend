@@ -21,6 +21,7 @@ class PostCard extends StatelessWidget {
     required this.onToggleLike,
     required this.commentCount,
     this.isPopular = false,
+    this.showBoard = false,
     this.onTap,
   });
 
@@ -35,12 +36,21 @@ class PostCard extends StatelessWidget {
   /// 이번 주 반응이 많은 글인지
   final bool isPopular;
 
+  /// 분류 자리에 게시판 이름을 대신 세울지.
+  ///
+  /// 검색처럼 게시판을 넘나드는 목록에서 켠다. 커뮤니티 탭은 이미 게시판 하나만
+  /// 보고 있어 매 줄에 같은 말이 붙으면 읽을 것이 하나 늘 뿐이다.
+  final bool showBoard;
+
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final category = post.category;
+    // 공지와 질문에는 분류가 없다. 검색 결과에서는 그 자리에 게시판을 세워
+    // 어디서 나온 글인지 비어 보이지 않게 한다.
+    final label = category?.label ?? (showBoard ? post.board.label : null);
 
     return InkWell(
       onTap: onTap,
@@ -56,8 +66,8 @@ class PostCard extends StatelessWidget {
               children: [
                 // 이야기 게시판에서만 붙는다. 공지·질문 게시판은 이미 그
                 // 자체로 무엇인지 분명해 한 번 더 적을 이유가 없다.
-                if (category != null) ...[
-                  _CategoryLabel(category: category),
+                if (label != null) ...[
+                  _CategoryLabel(label: label),
                   const SizedBox(width: AppSpacing.sm),
                 ],
                 if (isPopular) ...[
@@ -132,14 +142,14 @@ class PostCard extends StatelessWidget {
 /// 알약으로 채우면 목록마다 색 덩어리가 열 개씩 생겨 시끄럽다. 글자만
 /// 브랜드 색으로 올려 무엇인지만 알린다.
 class _CategoryLabel extends StatelessWidget {
-  const _CategoryLabel({required this.category});
+  const _CategoryLabel({required this.label});
 
-  final PostCategory category;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      category.label,
+      label,
       style: context.texts.labelSmall?.copyWith(
         color: context.colors.primary,
         fontWeight: FontWeight.w600,

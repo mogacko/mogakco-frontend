@@ -240,6 +240,21 @@ class Meetup {
     );
   }
 
+  /// 모임장 이름만 바꾼 새 모임을 만든다.
+  Meetup withHost(String host) => Meetup(
+    id: id,
+    chapter: chapter,
+    placeName: placeName,
+    address: address,
+    host: host,
+    hostAvatarUrl: hostAvatarUrl,
+    sessions: sessions,
+    isRecurring: isRecurring,
+    description: description,
+    latitude: latitude,
+    longitude: longitude,
+  );
+
   Meetup copyWith({List<MeetupSession>? sessions}) {
     return Meetup(
       id: id,

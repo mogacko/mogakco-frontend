@@ -94,6 +94,21 @@ class Post {
     );
   }
 
+  /// 글쓴이만 바꾼 새 글을 만든다.
+  Post withAuthor(String author) => Post(
+    id: id,
+    chapter: chapter,
+    board: board,
+    category: category,
+    title: title,
+    body: body,
+    author: author,
+    authorAvatarUrl: authorAvatarUrl,
+    createdAt: createdAt,
+    likeCount: likeCount,
+    isLiked: isLiked,
+  );
+
   Post copyWith({bool? isLiked, int? likeCount}) {
     return Post(
       id: id,

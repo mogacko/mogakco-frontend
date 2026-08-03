@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/app.dart';
 import 'package:mogacko/core/theme/app_colors.dart';
 import 'package:mogacko/core/theme/app_theme.dart';
-import 'package:mogacko/features/profile/presentation/profile_screen.dart';
+import 'package:mogacko/features/profile/presentation/settings_screen.dart';
 import 'package:mogacko/shared/providers/theme_mode_provider.dart';
 
 import '../helpers/pump_app.dart';
@@ -12,7 +12,7 @@ import '../helpers/pump_app.dart';
 void main() {
   group('화면 모드', () {
     testWidgets('지금 무엇으로 보고 있는지 줄에 적는다', (tester) async {
-      await tester.pumpScreen(const ProfileScreen());
+      await tester.pumpScreen(const SettingsScreen());
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(find.text('화면 모드'));
@@ -23,7 +23,7 @@ void main() {
     });
 
     testWidgets('골라서 바꾸면 줄에 바로 반영된다', (tester) async {
-      await tester.pumpScreen(const ProfileScreen());
+      await tester.pumpScreen(const SettingsScreen());
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(find.text('화면 모드'));
@@ -41,7 +41,7 @@ void main() {
     });
 
     testWidgets('물러나면 바뀌지 않는다', (tester) async {
-      await tester.pumpScreen(const ProfileScreen());
+      await tester.pumpScreen(const SettingsScreen());
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(find.text('화면 모드'));

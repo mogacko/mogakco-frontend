@@ -11,6 +11,7 @@ import '../../../shared/utils/relative_time.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../domain/app_notification.dart';
+import 'notification_icon.dart';
 import 'notification_provider.dart';
 
 /// 알림 목록.
@@ -113,7 +114,7 @@ class _NotificationRow extends ConsumerWidget {
                     : null,
               ),
               Icon(
-                _icon(item.kind),
+                notificationIcon(item.kind),
                 size: AppSize.iconSm,
                 // 종류를 색으로 가르지 않는다. 다섯 색이 세로로 쌓이면 목록이
                 // 알림보다 시끄러워진다. 모양만으로 충분히 갈린다.
@@ -164,12 +165,4 @@ class _NotificationRow extends ConsumerWidget {
       ),
     );
   }
-
-  static IconData _icon(NotificationKind kind) => switch (kind) {
-    NotificationKind.comment => CupertinoIcons.chat_bubble,
-    NotificationKind.like => CupertinoIcons.heart,
-    NotificationKind.join => CupertinoIcons.person_add,
-    NotificationKind.upcoming => CupertinoIcons.clock,
-    NotificationKind.notice => CupertinoIcons.speaker_2,
-  };
 }

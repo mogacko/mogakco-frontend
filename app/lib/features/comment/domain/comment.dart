@@ -48,4 +48,15 @@ class Comment {
 
   /// 이 댓글이 달린 곳
   CommentThread get thread => (target: target, id: targetId);
+
+  /// 글쓴이만 바꾼 새 댓글을 만든다.
+  Comment withAuthor(String author) => Comment(
+    id: id,
+    target: target,
+    targetId: targetId,
+    author: author,
+    body: body,
+    createdAt: createdAt,
+    isMine: isMine,
+  );
 }

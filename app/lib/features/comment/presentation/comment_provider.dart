@@ -48,6 +48,17 @@ class CommentList extends Notifier<List<Comment>> {
     ];
   }
 
+  /// 내가 단 댓글의 이름을 바꾼다.
+  ///
+  /// [isMine] 으로만 가른다. 목업에 나와 같은 이름을 쓰는 사람이 있어도 그건
+  /// 내 댓글이 아니다.
+  void renameAuthor(String nickname) {
+    state = [
+      for (final comment in state)
+        if (!comment.isMine) comment else comment.withAuthor(nickname),
+    ];
+  }
+
   /// 당겨서 새로고침.
   ///
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 단 댓글도 응답에 실려

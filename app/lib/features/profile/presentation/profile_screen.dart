@@ -8,16 +8,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
-import '../../../shared/providers/theme_mode_provider.dart';
-import '../../../shared/widgets/coming_soon.dart';
-import '../../../shared/widgets/option_sheet.dart';
-import '../../../shared/widgets/confirm_sheet.dart';
 import '../../../shared/widgets/screen_header.dart';
-import '../../../shared/widgets/settings_group.dart';
 import '../../../shared/widgets/tag_chip.dart';
 import '../../../shared/widgets/user_avatar.dart';
-import '../../auth/presentation/session_provider.dart';
-import '../../signup/domain/term.dart';
 import '../domain/user_profile.dart';
 import 'profile_provider.dart';
 
@@ -44,7 +37,7 @@ class ProfileScreen extends ConsumerWidget {
                 HeaderAction(
                   icon: CupertinoIcons.settings,
                   label: '설정',
-                  onTap: () => showComingSoon(context, '설정'),
+                  onTap: () => context.push(AppRoute.settings),
                 ),
               ],
             ),
@@ -70,7 +63,7 @@ class ProfileScreen extends ConsumerWidget {
                     _TagSection(title: '관심분야', tags: profile.interests),
                   ],
                   const SizedBox(height: AppSpacing.xxxl),
-                  const _Settings(),
+                  const _EditProfileButton(),
                 ],
               ),
             ),
@@ -278,111 +271,22 @@ class _TagSection extends StatelessWidget {
   }
 }
 
-class _Settings extends ConsumerWidget {
-  const _Settings();
-
-  Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    final ok = await showConfirmSheet(
-      context,
-      title: '로그아웃할까요?',
-      confirmLabel: '로그아웃',
-      tone: ConfirmTone.danger,
-    );
-
-    if (!ok) return;
-    // 화면을 직접 옮기지 않는다. 세션이 비면 라우터가 로그인으로 돌린다.
-    // 이동을 두 곳에서 정하면 언젠가 어긋난다.
-    ref.read(sessionProvider.notifier).signOut();
-  }
-
-  void _openTerm(BuildContext context, Term term) {
-    context.push(AppRoute.term(term));
-  }
-
-  Future<void> _pickThemeMode(
-    BuildContext context,
-    WidgetRef ref,
-    ThemeMode current,
-  ) async {
-    final picked = await showOptionSheet<ThemeMode>(
-      context,
-      title: '화면 모드',
-      options: ThemeMode.values,
-      selected: current,
-      labelOf: (mode) => mode.label,
-      descriptionOf: (mode) => mode.description,
-    );
-
-    if (picked == null) return;
-    ref.read(themeModeProvider.notifier).select(picked);
-  }
+/// 프로필 수정으로 가는 버튼.
+///
+/// 설정 안이 아니라 프로필 아래에 둔다. 지금 보고 있는 것을 고치러 가는
+/// 길이라, 무엇을 고치게 되는지가 바로 위에 있는 편이 짧다.
+class _EditProfileButton extends StatelessWidget {
+  const _EditProfileButton();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final marketing = ref.watch(marketingOptInProvider);
-    final themeMode = ref.watch(themeModeProvider);
-
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SettingsGroup(
-            title: '계정',
-            children: [
-              SettingsTile(
-                icon: CupertinoIcons.person,
-                label: '프로필 수정',
-                onTap: () => showComingSoon(context, '프로필 수정'),
-              ),
-              SettingsTile(
-                icon: CupertinoIcons.bell,
-                label: '알림 설정',
-                onTap: () => showComingSoon(context, '알림 설정'),
-              ),
-              SettingsTile(
-                icon: CupertinoIcons.moon,
-                label: '화면 모드',
-                value: themeMode.label,
-                onTap: () => _pickThemeMode(context, ref, themeMode),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          SettingsGroup(
-            title: '약관',
-            children: [
-              for (final term in [Term.service, Term.privacy])
-                SettingsTile(
-                  icon: CupertinoIcons.doc_text,
-                  label: term.title,
-                  onTap: () => _openTerm(context, term),
-                ),
-              SettingsTile(
-                icon: CupertinoIcons.envelope,
-                label: Term.marketing.title,
-                trailing: Switch.adaptive(
-                  value: marketing,
-                  onChanged: (value) =>
-                      ref.read(marketingOptInProvider.notifier).set(value),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          SettingsGroup(
-            children: [
-              SettingsTile(
-                icon: CupertinoIcons.square_arrow_left,
-                label: '로그아웃',
-                tone: SettingsTone.danger,
-                onTap: () => _logout(context, ref),
-              ),
-            ],
-          ),
-        ],
+      child: OutlinedButton(
+        onPressed: () => context.push(AppRoute.profileEdit),
+        child: const Text('프로필 수정'),
       ),
     );
   }

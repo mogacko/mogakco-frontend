@@ -5,6 +5,7 @@ import 'package:mogacko/features/event/presentation/event_provider.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_provider.dart';
 import 'package:mogacko/features/profile/presentation/profile_provider.dart';
 import 'package:mogacko/features/profile/presentation/profile_screen.dart';
+import 'package:mogacko/features/profile/presentation/settings_screen.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -72,8 +73,8 @@ void main() {
       expect(find.text('관심분야'), findsOneWidget);
     });
 
-    testWidgets('선택 약관은 프로필에서 끄고 켤 수 있다', (tester) async {
-      await tester.pumpScreen(const ProfileScreen());
+    testWidgets('선택 약관은 설정에서 끄고 켤 수 있다', (tester) async {
+      await tester.pumpScreen(const SettingsScreen());
       await tester.pumpAndSettle();
 
       // 목록이 캐시 영역까지 미리 만들어 두므로 찾기만 해서는 화면 밖에 있다.
@@ -91,7 +92,7 @@ void main() {
     });
 
     testWidgets('로그아웃은 바로 나가지 않고 확인을 먼저 받는다', (tester) async {
-      await tester.pumpScreen(const ProfileScreen());
+      await tester.pumpScreen(const SettingsScreen());
       await tester.pumpAndSettle();
 
       final logout = find.text('로그아웃');

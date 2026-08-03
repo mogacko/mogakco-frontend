@@ -18,6 +18,10 @@ import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/community/presentation/post_write_screen.dart';
 import 'package:mogacko/features/notification/presentation/notification_screen.dart';
+import 'package:mogacko/features/notification/presentation/notification_settings_screen.dart';
+import 'package:mogacko/features/community/presentation/search_screen.dart';
+import 'package:mogacko/features/profile/presentation/profile_edit_screen.dart';
+import 'package:mogacko/features/profile/presentation/settings_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_create_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
@@ -104,6 +108,33 @@ void main() {
         matching: find.text(tab.label),
       ),
     );
+    await tester.pumpAndSettle();
+
+    await settleImages(tester);
+
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('images/$name.png'),
+    );
+  }
+
+  /// 검색어를 친 뒤의 검색 화면.
+  ///
+  /// 빈 채로 담으면 입력칸 한 줄만 남아 볼 것이 없다.
+  Future<void> expectSearchGolden(
+    WidgetTester tester,
+    String name, {
+    Brightness brightness = Brightness.light,
+  }) async {
+    tester.view
+      ..physicalSize = viewport
+      ..devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpScreen(const SearchScreen(), brightness: brightness);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '모각코');
     await tester.pumpAndSettle();
 
     await settleImages(tester);
@@ -218,6 +249,30 @@ void main() {
         const NotificationScreen(),
         'notification_light',
       );
+    });
+
+    testWidgets('설정', (tester) async {
+      await expectGolden(tester, const SettingsScreen(), 'settings_light');
+    });
+
+    testWidgets('알림 설정', (tester) async {
+      await expectGolden(
+        tester,
+        const NotificationSettingsScreen(),
+        'notification_settings_light',
+      );
+    });
+
+    testWidgets('프로필 수정', (tester) async {
+      await expectGolden(
+        tester,
+        const ProfileEditScreen(),
+        'profile_edit_light',
+      );
+    });
+
+    testWidgets('글 검색', (tester) async {
+      await expectSearchGolden(tester, 'search_light');
     });
 
     testWidgets('장소 검색 결과', (tester) async {
@@ -373,6 +428,32 @@ void main() {
         tester,
         const NotificationScreen(),
         'notification_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('설정', (tester) async {
+      await expectGolden(
+        tester,
+        const SettingsScreen(),
+        'settings_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('프로필 수정', (tester) async {
+      await expectGolden(
+        tester,
+        const ProfileEditScreen(),
+        'profile_edit_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('글 검색', (tester) async {
+      await expectSearchGolden(
+        tester,
+        'search_dark',
         brightness: Brightness.dark,
       );
     });

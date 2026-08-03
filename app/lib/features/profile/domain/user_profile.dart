@@ -38,6 +38,34 @@ class UserProfile {
   final List<String> stacks;
   final List<String> interests;
 
+  /// 고친 값으로 새 프로필을 만든다.
+  ///
+  /// 자기소개와 소속은 지울 수 있어야 해서 [String?] 로는 '안 바꿈'과 '비움'을
+  /// 가릴 수 없다. 비우려면 빈 문자열을 넘긴다.
+  UserProfile copyWith({
+    String? nickname,
+    String? field,
+    String? bio,
+    String? affiliation,
+    List<String>? stacks,
+    List<String>? interests,
+  }) {
+    String? orNull(String? value) =>
+        value == null || value.trim().isEmpty ? null : value.trim();
+
+    return UserProfile(
+      nickname: nickname ?? this.nickname,
+      field: field ?? this.field,
+      chapter: chapter,
+      joinedAt: joinedAt,
+      avatarUrl: avatarUrl,
+      bio: bio == null ? this.bio : orNull(bio),
+      affiliation: affiliation == null ? this.affiliation : orNull(affiliation),
+      stacks: stacks ?? this.stacks,
+      interests: interests ?? this.interests,
+    );
+  }
+
   /// 가입한 지 며칠 됐는지. 오늘 가입했으면 1일째다.
   int daysSinceJoin(DateTime now) {
     final joined = DateTime(joinedAt.year, joinedAt.month, joinedAt.day);

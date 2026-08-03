@@ -8,7 +8,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
-import '../../../shared/widgets/coming_soon.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
@@ -63,7 +62,7 @@ class CommunityScreen extends ConsumerWidget {
                 HeaderAction(
                   icon: CupertinoIcons.search,
                   label: '글 검색',
-                  onTap: () => showComingSoon(context, '검색'),
+                  onTap: () => context.push(AppRoute.search),
                 ),
                 // 공지는 운영진만 올린다. 쓸 수 없는 자리에 버튼을 두면
                 // 눌러보고 나서야 안 된다는 걸 알게 된다.

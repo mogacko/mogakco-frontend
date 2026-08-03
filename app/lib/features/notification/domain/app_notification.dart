@@ -6,19 +6,29 @@ import '../../../shared/domain/chapter.dart';
 /// 알림인지 먼저 걸러지게 한다.
 enum NotificationKind {
   /// 내 글·모임·행사에 댓글이 달림
-  comment,
+  comment('댓글', '내 글과 모임에 댓글이 달렸을 때'),
 
   /// 내 글에 좋아요
-  like,
+  like('좋아요', '내 글에 좋아요가 눌렸을 때'),
 
   /// 내가 연 모임에 누가 들어옴
-  join,
+  join('참여', '내가 연 모임에 누가 들어왔을 때'),
 
   /// 참여하기로 한 모임이 곧 시작
-  upcoming,
+  upcoming('모임 임박', '참여하기로 한 모임이 다가왔을 때'),
 
   /// 운영진 공지
-  notice,
+  notice('공지', '지부 운영진이 공지를 올렸을 때');
+
+  const NotificationKind(this.label, this.description);
+
+  final String label;
+
+  /// 설정 화면에서 무엇을 끄고 켜는지 한 줄로 밝힌다.
+  ///
+  /// '댓글'만 적어두면 내가 단 댓글인지 내 글에 달린 댓글인지 알 수 없어,
+  /// 끄기가 겁나서 그냥 다 켜두게 된다.
+  final String description;
 }
 
 /// 알림 한 줄.

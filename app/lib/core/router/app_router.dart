@@ -8,6 +8,10 @@ import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
 import '../../features/notification/presentation/notification_screen.dart';
+import '../../features/notification/presentation/notification_settings_screen.dart';
+import '../../features/profile/presentation/profile_edit_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
+import '../../features/community/presentation/search_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
 import '../../features/meetup/presentation/meetup_create_screen.dart';
 import '../../features/meetup/presentation/meetup_detail_screen.dart';
@@ -29,6 +33,10 @@ abstract final class AppRoute {
   static const signupComplete = '/signup/complete';
   static const home = '/home';
   static const notifications = '/notifications';
+  static const notificationSettings = '/settings/notifications';
+  static const settings = '/settings';
+  static const profileEdit = '/profile/edit';
+  static const search = '/search';
 
   /// 하나를 열어 보는 자리.
   ///
@@ -124,6 +132,18 @@ final detailRoutes = <RouteBase>[
     path: AppRoute.notifications,
     builder: (_, _) => const NotificationScreen(),
   ),
+  // '/settings/notifications' 가 먼저 와야 한다. go_router 는 먼저 맞는 것을
+  // 쓰므로 '/settings' 를 앞에 두면 하위 경로가 가려진다.
+  GoRoute(
+    path: AppRoute.notificationSettings,
+    builder: (_, _) => const NotificationSettingsScreen(),
+  ),
+  GoRoute(path: AppRoute.settings, builder: (_, _) => const SettingsScreen()),
+  GoRoute(
+    path: AppRoute.profileEdit,
+    builder: (_, _) => const ProfileEditScreen(),
+  ),
+  GoRoute(path: AppRoute.search, builder: (_, _) => const SearchScreen()),
   // '/post/new/...' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어 'new' 라는
   // id 를 가진 글을 찾다가 '찾을 수 없어요' 가 뜬다.
   GoRoute(

@@ -38,6 +38,14 @@ class MeetupList extends Notifier<List<Meetup>> {
   /// 목록 맨 앞이 아니라 날짜순 제자리에 꽂는다. 방금 만든 것이 위에 있으면
   /// 기분은 좋지만, 이 목록은 '가까운 날부터'가 규칙이라 한 줄만 어긋나도
   /// 나머지 순서를 못 믿게 된다.
+  /// 모임장 이름을 바꾼다. 프로필에서 닉네임을 고칠 때 따라온다.
+  void renameHost(String from, String to) {
+    state = [
+      for (final meetup in state)
+        if (meetup.host != from) meetup else meetup.withHost(to),
+    ];
+  }
+
   void add(Meetup meetup) {
     state = [...state, meetup]
       ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
