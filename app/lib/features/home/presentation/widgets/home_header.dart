@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../../features/notification/presentation/notification_provider.dart';
 import '../../../../shared/domain/chapter.dart';
 import '../../../../shared/providers/current_chapter_provider.dart';
 import '../../../../shared/utils/korean_particle.dart';
@@ -50,7 +53,6 @@ class _HomeHeaderState extends ConsumerState<HomeHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final current = ref.watch(currentChapterProvider);
 
     return Column(
@@ -75,26 +77,69 @@ class _HomeHeaderState extends ConsumerState<HomeHeader> {
               const Spacer(),
               // IconButton 은 48x48 터치 영역을 차지해 헤더를 두껍게 만든다.
               // 손가락이 닿을 만큼만 남기고 직접 그린다.
-              Semantics(
-                button: true,
-                label: '알림',
-                child: InkWell(
-                  onTap: () {},
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    child: Icon(
-                      CupertinoIcons.bell,
-                      size: AppSize.iconMd,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ),
+              _NotificationBell(
+                unread: ref.watch(hasUnreadProvider),
+                onTap: () => context.push(AppRoute.notifications),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+/// 알림 종.
+///
+/// 안 읽은 것이 있으면 종 오른쪽 위에 점이 붙는다. 숫자는 안 쓴다 — 헤더에
+/// 두 자리가 붙으면 그것부터 눈에 드는데, 지금 알아야 할 건 몇 개냐가 아니라
+/// 볼 게 있느냐다.
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell({required this.unread, required this.onTap});
+
+  final bool unread;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Semantics(
+      button: true,
+      label: unread ? '알림, 안 읽은 알림 있음' : '알림',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.full),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                CupertinoIcons.bell,
+                size: AppSize.iconMd,
+                color: colors.textSecondary,
+              ),
+              if (unread)
+                Positioned(
+                  top: -1,
+                  right: -1,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: colors.primary,
+                      shape: BoxShape.circle,
+                      // 종 획과 점이 붙으면 한 덩어리로 뭉친다. 배경색 테두리로
+                      // 한 칸 띄운다.
+                      border: Border.all(color: colors.background, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

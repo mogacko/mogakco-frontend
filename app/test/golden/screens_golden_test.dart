@@ -17,6 +17,7 @@ import 'package:mogacko/shared/data/mock_delay.dart';
 import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/community/presentation/post_write_screen.dart';
+import 'package:mogacko/features/notification/presentation/notification_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_create_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
@@ -211,6 +212,14 @@ void main() {
       );
     });
 
+    testWidgets('알림', (tester) async {
+      await expectGolden(
+        tester,
+        const NotificationScreen(),
+        'notification_light',
+      );
+    });
+
     testWidgets('장소 검색 결과', (tester) async {
       await expectPlaceGolden(tester, 'meetup_place_search_light');
     });
@@ -355,6 +364,15 @@ void main() {
         tester,
         const PostWriteScreen(board: PostBoard.talk),
         'post_write_dark',
+        brightness: Brightness.dark,
+      );
+    });
+
+    testWidgets('알림', (tester) async {
+      await expectGolden(
+        tester,
+        const NotificationScreen(),
+        'notification_dark',
         brightness: Brightness.dark,
       );
     });

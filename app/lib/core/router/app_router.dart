@@ -7,6 +7,7 @@ import '../../features/auth/presentation/session_provider.dart';
 import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
+import '../../features/notification/presentation/notification_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
 import '../../features/meetup/presentation/meetup_create_screen.dart';
 import '../../features/meetup/presentation/meetup_detail_screen.dart';
@@ -27,6 +28,7 @@ abstract final class AppRoute {
   static const signupProfile = '/signup/profile';
   static const signupComplete = '/signup/complete';
   static const home = '/home';
+  static const notifications = '/notifications';
 
   /// 하나를 열어 보는 자리.
   ///
@@ -118,6 +120,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// 테스트 하네스도 같은 목록을 쓴다. 두 곳에 따로 적으면 새 상세를 만들 때
 /// 한쪽만 고쳐 두고 테스트에서만 길이 없어진다.
 final detailRoutes = <RouteBase>[
+  GoRoute(
+    path: AppRoute.notifications,
+    builder: (_, _) => const NotificationScreen(),
+  ),
   // '/post/new/...' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어 'new' 라는
   // id 를 가진 글을 찾다가 '찾을 수 없어요' 가 뜬다.
   GoRoute(
