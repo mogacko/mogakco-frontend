@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../utils/navigation.dart';
 import 'pull_to_refresh.dart';
 
 /// 상세 화면의 골격.
@@ -136,7 +137,7 @@ class _BackButton extends StatelessWidget {
       button: true,
       label: '뒤로',
       child: InkWell(
-        onTap: () => Navigator.of(context).maybePop(),
+        onTap: () => goBack(context),
         borderRadius: BorderRadius.circular(AppRadius.full),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.sm),
