@@ -7,3 +7,6 @@
 *.iml
 
 # Flutter 프로젝트 내부 규칙은 app/.gitignore 를 따른다
+
+# 골든 비교 실패시 나오는 이미지. 결과물이지 소스가 아니다.
+test/golden/failures/
