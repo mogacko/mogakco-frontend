@@ -17,6 +17,7 @@ import 'package:mogacko/shared/data/mock_delay.dart';
 import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/community/presentation/post_write_screen.dart';
+import 'package:mogacko/features/member/presentation/member_screen.dart';
 import 'package:mogacko/features/notification/presentation/notification_screen.dart';
 import 'package:mogacko/features/notification/presentation/notification_settings_screen.dart';
 import 'package:mogacko/features/community/presentation/search_screen.dart';
@@ -248,6 +249,14 @@ void main() {
         tester,
         const NotificationScreen(),
         'notification_light',
+      );
+    });
+
+    testWidgets('남의 프로필', (tester) async {
+      await expectGolden(
+        tester,
+        const MemberScreen(memberId: '재현'),
+        'member_light',
       );
     });
 

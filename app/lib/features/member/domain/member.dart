@@ -1,11 +1,15 @@
 import '../../../shared/domain/chapter.dart';
 
-/// 내 프로필.
+/// 사람 한 명.
 ///
-/// 가입 화면에서 받는 항목과 같은 구성이다. 닉네임과 분야만 필수고 나머지는
-/// 비어 있을 수 있어서, 화면에서는 채워진 것만 골라 보여준다.
-class UserProfile {
-  const UserProfile({
+/// 내 프로필과 남의 프로필을 한 타입으로 둔다. 둘을 나누면 '내가 보는 나'와
+/// '남이 보는 나'가 어긋나기 시작하는데, 정작 같아야 하는 값이다.
+///
+/// 닉네임과 분야만 필수고 나머지는 비어 있을 수 있어서, 화면에서는 채워진
+/// 것만 골라 보여준다.
+class Member {
+  const Member({
+    required this.id,
     required this.nickname,
     required this.field,
     required this.chapter,
@@ -15,7 +19,15 @@ class UserProfile {
     this.affiliation,
     this.stacks = const [],
     this.interests = const [],
+    this.isStaff = false,
   });
+
+  /// 사람을 가리키는 열쇠.
+  ///
+  /// 목업에서는 닉네임과 같은 값을 쓴다. 목업 글·모임이 이름 문자열로 이어져
+  /// 있어서다. 서버가 붙으면 진짜 id 가 오고, 그때 닉네임을 바꿔도 차단이
+  /// 풀리거나 글쓴이가 갈리는 일이 없어진다.
+  final String id;
 
   final String nickname;
 
@@ -38,11 +50,14 @@ class UserProfile {
   final List<String> stacks;
   final List<String> interests;
 
+  /// 지부 운영진인지. 공지를 올리고 행사를 검토하는 계정이다.
+  final bool isStaff;
+
   /// 고친 값으로 새 프로필을 만든다.
   ///
   /// 자기소개와 소속은 지울 수 있어야 해서 [String?] 로는 '안 바꿈'과 '비움'을
   /// 가릴 수 없다. 비우려면 빈 문자열을 넘긴다.
-  UserProfile copyWith({
+  Member copyWith({
     String? nickname,
     String? field,
     String? bio,
@@ -53,7 +68,8 @@ class UserProfile {
     String? orNull(String? value) =>
         value == null || value.trim().isEmpty ? null : value.trim();
 
-    return UserProfile(
+    return Member(
+      id: id,
       nickname: nickname ?? this.nickname,
       field: field ?? this.field,
       chapter: chapter,
@@ -63,6 +79,7 @@ class UserProfile {
       affiliation: affiliation == null ? this.affiliation : orNull(affiliation),
       stacks: stacks ?? this.stacks,
       interests: interests ?? this.interests,
+      isStaff: isStaff,
     );
   }
 

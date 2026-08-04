@@ -8,7 +8,7 @@ class MeetupSession {
   const MeetupSession({
     required this.id,
     required this.startsAt,
-    required this.participantCount,
+    required this.participants,
     required this.capacity,
     this.isJoined = false,
   });
@@ -18,8 +18,15 @@ class MeetupSession {
   /// 이 날의 시작 시각
   final DateTime startsAt;
 
-  final int participantCount;
+  /// 이 날 오기로 한 사람들. 앞에서부터 먼저 신청한 순서다.
+  ///
+  /// 숫자만 들고 있으면 '6명'이라고 적어놓고 정작 누가 오는지 물으면 답할
+  /// 데가 없다. 목록이 원본이고 숫자는 거기서 나온다.
+  final List<String> participants;
+
   final int capacity;
+
+  int get participantCount => participants.length;
 
   /// 내가 이 날에 참여하기로 했는지
   final bool isJoined;
@@ -78,11 +85,11 @@ class MeetupSession {
     };
   }
 
-  MeetupSession copyWith({bool? isJoined, int? participantCount}) {
+  MeetupSession copyWith({bool? isJoined, List<String>? participants}) {
     return MeetupSession(
       id: id,
       startsAt: startsAt,
-      participantCount: participantCount ?? this.participantCount,
+      participants: participants ?? this.participants,
       capacity: capacity,
       isJoined: isJoined ?? this.isJoined,
     );
@@ -218,7 +225,10 @@ class Meetup {
   /// 특정 날의 참여를 뒤집은 새 모임을 만든다.
   ///
   /// 자리가 찬 날은 새로 신청할 수 없지만, 이미 신청했다면 언제든 뺄 수 있다.
-  Meetup toggleSession(String sessionId) {
+  ///
+  /// [me] 는 참여자 목록에 넣고 뺄 내 이름이다. 숫자만 올리고 내리면 아바타
+  /// 줄에는 내가 없는데 '참여 중'이라고 적히는 상태가 된다.
+  Meetup toggleSession(String sessionId, String me) {
     return copyWith(
       sessions: [
         for (final session in sessions)
@@ -227,12 +237,15 @@ class Meetup {
           else if (session.isJoined)
             session.copyWith(
               isJoined: false,
-              participantCount: session.participantCount - 1,
+              participants: session.participants
+                  .where((name) => name != me)
+                  .toList(),
             )
           else if (!session.isFull)
             session.copyWith(
               isJoined: true,
-              participantCount: session.participantCount + 1,
+              // 맨 뒤에 붙인다. 먼저 신청한 사람이 앞에 서는 순서다.
+              participants: [...session.participants, me],
             )
           else
             session,

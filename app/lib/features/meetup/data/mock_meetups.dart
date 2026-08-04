@@ -36,13 +36,13 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'busan-1-today',
             startsAt: day(0, 10),
-            participantCount: 5,
+            participants: ['재현', '민서', '지훈', '서연', '태오'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'busan-1-sun',
             startsAt: day(2, 13),
-            participantCount: 3,
+            participants: ['재현', '나윤', '하람'],
             capacity: 8,
           ),
         ],
@@ -59,7 +59,7 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'busan-2-today',
             startsAt: day(0, 14),
-            participantCount: 6,
+            participants: ['수민', '도윤', '민서', '준서', '나윤', '하람'],
             capacity: 6,
           ),
         ],
@@ -80,14 +80,14 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'busan-3-fri',
             startsAt: day(0, 19),
-            participantCount: 7,
+            participants: ['evan', '재현', '수민', '서연', '태오', '준서', '지훈'],
             capacity: 12,
             isJoined: true,
           ),
           MeetupSession(
             id: 'busan-3-sat',
             startsAt: day(1, 19),
-            participantCount: 4,
+            participants: ['evan', '민서', '나윤', '하람'],
             capacity: 12,
           ),
         ],
@@ -104,7 +104,7 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'busan-4-sun',
             startsAt: day(2, 11),
-            participantCount: 2,
+            participants: ['도윤', '지훈'],
             capacity: 6,
           ),
         ],
@@ -123,13 +123,13 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'seoul-1-sat',
             startsAt: day(1, 11),
-            participantCount: 6,
+            participants: ['하늘', '지우', '예린', '시우', '유진', '다인'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'seoul-1-sun',
             startsAt: day(2, 11),
-            participantCount: 5,
+            participants: ['하늘', '민준', '건우', '예린', '시우'],
             capacity: 8,
           ),
         ],
@@ -146,7 +146,7 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'seoul-2-sat',
             startsAt: day(2, 14),
-            participantCount: 4,
+            participants: ['evan', '지우', '유진', '건우'],
             capacity: 10,
             isJoined: true,
           ),
@@ -164,7 +164,7 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'seoul-3-sun',
             startsAt: day(3, 13),
-            participantCount: 9,
+            participants: ['민준', '하늘', '지우', '예린', '시우', '유진', '다인', '건우', '나윤'],
             capacity: 9,
           ),
         ],

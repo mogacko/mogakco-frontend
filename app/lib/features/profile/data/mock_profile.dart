@@ -1,5 +1,5 @@
 import '../../../shared/domain/chapter.dart';
-import '../domain/user_profile.dart';
+import '../../member/domain/member.dart';
 
 /// 화면을 채우기 위한 임시 데이터.
 ///
@@ -12,8 +12,9 @@ abstract final class MockProfile {
   /// 연 모임', '내가 쓴 글'이 실제로 집계되어 숫자가 살아 있는 것처럼 보인다.
   static const nickname = 'evan';
 
-  static UserProfile from(DateTime now, {Chapter? chapter}) {
-    return UserProfile(
+  static Member from(DateTime now, {Chapter? chapter}) {
+    return Member(
+      id: nickname,
       nickname: nickname,
       field: '프론트엔드',
       chapter: chapter ?? Chapter.seoul,

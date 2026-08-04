@@ -14,6 +14,7 @@ MeetupSession _session({
   String id = 's1',
   int afterDays = 1,
   int hour = 19,
+  List<String>? participants,
   int participantCount = 3,
   int capacity = 8,
   bool isJoined = false,
@@ -21,7 +22,9 @@ MeetupSession _session({
   return MeetupSession(
     id: id,
     startsAt: DateTime(_now.year, _now.month, _now.day + afterDays, hour),
-    participantCount: participantCount,
+    // 이름이 중요한 시험이 아니면 개수만 맞춰 채운다.
+    participants:
+        participants ?? [for (var i = 0; i < participantCount; i++) 'p$i'],
     capacity: capacity,
     isJoined: isJoined,
   );
@@ -219,7 +222,7 @@ void main() {
       await tester.pumpScreen(
         MeetupCarousel(
           meetups: [
-            _entry(session: _session(participantCount: 8, capacity: 8)),
+            _entry(session: _session(participants: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'], capacity: 8)),
           ],
           now: _now,
           onToggleSession: (_, _) => called = true,
@@ -241,7 +244,7 @@ void main() {
           meetups: [
             _entry(
               session: _session(
-                participantCount: 8,
+                participants: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
                 capacity: 8,
                 isJoined: true,
               ),

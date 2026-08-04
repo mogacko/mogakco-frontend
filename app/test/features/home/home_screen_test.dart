@@ -30,7 +30,7 @@ void main() {
               MeetupSession(
                 id: 's',
                 startsAt: DateTime(2026, 7, 29, 19),
-                participantCount: 3,
+                participants: ['p0', 'p1', 'p2'],
                 capacity: 8,
               ),
             ],
@@ -53,13 +53,13 @@ void main() {
           MeetupSession(
             id: 'late',
             startsAt: DateTime(2026, 8, 2, 13),
-            participantCount: 1,
+            participants: ['p0'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'early',
             startsAt: DateTime(2026, 7, 31, 10),
-            participantCount: 1,
+            participants: ['p0'],
             capacity: 8,
           ),
         ],
@@ -73,13 +73,13 @@ void main() {
           MeetupSession(
             id: 'full',
             startsAt: DateTime(2026, 7, 31, 10),
-            participantCount: 8,
+            participants: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'open',
             startsAt: DateTime(2026, 8, 1, 10),
-            participantCount: 2,
+            participants: ['p0', 'p1'],
             capacity: 8,
           ),
         ],
@@ -94,13 +94,13 @@ void main() {
           MeetupSession(
             id: 'a',
             startsAt: DateTime(2026, 7, 31, 10),
-            participantCount: 1,
+            participants: ['p0'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'b',
             startsAt: DateTime(2026, 8, 1, 10),
-            participantCount: 1,
+            participants: ['p0'],
             capacity: 8,
             isJoined: true,
           ),
@@ -115,19 +115,19 @@ void main() {
           MeetupSession(
             id: 'a',
             startsAt: DateTime(2026, 7, 31, 10),
-            participantCount: 3,
+            participants: ['p0', 'p1', 'p2'],
             capacity: 8,
           ),
           MeetupSession(
             id: 'b',
             startsAt: DateTime(2026, 8, 1, 10),
-            participantCount: 5,
+            participants: ['p0', 'p1', 'p2', 'p3', 'p4'],
             capacity: 8,
           ),
         ],
       );
 
-      final after = before.toggleSession('a');
+      final after = before.toggleSession('a', 'evan');
       expect(after.sessions[0].participantCount, 4);
       expect(after.sessions[0].isJoined, isTrue);
       expect(after.sessions[1].participantCount, 5);
@@ -139,12 +139,12 @@ void main() {
           MeetupSession(
             id: 'a',
             startsAt: DateTime(2026, 7, 31, 10),
-            participantCount: 8,
+            participants: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
             capacity: 8,
           ),
         ],
       );
-      expect(full.toggleSession('a').sessions.first.participantCount, 8);
+      expect(full.toggleSession('a', 'evan').sessions.first.participantCount, 8);
     });
   });
 
@@ -154,7 +154,7 @@ void main() {
     MeetupSession at(int afterDays, int hour) => MeetupSession(
       id: 's',
       startsAt: DateTime(now.year, now.month, now.day + afterDays, hour),
-      participantCount: 1,
+      participants: ['p0'],
       capacity: 8,
     );
 

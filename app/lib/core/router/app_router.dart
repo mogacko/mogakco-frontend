@@ -7,6 +7,7 @@ import '../../features/auth/presentation/session_provider.dart';
 import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
+import '../../features/member/presentation/member_screen.dart';
 import '../../features/notification/presentation/notification_screen.dart';
 import '../../features/notification/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
@@ -37,6 +38,9 @@ abstract final class AppRoute {
   static const settings = '/settings';
   static const profileEdit = '/profile/edit';
   static const search = '/search';
+
+  /// 남의 프로필. 목업에서는 닉네임이 곧 id 다.
+  static String member(String id) => '/user/$id';
 
   /// 하나를 열어 보는 자리.
   ///
@@ -144,6 +148,10 @@ final detailRoutes = <RouteBase>[
     builder: (_, _) => const ProfileEditScreen(),
   ),
   GoRoute(path: AppRoute.search, builder: (_, _) => const SearchScreen()),
+  GoRoute(
+    path: '/user/:id',
+    builder: (_, state) => MemberScreen(memberId: state.pathParameters['id']!),
+  ),
   // '/post/new/...' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어 'new' 라는
   // id 를 가진 글을 찾다가 '찾을 수 없어요' 가 뜬다.
   GoRoute(

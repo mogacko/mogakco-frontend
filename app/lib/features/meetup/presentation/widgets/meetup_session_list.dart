@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../shared/widgets/avatar_stack.dart';
 import '../../domain/meetup.dart';
 import 'join_confirm_sheet.dart';
 
@@ -118,6 +119,12 @@ class _SessionRow extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            // 얼굴을 숫자 왼쪽에 붙인다. 숫자가 먼저 오면 '5/8'을 읽고 나서
+            // 다시 왼쪽으로 눈이 돌아가야 한다.
+            if (session.participants.isNotEmpty) ...[
+              AvatarStack(names: session.participants, size: 22),
+              const SizedBox(width: AppSpacing.sm),
+            ],
             _Seats(session: session),
             const SizedBox(width: AppSpacing.md),
             _JoinPill(session: session),

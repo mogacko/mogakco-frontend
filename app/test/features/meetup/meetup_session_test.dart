@@ -9,7 +9,7 @@ void main() {
     MeetupSession at(int afterDays, int hour) => MeetupSession(
       id: 's',
       startsAt: DateTime(now.year, now.month, now.day + afterDays, hour),
-      participantCount: 1,
+      participants: ['p0'],
       capacity: 8,
     );
 

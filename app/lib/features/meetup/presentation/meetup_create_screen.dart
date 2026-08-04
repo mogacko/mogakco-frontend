@@ -134,9 +134,9 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
                     hour: _days[day]!.hour,
                     minute: _days[day]!.minute,
                   ),
-                  // 연 사람은 가는 사람이다. 0으로 시작하면 방금 만든 자리가
-                  // 아무도 안 오는 곳처럼 보인다.
-                  participantCount: 1,
+                  // 연 사람은 가는 사람이다. 빈 목록으로 시작하면 방금 만든
+                  // 자리가 아무도 안 오는 곳처럼 보인다.
+                  participants: [session?.nickname ?? '나'],
                   capacity: _days[day]!.capacity,
                   isJoined: true,
                 ),

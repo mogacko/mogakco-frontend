@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
@@ -17,6 +19,7 @@ import '../../comment/presentation/widgets/comment_section.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
 import 'widgets/meetup_session_list.dart';
+import 'widgets/participant_roster.dart';
 import 'widgets/recurring_badge.dart';
 
 /// 모각코 하나.
@@ -153,6 +156,8 @@ class MeetupDetailScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xxl),
+        ParticipantRoster(meetup: meetup, now: now),
+        const SizedBox(height: AppSpacing.xxl),
         Divider(height: 1, color: context.colors.border),
         const SizedBox(height: AppSpacing.xl),
         CommentSection(
@@ -208,28 +213,41 @@ class _Head extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              UserAvatar(
-                name: meetup.host,
-                imageUrl: meetup.hostAvatarUrl,
-                size: 32,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    meetup.host,
-                    style: context.texts.labelMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
+          // 모임장을 눌러 프로필로 들어간다. 누구랑 만나는 자리인지가 참여를
+          // 정하는 데 꽤 크게 작용한다.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              onTap: () => context.push(AppRoute.member(meetup.host)),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    UserAvatar(
+                      name: meetup.host,
+                      imageUrl: meetup.hostAvatarUrl,
+                      size: 32,
                     ),
-                  ),
-                  Text('모임장', style: context.texts.labelSmall),
-                ],
+                    const SizedBox(width: AppSpacing.md),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          meetup.host,
+                          style: context.texts.labelMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text('모임장', style: context.texts.labelSmall),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ],
       ),

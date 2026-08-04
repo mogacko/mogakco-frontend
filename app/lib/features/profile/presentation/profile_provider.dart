@@ -7,16 +7,16 @@ import '../../community/presentation/post_provider.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../meetup/presentation/meetup_provider.dart';
 import '../data/mock_profile.dart';
-import '../domain/user_profile.dart';
+import '../../member/domain/member.dart';
 
 /// 내 프로필.
 ///
 /// 고칠 수 있어야 해서 파생 값이 아니라 상태로 둔다. 로그아웃하면 세션이
 /// 바뀌면서 다시 만들어져 고친 내용도 함께 사라진다 — 다음 사람이 이 기기에서
 /// 로그인했을 때 앞사람의 프로필이 남아 있으면 안 된다.
-class ProfileState extends Notifier<UserProfile> {
+class ProfileState extends Notifier<Member> {
   @override
-  UserProfile build() {
+  Member build() {
     final now = ref.watch(nowProvider);
     // 지역은 목업이 아니라 로그인한 계정에서 온다. 둘이 어긋나면 내 정보에
     // 적힌 지역과 실제로 보고 있는 지부가 달라진다.
@@ -33,7 +33,7 @@ class ProfileState extends Notifier<UserProfile> {
   /// 사용자 id 로 이어져 있어 저절로 따라오는 자리다. 목업은 이름 문자열이
   /// 곧 사람이라, 여기서 맞춰주지 않으면 닉네임을 고치는 순간 내 글이 남의
   /// 글이 되고 작성글 수가 0으로 떨어진다.
-  void save(UserProfile profile) {
+  void save(Member profile) {
     final before = state.nickname;
     state = profile;
 
@@ -46,7 +46,7 @@ class ProfileState extends Notifier<UserProfile> {
   }
 }
 
-final profileProvider = NotifierProvider<ProfileState, UserProfile>(
+final profileProvider = NotifierProvider<ProfileState, Member>(
   ProfileState.new,
 );
 

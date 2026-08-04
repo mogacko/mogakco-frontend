@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
+import '../../auth/presentation/session_provider.dart';
+import '../../profile/data/mock_profile.dart';
 import '../data/mock_meetups.dart';
 import '../domain/meetup.dart';
 
@@ -27,11 +29,21 @@ class MeetupList extends Notifier<List<Meetup>> {
 
   /// 특정 날의 참여 신청과 취소를 오간다.
   void toggleSession(String meetupId, String sessionId) {
+    final me = _me;
     state = [
       for (final meetup in state)
-        if (meetup.id != meetupId) meetup else meetup.toggleSession(sessionId),
+        if (meetup.id != meetupId)
+          meetup
+        else
+          meetup.toggleSession(sessionId, me),
     ];
   }
+
+  /// 참여자 목록에 넣고 뺄 내 이름.
+  ///
+  /// 세션에서 읽는다. 프로필에서 닉네임을 고치면 세션도 함께 가므로 둘이
+  /// 어긋나지 않는다.
+  String get _me => ref.read(sessionProvider)?.nickname ?? MockProfile.nickname;
 
   /// 새 모각코를 연다.
   ///
@@ -76,7 +88,7 @@ class MeetupList extends Notifier<List<Meetup>> {
           var restored = meetup;
           for (final session in meetup.sessions) {
             if (session.isJoined != joined.contains(session.id)) {
-              restored = restored.toggleSession(session.id);
+              restored = restored.toggleSession(session.id, _me);
             }
           }
           return restored;

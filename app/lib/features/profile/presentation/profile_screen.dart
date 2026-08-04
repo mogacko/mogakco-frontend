@@ -11,7 +11,7 @@ import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/tag_chip.dart';
 import '../../../shared/widgets/user_avatar.dart';
-import '../domain/user_profile.dart';
+import '../../member/domain/member.dart';
 import 'profile_provider.dart';
 
 /// 내 정보 탭.
@@ -81,7 +81,7 @@ class ProfileScreen extends ConsumerWidget {
 class _Identity extends StatelessWidget {
   const _Identity({required this.profile, required this.now});
 
-  final UserProfile profile;
+  final Member profile;
   final DateTime now;
 
   @override
