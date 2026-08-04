@@ -15,6 +15,21 @@ enum EventKind {
   final String label;
 }
 
+/// 행사가 지금 어느 단계인지.
+///
+/// 아무나 열 수 있게 두면 홍보 글이 행사로 올라온다. 만들면 먼저 검토로 가고,
+/// 운영진이 확인한 뒤에야 목록에 선다.
+enum EventStatus {
+  pending('검토 중', '운영진이 확인하고 있어요. 보통 하루 안에 끝나요'),
+  approved('등록됨', '목록에 올라가 있어요'),
+  rejected('반려됨', '올리지 못했어요');
+
+  const EventStatus(this.label, this.description);
+
+  final String label;
+  final String description;
+}
+
 /// 지부가 여는 공식 행사.
 ///
 /// 모각코 모임과 다르다. 모임은 누구나 카페 자리를 잡아 열고 그 주에만
@@ -39,6 +54,9 @@ class Event {
     this.fee = 0,
     this.posterUrl,
     this.isApplied = false,
+    this.status = EventStatus.approved,
+    this.proposedBy,
+    this.rejectionNote,
   });
 
   final String id;
@@ -75,6 +93,23 @@ class Event {
 
   /// 내가 신청했는지
   final bool isApplied;
+
+  /// 검토 단계. 목업 행사는 이미 지부가 올린 것이라 등록됨으로 시작한다.
+  final EventStatus status;
+
+  /// 이 행사를 올린 사람. 지부가 직접 올린 것이면 null.
+  ///
+  /// 내가 낸 행사를 골라내는 데 쓴다. 검토 중인 행사는 목록에 안 서기 때문에,
+  /// 이 값이 없으면 낸 사람도 어떻게 됐는지 볼 데가 없다.
+  final String? proposedBy;
+
+  /// 반려 사유. 반려됐을 때만 채워진다.
+  ///
+  /// 왜 안 됐는지 없이 '반려됨'만 있으면 같은 걸 그대로 다시 올린다.
+  final String? rejectionNote;
+
+  /// 목록에 설 수 있는지
+  bool get isApproved => status == EventStatus.approved;
 
   bool get isFree => fee == 0;
   bool get isFull => applicantCount >= capacity;
@@ -151,6 +186,9 @@ class Event {
       applyBy: applyBy,
       capacity: capacity,
       applicantCount: applicantCount ?? this.applicantCount,
+      status: status,
+      proposedBy: proposedBy,
+      rejectionNote: rejectionNote,
       fee: fee,
       posterUrl: posterUrl,
       isApplied: isApplied ?? this.isApplied,

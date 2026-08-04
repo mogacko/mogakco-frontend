@@ -60,6 +60,17 @@ class MeetupList extends Notifier<List<Meetup>> {
     ];
   }
 
+  /// 사유를 달아 모임을 접는다. 목록에서 지우지는 않는다.
+  ///
+  /// 오기로 했던 사람은 그 자리가 어떻게 됐는지 확인하러 오는데, 통째로
+  /// 사라지면 자기가 잘못 본 건지 알 수 없다.
+  void cancel(String meetupId, Cancellation cancellation) {
+    state = [
+      for (final meetup in state)
+        if (meetup.id != meetupId) meetup else meetup.cancel(cancellation),
+    ];
+  }
+
   void add(Meetup meetup) {
     state = [...state, meetup]
       ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
@@ -144,6 +155,9 @@ final heroMeetupsProvider = Provider<List<MeetupOnDay>>((ref) {
   final upcoming = <MeetupOnDay>[];
 
   for (final meetup in meetups) {
+    // 접힌 모임은 홈에 세우지 않는다. 홈 맨 위는 '오늘 갈 곳'을 묻는 자리라
+    // 안 열리는 자리가 답이 될 수 없다.
+    if (meetup.isCancelled) continue;
     final session = meetup.sessionToday(now);
     if (session != null) {
       today.add((meetup: meetup, session: session));

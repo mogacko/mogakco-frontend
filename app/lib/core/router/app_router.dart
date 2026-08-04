@@ -7,6 +7,8 @@ import '../../features/auth/presentation/session_provider.dart';
 import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
+import '../../features/event/presentation/event_create_screen.dart';
+import '../../features/event/presentation/my_events_screen.dart';
 import '../../features/member/presentation/member_screen.dart';
 import '../../features/safety/presentation/blocked_members_screen.dart';
 import '../../features/notification/presentation/notification_screen.dart';
@@ -60,6 +62,8 @@ abstract final class AppRoute {
   static String meetup(String id) => '/meetup/$id';
   static const meetupCreate = '/meetup/new';
   static String event(String id) => '/event/$id';
+  static const eventCreate = '/event/new';
+  static const myEvents = '/event/mine';
   static String term(Term value) => '/signup/terms/${value.name}';
 
   /// 로그인하지 않은 사람만 머무는 자리.
@@ -182,6 +186,13 @@ final detailRoutes = <RouteBase>[
     builder: (_, state) =>
         MeetupDetailScreen(meetupId: state.pathParameters['id']!),
   ),
+  // '/event/new' 와 '/event/mine' 이 먼저 와야 한다. 뒤에 두면 :id 가 먼저
+  // 물어 'new' 라는 id 를 가진 행사를 찾다가 '찾을 수 없어요'가 뜬다.
+  GoRoute(
+    path: AppRoute.eventCreate,
+    builder: (_, _) => const EventCreateScreen(),
+  ),
+  GoRoute(path: AppRoute.myEvents, builder: (_, _) => const MyEventsScreen()),
   GoRoute(
     path: '/event/:id',
     builder: (_, state) =>

@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
+import '../../member/presentation/member_provider.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/widgets/safety_menu.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -21,6 +22,8 @@ import '../../comment/presentation/widgets/comment_section.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
 import 'widgets/meetup_session_list.dart';
+import 'widgets/cancel_sheet.dart';
+import 'widgets/cancelled_notice.dart';
 import 'widgets/participant_roster.dart';
 import 'widgets/recurring_badge.dart';
 
@@ -78,11 +81,15 @@ class MeetupDetailScreen extends ConsumerWidget {
 
     return DetailScaffold(
       actions: [
-        SafetyMenuButton(
-          target: ReportTarget.meetup,
-          targetId: meetup.id,
-          authorId: meetup.host,
-        ),
+        // 내가 연 자리에는 신고가 아니라 접기가 붙는다.
+        if (meetup.host == ref.watch(myIdProvider) && !meetup.isCancelled)
+          _CancelMenuButton(meetup: meetup, now: now)
+        else
+          SafetyMenuButton(
+            target: ReportTarget.meetup,
+            targetId: meetup.id,
+            authorId: meetup.host,
+          ),
       ],
       // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
       // 새로고침이 반쯤 된 것처럼 보인다.
@@ -129,6 +136,18 @@ class MeetupDetailScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
                 OpenInMapButton(onTap: () => _openMap(meetup)),
               ],
+            ),
+          ),
+        ],
+        if (meetup.isCancelled) ...[
+          const SizedBox(height: AppSpacing.xl),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screenHorizontal,
+            ),
+            child: CancelledNotice(
+              cancellation: meetup.cancellation!,
+              now: now,
             ),
           ),
         ],
@@ -259,6 +278,53 @@ class _Head extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 모임장에게만 붙는 '⋯'. 지금은 접기 하나뿐이다.
+class _CancelMenuButton extends ConsumerWidget {
+  const _CancelMenuButton({required this.meetup, required this.now});
+
+  final Meetup meetup;
+  final DateTime now;
+
+  Future<void> _cancel(BuildContext context, WidgetRef ref) async {
+    final cancellation = await showCancelSheet(
+      context,
+      now: now,
+      participantCount: meetup.totalParticipants,
+    );
+    if (cancellation == null || !context.mounted) return;
+
+    ref.read(meetupListProvider.notifier).cancel(meetup.id, cancellation);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('모각코를 접었어요. 참여자에게 알려드릴게요'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Semantics(
+      button: true,
+      label: '모각코 접기',
+      child: InkWell(
+        onTap: () => _cancel(context, ref),
+        borderRadius: BorderRadius.circular(AppRadius.full),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Icon(
+            CupertinoIcons.ellipsis,
+            size: AppSize.iconMd,
+            color: context.colors.textSecondary,
+          ),
+        ),
       ),
     );
   }

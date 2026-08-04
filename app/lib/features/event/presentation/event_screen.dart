@@ -52,6 +52,14 @@ class EventScreen extends ConsumerWidget {
                 onSelected: (kind) =>
                     ref.read(eventFilterProvider.notifier).select(kind),
               ),
+              actions: [
+                HeaderAction(
+                  icon: CupertinoIcons.plus,
+                  label: '행사 올리기',
+                  emphasized: true,
+                  onTap: () => context.push(AppRoute.eventCreate),
+                ),
+              ],
             ),
             Expanded(
               child: PullToRefresh(

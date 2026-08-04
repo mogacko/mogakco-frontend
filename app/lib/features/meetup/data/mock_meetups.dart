@@ -100,6 +100,12 @@ abstract final class MockMeetups {
         address: '부산광역시 동구 초량동',
         latitude: 35.116,
         longitude: 129.04,
+        // 접힌 자리도 하나 둔다. 목록에서 어떻게 보이는지가 화면을 짜는 데
+        // 필요하고, 실제로도 흔한 상태다.
+        cancellation: Cancellation(
+          reason: CancelReason.place,
+          at: now.subtract(const Duration(hours: 6)),
+        ),
         sessions: [
           MeetupSession(
             id: 'busan-4-sun',

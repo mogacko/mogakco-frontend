@@ -6,6 +6,7 @@ import '../../../shared/providers/now_provider.dart';
 import '../data/mock_events.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
+import '../../member/presentation/member_provider.dart';
 import '../domain/event.dart';
 
 /// 행사 목록과 신청 상태.
@@ -30,6 +31,12 @@ class EventList extends Notifier<List<Event>> {
   /// 신청과 취소를 오간다.
   ///
   /// 마감된 행사는 새로 신청할 수 없다. 이미 신청했다면 언제든 뺄 수 있다.
+  /// 행사를 올린다. 바로 목록에 서지 않고 검토로 간다.
+  void propose(Event event) {
+    state = [...state, event]
+      ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+  }
+
   void toggleApply(String eventId) {
     final now = ref.read(nowProvider);
 
@@ -51,6 +58,8 @@ class EventList extends Notifier<List<Event>> {
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 신청한 행사도 응답에
   /// 실려 오므로 아래 옮겨 담기는 지운다.
   Future<void> refresh() async {
+    // 목업에 없던 것 = 내가 여기서 올린 것. 서버가 붙으면 응답에 실려 온다.
+    final mine = state.where((event) => event.proposedBy != null).toList();
     final applied = {
       for (final event in state)
         if (event.isApplied) event.id,
@@ -66,13 +75,17 @@ class EventList extends Notifier<List<Event>> {
             .map((event) {
               // 목업에도 미리 신청해 둔 행사가 있다. 한쪽으로만 맞추면
               // 취소한 뒤 새로고침했을 때 신청이 되살아난다.
-              final mine = applied.contains(event.id);
-              if (event.isApplied == mine) return event;
-              return mine ? event.apply() : event.cancel();
+              final byMe = applied.contains(event.id);
+              if (event.isApplied == byMe) return event;
+              return byMe ? event.apply() : event.cancel();
             })
             .toList()
+          ..addAll(mine)
           ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
   }
+
+  /// 서버가 아직 id 를 주지 못하는 동안 쓰는 앞머리.
+  static const localPrefix = 'local-';
 }
 
 final eventListProvider = NotifierProvider<EventList, List<Event>>(
@@ -90,10 +103,23 @@ final chapterEventsProvider = Provider<List<Event>>((ref) {
   return ref
       .watch(eventListProvider)
       .where((event) => event.chapter == chapter)
+      // 검토 중이거나 반려된 것은 목록에 서지 않는다. 낸 사람은 '내가 올린
+      // 행사'에서 상태와 함께 본다.
+      .where((event) => event.isApproved)
       .where(
         (event) => !reported.contains('${ReportTarget.event.name}:${event.id}'),
       )
       .toList();
+});
+
+/// 내가 올린 행사. 검토 중·반려된 것까지 다 보인다.
+///
+/// 검토 중인 행사는 목록에 안 서기 때문에, 이 자리가 없으면 낸 사람도 자기
+/// 행사가 어떻게 됐는지 볼 데가 없다.
+final myEventsProvider = Provider<List<Event>>((ref) {
+  final me = ref.watch(myIdProvider);
+  return ref.watch(eventListProvider).where((event) => event.proposedBy == me).toList()
+    ..sort((a, b) => b.startsAt.compareTo(a.startsAt));
 });
 
 /// 고른 종류. null 이면 전체.

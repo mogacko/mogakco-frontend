@@ -27,6 +27,15 @@ abstract final class MockNotifications {
       createdAt: now.subtract(const Duration(hours: 3)),
     ),
     AppNotification(
+      id: 'busan-n6',
+      chapter: Chapter.busan,
+      kind: NotificationKind.cancelled,
+      title: '초량1941 모각코가 취소됐어요',
+      body: '장소 문제 — 자리를 못 잡았거나 카페가 문을 닫아요',
+      route: AppRoute.meetup('busan-4'),
+      createdAt: now.subtract(const Duration(hours: 6)),
+    ),
+    AppNotification(
       id: 'busan-n3',
       chapter: Chapter.busan,
       kind: NotificationKind.like,

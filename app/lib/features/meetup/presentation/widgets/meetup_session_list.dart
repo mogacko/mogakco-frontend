@@ -75,8 +75,9 @@ class _SessionRow extends StatelessWidget {
   final VoidCallback onToggle;
 
   /// 자리가 찼고 아직 신청하지 않았다면 더 할 수 있는 게 없다.
-  /// 이미 신청했다면 언제든 뺄 수 있어야 한다.
-  bool get _blocked => session.isFull && !session.isJoined;
+  /// 이미 신청했다면 언제든 뺄 수 있어야 한다. 접힌 모임은 둘 다 막힌다.
+  bool get _blocked =>
+      meetup.isCancelled || (session.isFull && !session.isJoined);
 
   Future<void> _confirm(BuildContext context) async {
     final ok = await confirmJoinChange(
@@ -127,7 +128,7 @@ class _SessionRow extends StatelessWidget {
             ],
             _Seats(session: session),
             const SizedBox(width: AppSpacing.md),
-            _JoinPill(session: session),
+            _JoinPill(session: session, cancelled: meetup.isCancelled),
           ],
         ),
       ),
@@ -163,9 +164,10 @@ class _Seats extends StatelessWidget {
 ///
 /// 줄 전체가 눌리므로 이건 눌리는 자리가 아니라 상태 표시다.
 class _JoinPill extends StatelessWidget {
-  const _JoinPill({required this.session});
+  const _JoinPill({required this.session, this.cancelled = false});
 
   final MeetupSession session;
+  final bool cancelled;
 
   @override
   Widget build(BuildContext context) {
@@ -173,9 +175,11 @@ class _JoinPill extends StatelessWidget {
     final joined = session.isJoined;
     final blocked = session.isFull && !joined;
 
-    final (label, background, foreground) = switch ((joined, blocked)) {
-      (true, _) => ('참여 중', colors.primary, colors.primaryForeground),
-      (_, true) => ('마감', colors.surfaceAlt, colors.textTertiary),
+    final (label, background, foreground) = switch ((cancelled, joined, blocked)) {
+      // 접힌 모임에는 '참여 중'이 남아 있으면 안 된다. 참여할 자리가 없다.
+      (true, _, _) => ('취소', colors.surfaceAlt, colors.textTertiary),
+      (_, true, _) => ('참여 중', colors.primary, colors.primaryForeground),
+      (_, _, true) => ('마감', colors.surfaceAlt, colors.textTertiary),
       _ => ('신청', colors.surfaceAlt, colors.primary),
     };
 

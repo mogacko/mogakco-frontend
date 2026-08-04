@@ -284,9 +284,22 @@ class _EditProfileButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
       ),
-      child: OutlinedButton(
-        onPressed: () => context.push(AppRoute.profileEdit),
-        child: const Text('프로필 수정'),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () => context.push(AppRoute.profileEdit),
+              child: const Text('프로필 수정'),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () => context.push(AppRoute.myEvents),
+              child: const Text('내가 올린 행사'),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -17,6 +17,7 @@ import 'package:mogacko/shared/data/mock_delay.dart';
 import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/post_detail_screen.dart';
 import 'package:mogacko/features/community/presentation/post_write_screen.dart';
+import 'package:mogacko/features/event/presentation/event_create_screen.dart';
 import 'package:mogacko/features/member/presentation/member_screen.dart';
 import 'package:mogacko/features/safety/presentation/blocked_members_screen.dart';
 import 'package:mogacko/features/notification/presentation/notification_screen.dart';
@@ -263,6 +264,22 @@ void main() {
 
     testWidgets('설정', (tester) async {
       await expectGolden(tester, const SettingsScreen(), 'settings_light');
+    });
+
+    testWidgets('행사 올리기', (tester) async {
+      await expectGolden(
+        tester,
+        const EventCreateScreen(),
+        'event_create_light',
+      );
+    });
+
+    testWidgets('접힌 모각코', (tester) async {
+      await expectGolden(
+        tester,
+        const MeetupDetailScreen(meetupId: 'busan-4'),
+        'meetup_cancelled_light',
+      );
     });
 
     testWidgets('차단한 사람', (tester) async {

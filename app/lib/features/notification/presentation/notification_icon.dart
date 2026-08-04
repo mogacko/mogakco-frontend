@@ -12,5 +12,6 @@ IconData notificationIcon(NotificationKind kind) => switch (kind) {
   NotificationKind.like => CupertinoIcons.heart,
   NotificationKind.join => CupertinoIcons.person_add,
   NotificationKind.upcoming => CupertinoIcons.clock,
+  NotificationKind.cancelled => CupertinoIcons.exclamationmark_circle,
   NotificationKind.notice => CupertinoIcons.speaker_2,
 };

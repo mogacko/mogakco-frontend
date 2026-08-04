@@ -99,14 +99,15 @@ void main() {
       final container = makeContainer();
       container
           .read(meetupListProvider.notifier)
-          .toggleSession('busan-4', 'busan-4-sun');
+          // busan-4 는 접힌 모임이라 신청이 막힌다. 열려 있는 자리를 쓴다.
+          .toggleSession('busan-1', 'busan-1-sun');
 
       await container.read(meetupListProvider.notifier).refresh();
 
       final session = container
           .read(meetupListProvider)
           .expand((meetup) => meetup.sessions)
-          .firstWhere((session) => session.id == 'busan-4-sun');
+          .firstWhere((session) => session.id == 'busan-1-sun');
       expect(session.isJoined, isTrue);
     });
 

@@ -33,7 +33,8 @@ void main() {
 
       container
           .read(meetupListProvider.notifier)
-          .toggleSession('busan-4', 'busan-4-sun');
+          // busan-4 는 접힌 모임이라 신청이 막힌다. 열려 있는 자리를 쓴다.
+          .toggleSession('busan-1', 'busan-1-sun');
 
       expect(container.read(profileStatsProvider).joinedSessions, before + 1);
     });

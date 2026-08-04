@@ -96,6 +96,41 @@ class MeetupSession {
   }
 }
 
+/// 모임을 접는 이유.
+///
+/// 고르게 한다. 취소만 되고 이유가 없으면 기다리던 사람은 자기가 뭘 잘못했나
+/// 싶어진다. 이유를 알면 다음 주에 다시 올지도 가늠이 된다.
+enum CancelReason {
+  personal('개인 사정', '모임장이 갈 수 없게 됐어요'),
+  place('장소 문제', '자리를 못 잡았거나 카페가 문을 닫아요'),
+  tooFew('인원 부족', '모이기로 한 사람이 너무 적어요'),
+  weather('날씨', '비·눈으로 이동이 어려워요'),
+  other('기타', '위에 없는 이유예요');
+
+  const CancelReason(this.label, this.description);
+
+  final String label;
+  final String description;
+
+  /// 직접 적어야 하는 이유인지. 기타만 받는다.
+  bool get needsNote => this == CancelReason.other;
+}
+
+/// 취소된 모임에 붙는 표.
+class Cancellation {
+  const Cancellation({required this.reason, required this.at, this.note});
+
+  final CancelReason reason;
+
+  /// 직접 적은 말. 기타일 때만 채워진다.
+  final String? note;
+
+  final DateTime at;
+
+  /// 화면에 그대로 세울 한 줄.
+  String get label => note ?? reason.label;
+}
+
 /// 한 주 단위로 여는 모각코 모임.
 ///
 /// 장소는 모임이 정하고 날짜는 [sessions]가 나눠 갖는다. 같은 카페에서
@@ -114,6 +149,7 @@ class Meetup {
     this.description,
     this.latitude,
     this.longitude,
+    this.cancellation,
   });
 
   final String id;
@@ -152,6 +188,14 @@ class Meetup {
   /// 빼고 주소만 둔다.
   final double? latitude;
   final double? longitude;
+
+  /// 접힌 모임이면 그 표. 아니면 null.
+  ///
+  /// 취소한 모임을 목록에서 지우지 않는다. 오기로 했던 사람은 그 자리가 어떻게
+  /// 됐는지 확인하러 오는데, 통째로 사라지면 자기가 잘못 본 건지 알 수 없다.
+  final Cancellation? cancellation;
+
+  bool get isCancelled => cancellation != null;
 
   /// 지도를 그릴 수 있는지
   bool get hasLocation => latitude != null && longitude != null;
@@ -229,6 +273,9 @@ class Meetup {
   /// [me] 는 참여자 목록에 넣고 뺄 내 이름이다. 숫자만 올리고 내리면 아바타
   /// 줄에는 내가 없는데 '참여 중'이라고 적히는 상태가 된다.
   Meetup toggleSession(String sessionId, String me) {
+    // 접힌 모임에는 신청할 것이 없다.
+    if (isCancelled) return this;
+
     return copyWith(
       sessions: [
         for (final session in sessions)
@@ -255,6 +302,7 @@ class Meetup {
 
   /// 모임장 이름만 바꾼 새 모임을 만든다.
   Meetup withHost(String host) => Meetup(
+    cancellation: cancellation,
     id: id,
     chapter: chapter,
     placeName: placeName,
@@ -268,7 +316,11 @@ class Meetup {
     longitude: longitude,
   );
 
-  Meetup copyWith({List<MeetupSession>? sessions}) {
+  /// 사유를 달아 모임을 접는다.
+  Meetup cancel(Cancellation cancellation) =>
+      copyWith(cancellation: cancellation);
+
+  Meetup copyWith({List<MeetupSession>? sessions, Cancellation? cancellation}) {
     return Meetup(
       id: id,
       chapter: chapter,
@@ -281,6 +333,7 @@ class Meetup {
       description: description,
       latitude: latitude,
       longitude: longitude,
+      cancellation: cancellation ?? this.cancellation,
     );
   }
 }

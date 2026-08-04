@@ -4,6 +4,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 import '../../domain/meetup.dart';
+import 'cancelled_notice.dart';
 import 'meetup_session_list.dart';
 import 'recurring_badge.dart';
 
@@ -110,6 +111,10 @@ class _Header extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 2),
+        if (meetup.isCancelled) ...[
+          CancelledLine(cancellation: meetup.cancellation!),
+          const SizedBox(height: 2),
+        ],
         Text(
           meetup.shortAddress,
           maxLines: 1,
