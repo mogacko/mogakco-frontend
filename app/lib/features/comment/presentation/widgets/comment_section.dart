@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/utils/relative_time.dart';
 import '../../../../shared/widgets/user_avatar.dart';
+import '../../../safety/domain/report.dart';
+import '../../../safety/presentation/widgets/safety_menu.dart';
 import '../../domain/comment.dart';
 
 /// 댓글 목록.
@@ -129,6 +132,34 @@ class _CommentTile extends StatelessWidget {
                               CupertinoIcons.xmark,
                               size: 13,
                               color: colors.textTertiary,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      // 남의 댓글에는 지우기 대신 신고를 둔다. 같은 자리에
+                      // 아무것도 없으면 불편한 댓글을 만났을 때 할 수 있는
+                      // 게 없다.
+                      Consumer(
+                        builder: (context, ref, _) => Semantics(
+                          button: true,
+                          label: '댓글 신고',
+                          child: InkWell(
+                            onTap: () => showSafetySheet(
+                              context,
+                              ref,
+                              target: ReportTarget.comment,
+                              targetId: comment.id,
+                              memberId: comment.author,
+                            ),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.xs),
+                              child: Icon(
+                                CupertinoIcons.ellipsis,
+                                size: 13,
+                                color: colors.textTertiary,
+                              ),
                             ),
                           ),
                         ),

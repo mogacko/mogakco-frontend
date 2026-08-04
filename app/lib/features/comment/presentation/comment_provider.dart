@@ -4,6 +4,8 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../profile/data/mock_profile.dart';
 import '../data/mock_comments.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/safety_provider.dart';
 import '../domain/comment.dart';
 
 /// 모든 댓글.
@@ -89,15 +91,33 @@ final commentListProvider = NotifierProvider<CommentList, List<Comment>>(
 );
 
 /// 한 대상의 댓글. 단 순서대로.
+/// 한 대상의 댓글.
+///
+/// 차단한 사람의 댓글과 내가 신고한 댓글은 여기서 빠진다.
 final commentsOfProvider = Provider.family<List<Comment>, CommentThread>((
   ref,
   thread,
 ) {
+  final hidden = ref.watch(hiddenCommentIdsProvider);
+  final blocked = ref.watch(blockedProvider);
+
   return ref
       .watch(commentListProvider)
       .where((comment) => comment.thread == thread)
+      .where((comment) => !hidden.contains(comment.id))
+      .where((comment) => comment.isMine || !blocked.contains(comment.author))
       .toList()
     ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+});
+
+/// 가려진 댓글 id.
+///
+/// 신고한 것만 담는다. 차단은 이름으로 걸러야 해서 여기 섞지 않는다.
+final hiddenCommentIdsProvider = Provider<Set<String>>((ref) {
+  return {
+    for (final report in ref.watch(reportsProvider))
+      if (report.target == ReportTarget.comment) report.targetId,
+  };
 });
 
 /// 글별 댓글 수.
@@ -105,9 +125,16 @@ final commentsOfProvider = Provider.family<List<Comment>, CommentThread>((
 /// 목록에 찍히는 값이다. 글에 개수를 따로 들고 있으면 댓글을 달 때마다 두
 /// 곳을 맞춰야 하고, 한 번 어긋나면 목록과 상세가 다른 숫자를 말한다.
 final postCommentCountsProvider = Provider<Map<String, int>>((ref) {
+  final hidden = ref.watch(hiddenCommentIdsProvider);
+  final blocked = ref.watch(blockedProvider);
   final counts = <String, int>{};
+
   for (final comment in ref.watch(commentListProvider)) {
     if (comment.target != CommentTarget.post) continue;
+    // 목록에 '3'이라 적혀 있는데 열어보니 두 개면 하나가 사라진 것처럼 보인다.
+    // 세는 규칙이 보여주는 규칙과 같아야 한다.
+    if (hidden.contains(comment.id)) continue;
+    if (!comment.isMine && blocked.contains(comment.author)) continue;
     counts[comment.targetId] = (counts[comment.targetId] ?? 0) + 1;
   }
   return counts;

@@ -6,6 +6,8 @@ import '../../../shared/providers/now_provider.dart';
 import '../../auth/presentation/session_provider.dart';
 import '../../profile/data/mock_profile.dart';
 import '../data/mock_meetups.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/safety_provider.dart';
 import '../domain/meetup.dart';
 
 /// 모임 목록과 참여 상태.
@@ -106,11 +108,21 @@ final meetupListProvider = NotifierProvider<MeetupList, List<Meetup>>(
 );
 
 /// 지금 보고 있는 지역의 모임만 추린다. 순서는 [MeetupList]가 정한 대로 둔다.
+///
+/// 차단한 사람이 연 모임과 내가 신고한 모임은 여기서 빠진다.
 final visibleMeetupsProvider = Provider<List<Meetup>>((ref) {
   final chapter = ref.watch(currentChapterProvider);
+  final blocked = ref.watch(blockedProvider);
+  final reported = ref.watch(reportedKeysProvider);
+
   return ref
       .watch(meetupListProvider)
       .where((meetup) => meetup.chapter == chapter)
+      .where((meetup) => !blocked.contains(meetup.host))
+      .where(
+        (meetup) =>
+            !reported.contains('${ReportTarget.meetup.name}:${meetup.id}'),
+      )
       .toList();
 });
 

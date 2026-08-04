@@ -7,6 +7,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/widgets/safety_menu.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../comment/domain/comment.dart';
 import '../../comment/presentation/comment_provider.dart';
@@ -57,6 +59,10 @@ class EventDetailScreen extends ConsumerWidget {
     final comments = ref.watch(commentsOfProvider(_thread));
 
     return DetailScaffold(
+      // 행사는 지부가 여는 것이라 차단할 사람이 없다. 신고만 둔다.
+      actions: [
+        SafetyMenuButton(target: ReportTarget.event, targetId: event.id),
+      ],
       // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
       // 새로고침이 반쯤 된 것처럼 보인다.
       onRefresh: () => Future.wait([

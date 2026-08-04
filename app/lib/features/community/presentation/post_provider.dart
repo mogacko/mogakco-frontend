@@ -5,6 +5,8 @@ import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
 import '../../comment/presentation/comment_provider.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/safety_provider.dart';
 import '../domain/post.dart';
 
 /// 커뮤니티 글 목록과 좋아요 상태.
@@ -81,11 +83,19 @@ class PostFeed extends Notifier<List<Post>> {
 final postFeedProvider = NotifierProvider<PostFeed, List<Post>>(PostFeed.new);
 
 /// 지금 보고 있는 지역의 글. 순서는 [PostFeed] 가 정한 대로 둔다.
+///
+/// 차단한 사람의 글과 내가 신고한 글은 여기서 빠진다. 원본에서 지우지 않는
+/// 이유는 차단을 풀면 돌아와야 하기 때문이다.
 final chapterPostsProvider = Provider<List<Post>>((ref) {
   final chapter = ref.watch(currentChapterProvider);
+  final blocked = ref.watch(blockedProvider);
+  final reported = ref.watch(reportedKeysProvider);
+
   return ref
       .watch(postFeedProvider)
       .where((post) => post.chapter == chapter)
+      .where((post) => !blocked.contains(post.author))
+      .where((post) => !reported.contains('${ReportTarget.post.name}:${post.id}'))
       .toList();
 });
 

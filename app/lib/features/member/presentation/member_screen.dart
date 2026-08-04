@@ -10,6 +10,9 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/tag_chip.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../domain/member.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/safety_provider.dart';
+import '../../safety/presentation/widgets/safety_menu.dart';
 import 'member_provider.dart';
 
 /// 남의 프로필.
@@ -42,8 +45,37 @@ class MemberScreen extends ConsumerWidget {
     }
 
     final isMe = memberId == ref.watch(myIdProvider);
+    final blocked = ref.watch(blockedProvider).contains(member.id);
+
+    // 차단은 양방향이다. 내가 차단한 사람의 프로필도 열리지 않아야, 차단해
+    // 놓고 굳이 들여다보는 자리가 안 생긴다. 푸는 길은 남겨 둔다.
+    if (blocked) {
+      return DetailScaffold(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.huge),
+            child: EmptyState(
+              icon: CupertinoIcons.nosign,
+              title: '차단한 사람이에요',
+              description: '차단을 풀면 다시 볼 수 있어요',
+              actionLabel: '차단 해제',
+              onAction: () =>
+                  ref.read(blockedProvider.notifier).unblock(member.id),
+            ),
+          ),
+        ],
+      );
+    }
 
     return DetailScaffold(
+      actions: [
+        if (!isMe)
+          SafetyMenuButton(
+            target: ReportTarget.member,
+            targetId: member.id,
+            authorId: member.id,
+          ),
+      ],
       children: [
         _Identity(member: member, isMe: isMe),
         if (member.stacks.isNotEmpty) ...[

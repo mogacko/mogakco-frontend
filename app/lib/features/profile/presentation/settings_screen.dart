@@ -12,6 +12,7 @@ import '../../../shared/widgets/option_sheet.dart';
 import '../../../shared/widgets/settings_group.dart';
 import '../../auth/presentation/session_provider.dart';
 import '../../notification/presentation/notification_settings_provider.dart';
+import '../../safety/presentation/safety_provider.dart';
 import '../../signup/domain/term.dart';
 import 'profile_provider.dart';
 
@@ -60,6 +61,7 @@ class SettingsScreen extends ConsumerWidget {
     final marketing = ref.watch(marketingOptInProvider);
     final themeMode = ref.watch(themeModeProvider);
     final notificationsOn = ref.watch(anyNotificationOnProvider);
+    final blockedCount = ref.watch(blockedProvider).length;
 
     return DetailScaffold(
       title: '설정',
@@ -86,6 +88,14 @@ class SettingsScreen extends ConsumerWidget {
                     label: '화면 모드',
                     value: themeMode.label,
                     onTap: () => _pickThemeMode(context, ref, themeMode),
+                  ),
+                  SettingsTile(
+                    icon: CupertinoIcons.nosign,
+                    label: '차단한 사람',
+                    // 차단은 상세 안쪽에서 하지만 푸는 자리는 여기다. 몇 명을
+                    // 차단해 뒀는지도 들어가지 않고 알 수 있어야 한다.
+                    value: blockedCount == 0 ? null : '$blockedCount명',
+                    onTap: () => context.push(AppRoute.blockedMembers),
                   ),
                 ],
               ),

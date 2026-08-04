@@ -8,6 +8,8 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
 import '../../../shared/utils/relative_time.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/widgets/safety_menu.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../domain/post.dart';
@@ -52,6 +54,13 @@ class PostDetailScreen extends ConsumerWidget {
 
     return DetailScaffold(
       title: post.board.label,
+      actions: [
+        SafetyMenuButton(
+          target: ReportTarget.post,
+          targetId: post.id,
+          authorId: post.author,
+        ),
+      ],
       // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
       // 새로고침이 반쯤 된 것처럼 보인다.
       onRefresh: () => Future.wait([

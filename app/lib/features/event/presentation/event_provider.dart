@@ -4,6 +4,8 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_events.dart';
+import '../../safety/domain/report.dart';
+import '../../safety/presentation/safety_provider.dart';
 import '../domain/event.dart';
 
 /// 행사 목록과 신청 상태.
@@ -78,11 +80,19 @@ final eventListProvider = NotifierProvider<EventList, List<Event>>(
 );
 
 /// 지금 보고 있는 지역의 행사. 순서는 [EventList] 가 정한 대로 둔다.
+///
+/// 내가 신고한 행사는 여기서 빠진다. 행사는 지부가 여는 것이라 차단으로
+/// 걸러낼 사람이 없다.
 final chapterEventsProvider = Provider<List<Event>>((ref) {
   final chapter = ref.watch(currentChapterProvider);
+  final reported = ref.watch(reportedKeysProvider);
+
   return ref
       .watch(eventListProvider)
       .where((event) => event.chapter == chapter)
+      .where(
+        (event) => !reported.contains('${ReportTarget.event.name}:${event.id}'),
+      )
       .toList();
 });
 

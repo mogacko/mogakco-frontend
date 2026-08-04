@@ -8,6 +8,7 @@ import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
 import '../../features/member/presentation/member_screen.dart';
+import '../../features/safety/presentation/blocked_members_screen.dart';
 import '../../features/notification/presentation/notification_screen.dart';
 import '../../features/notification/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
@@ -35,6 +36,7 @@ abstract final class AppRoute {
   static const home = '/home';
   static const notifications = '/notifications';
   static const notificationSettings = '/settings/notifications';
+  static const blockedMembers = '/settings/blocked';
   static const settings = '/settings';
   static const profileEdit = '/profile/edit';
   static const search = '/search';
@@ -141,6 +143,10 @@ final detailRoutes = <RouteBase>[
   GoRoute(
     path: AppRoute.notificationSettings,
     builder: (_, _) => const NotificationSettingsScreen(),
+  ),
+  GoRoute(
+    path: AppRoute.blockedMembers,
+    builder: (_, _) => const BlockedMembersScreen(),
   ),
   GoRoute(path: AppRoute.settings, builder: (_, _) => const SettingsScreen()),
   GoRoute(

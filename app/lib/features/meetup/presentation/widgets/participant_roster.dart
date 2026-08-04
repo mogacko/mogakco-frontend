@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 import '../../../member/presentation/member_provider.dart';
+import '../../../safety/presentation/safety_provider.dart';
 import '../../domain/meetup.dart';
 
 /// 이 모임에 오는 사람들.
@@ -34,6 +35,7 @@ class ParticipantRoster extends ConsumerWidget {
     if (upcoming.isEmpty) return const SizedBox.shrink();
 
     final me = ref.watch(myIdProvider);
+    final blocked = ref.watch(blockedProvider);
     final single = upcoming.length == 1;
 
     return Column(
@@ -68,13 +70,16 @@ class ParticipantRoster extends ConsumerWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
+                // 차단한 사람은 여기서도 가린다. 오프라인 모임이라 실제로는
+                // 마주칠 수 있지만, 그건 갈지 말지를 정할 때 알 일이 아니다.
                 for (final id in session.participants)
-                  _PersonChip(
+                  if (!blocked.contains(id))
+                    _PersonChip(
                     id: id,
-                    isMe: id == me,
-                    isHost: id == meetup.host,
-                    onTap: () => context.push(AppRoute.member(id)),
-                  ),
+                      isMe: id == me,
+                      isHost: id == meetup.host,
+                      onTap: () => context.push(AppRoute.member(id)),
+                    ),
               ],
             ),
           ),
