@@ -13,6 +13,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../comment/domain/comment.dart';
 import '../../comment/presentation/comment_provider.dart';
 import '../../comment/presentation/widgets/comment_section.dart';
+import '../../comment/presentation/widgets/edit_comment_sheet.dart';
 import '../domain/event.dart';
 import 'event_provider.dart';
 import 'widgets/poster_image.dart';
@@ -157,6 +158,7 @@ class EventDetailScreen extends ConsumerWidget {
           now: now,
           onDelete: (comment) =>
               ref.read(commentListProvider.notifier).remove(comment.id),
+          onEdit: (comment) => _editComment(context, ref, comment),
         ),
         const SizedBox(height: AppSpacing.lg),
         Padding(
@@ -223,4 +225,15 @@ class _ApplyButton extends ConsumerWidget {
       child: Text(label),
     );
   }
+}
+
+/// 댓글을 고친다. 화면을 새로 열지 않고 시트에서 받는다.
+Future<void> _editComment(
+  BuildContext context,
+  WidgetRef ref,
+  Comment comment,
+) async {
+  final body = await showEditCommentSheet(context, initial: comment.body);
+  if (body == null) return;
+  ref.read(commentListProvider.notifier).edit(comment.id, body);
 }

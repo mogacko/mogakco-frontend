@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/utils/relative_time.dart';
 import '../../../../shared/widgets/user_avatar.dart';
+import '../../../../shared/widgets/owner_menu.dart';
 import '../../../safety/domain/report.dart';
 import '../../../safety/presentation/widgets/safety_menu.dart';
 import '../../domain/comment.dart';
@@ -20,11 +21,13 @@ class CommentSection extends StatelessWidget {
     required this.comments,
     required this.now,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final List<Comment> comments;
   final DateTime now;
   final void Function(Comment comment) onDelete;
+  final void Function(Comment comment) onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +66,7 @@ class CommentSection extends StatelessWidget {
               comment: comment,
               now: now,
               onDelete: () => onDelete(comment),
+              onEdit: () => onEdit(comment),
             ),
       ],
     );
@@ -74,11 +78,13 @@ class _CommentTile extends StatelessWidget {
     required this.comment,
     required this.now,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final Comment comment;
   final DateTime now;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -119,17 +125,39 @@ class _CommentTile extends StatelessWidget {
                     const Spacer(),
                     // 내가 쓴 것만 지울 수 있다. 남의 댓글에 지우기 버튼이
                     // 보이면 눌러보고 나서야 안 된다는 걸 알게 된다.
+                    if (comment.isEdited) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      // 고친 댓글에는 표를 붙인다. 이어지던 대화가 갑자기
+                      // 어긋나 보일 때 그 이유를 알 수 있어야 한다.
+                      Text('수정됨', style: context.texts.labelSmall),
+                    ],
+                    const Spacer(),
                     if (comment.isMine)
                       Semantics(
                         button: true,
-                        label: '댓글 삭제',
+                        label: '내 댓글 더보기',
                         child: InkWell(
-                          onTap: onDelete,
+                          onTap: () async {
+                            final action = await showOwnerSheet(
+                              context,
+                              what: '댓글',
+                              deleteTitle: '이 댓글을 삭제할까요?',
+                              deleteDescription: '되돌릴 수 없어요.',
+                            );
+                            switch (action) {
+                              case OwnerAction.edit:
+                                onEdit();
+                              case OwnerAction.delete:
+                                onDelete();
+                              case null:
+                                break;
+                            }
+                          },
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           child: Padding(
                             padding: const EdgeInsets.all(AppSpacing.xs),
                             child: Icon(
-                              CupertinoIcons.xmark,
+                              CupertinoIcons.ellipsis,
                               size: 13,
                               color: colors.textTertiary,
                             ),

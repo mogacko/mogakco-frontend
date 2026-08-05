@@ -47,6 +47,7 @@ class Post {
     required this.author,
     required this.createdAt,
     required this.likeCount,
+    this.editedAt,
     this.category,
     this.authorAvatarUrl,
     this.isLiked = false,
@@ -75,10 +76,45 @@ class Post {
   final String? authorAvatarUrl;
 
   final DateTime createdAt;
+
+  /// 마지막으로 고친 때. 한 번도 안 고쳤으면 null.
+  ///
+  /// 고친 글에는 표를 붙인다. 댓글이 달린 뒤에 본문이 바뀌면 대화가 어긋나
+  /// 보이는데, 표가 없으면 읽는 쪽에서 그 이유를 알 길이 없다.
+  final DateTime? editedAt;
+
   final int likeCount;
 
   /// 내가 좋아요를 눌렀는지
   final bool isLiked;
+
+  bool get isEdited => editedAt != null;
+
+  /// 고친 글을 만든다.
+  ///
+  /// 게시판은 안 바꾼다. 질문으로 올린 글이 이야기로 옮겨 가면 답을 기다리던
+  /// 사람이 그 글을 다시 찾을 수 없다.
+  Post edit({
+    required String title,
+    required String body,
+    required DateTime at,
+    PostCategory? category,
+  }) {
+    return Post(
+      id: id,
+      chapter: chapter,
+      board: board,
+      category: board.hasCategories ? category : null,
+      title: title,
+      body: body,
+      author: author,
+      authorAvatarUrl: authorAvatarUrl,
+      createdAt: createdAt,
+      editedAt: at,
+      likeCount: likeCount,
+      isLiked: isLiked,
+    );
+  }
 
   /// 목록에 세울 본문 앞부분.
   ///
@@ -105,6 +141,7 @@ class Post {
     author: author,
     authorAvatarUrl: authorAvatarUrl,
     createdAt: createdAt,
+    editedAt: editedAt,
     likeCount: likeCount,
     isLiked: isLiked,
   );
@@ -120,6 +157,7 @@ class Post {
       author: author,
       authorAvatarUrl: authorAvatarUrl,
       createdAt: createdAt,
+      editedAt: editedAt,
       likeCount: likeCount ?? this.likeCount,
       isLiked: isLiked ?? this.isLiked,
     );

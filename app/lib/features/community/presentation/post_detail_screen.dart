@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
@@ -8,6 +9,10 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
 import '../../../shared/utils/relative_time.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
+import '../../../core/router/app_router.dart';
+import '../../../shared/utils/navigation.dart';
+import '../../../shared/widgets/owner_menu.dart';
+import '../../member/presentation/member_provider.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/widgets/safety_menu.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -16,6 +21,7 @@ import '../domain/post.dart';
 import '../../comment/domain/comment.dart';
 import '../../comment/presentation/comment_provider.dart';
 import '../../comment/presentation/widgets/comment_section.dart';
+import '../../comment/presentation/widgets/edit_comment_sheet.dart';
 import 'post_provider.dart';
 
 /// 글 하나.
@@ -55,11 +61,15 @@ class PostDetailScreen extends ConsumerWidget {
     return DetailScaffold(
       title: post.board.label,
       actions: [
-        SafetyMenuButton(
-          target: ReportTarget.post,
-          targetId: post.id,
-          authorId: post.author,
-        ),
+        // 내 글에는 신고가 아니라 고치기·삭제가 붙는다. 같은 '⋯' 자리를 쓴다.
+        if (post.author == ref.watch(myIdProvider))
+          OwnerMenuButton(onTap: () => _ownerMenu(context, ref, post))
+        else
+          SafetyMenuButton(
+            target: ReportTarget.post,
+            targetId: post.id,
+            authorId: post.author,
+          ),
       ],
       // 본체와 댓글을 함께 다시 읽는다. 정원만 바뀌고 댓글은 그대로면
       // 새로고침이 반쯤 된 것처럼 보인다.
@@ -97,6 +107,7 @@ class PostDetailScreen extends ConsumerWidget {
           now: now,
           onDelete: (comment) =>
               ref.read(commentListProvider.notifier).remove(comment.id),
+          onEdit: (comment) => _editComment(context, ref, comment),
         ),
       ],
     );
@@ -155,7 +166,12 @@ class _Head extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      relativeTime(post.createdAt, now),
+                      // 고친 글에는 표를 붙인다. 댓글이 달린 뒤에 본문이 바뀌면
+                      // 대화가 어긋나 보이는데, 표가 없으면 읽는 쪽에서 그
+                      // 이유를 알 길이 없다.
+                      post.isEdited
+                          ? '${relativeTime(post.createdAt, now)} · 수정됨'
+                          : relativeTime(post.createdAt, now),
                       style: context.texts.labelSmall,
                     ),
                   ],
@@ -228,4 +244,43 @@ class _LikeBar extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 내 글의 '⋯'에서 고르는 일.
+Future<void> _ownerMenu(BuildContext context, WidgetRef ref, Post post) async {
+  final commentCount = ref
+      .read(commentsOfProvider((target: CommentTarget.post, id: post.id)))
+      .length;
+
+  final action = await showOwnerSheet(
+    context,
+    what: '글',
+    deleteTitle: '이 글을 삭제할까요?',
+    // 달린 댓글이 함께 사라진다는 걸 지우기 전에 알린다. 지우고 나서 알면
+    // 되돌릴 방법이 없다.
+    deleteDescription: commentCount > 0
+        ? '달린 댓글 $commentCount개도 함께 사라지고 되돌릴 수 없어요.'
+        : '되돌릴 수 없어요.',
+  );
+  if (action == null || !context.mounted) return;
+
+  switch (action) {
+    case OwnerAction.edit:
+      context.push(AppRoute.postEdit(post.id));
+    case OwnerAction.delete:
+      // 화면을 먼저 뺀다. 글이 사라진 자리에 서 있으면 '찾을 수 없어요'가 뜬다.
+      goBack(context);
+      ref.read(postFeedProvider.notifier).remove(post.id);
+  }
+}
+
+/// 댓글을 고친다. 화면을 새로 열지 않고 시트에서 받는다.
+Future<void> _editComment(
+  BuildContext context,
+  WidgetRef ref,
+  Comment comment,
+) async {
+  final body = await showEditCommentSheet(context, initial: comment.body);
+  if (body == null) return;
+  ref.read(commentListProvider.notifier).edit(comment.id, body);
 }

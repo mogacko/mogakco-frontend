@@ -49,10 +49,15 @@ void main() {
       await tester.tap(find.textContaining('3개월 만에 첫 사이드 프로젝트'));
       await tester.pumpAndSettle();
 
-      // 목업 댓글 넷 중 내 것은 하나다.
-      expect(find.byIcon(CupertinoIcons.xmark), findsOneWidget);
+      // 목업 댓글 넷 중 내 것은 하나다. 남의 댓글에는 신고만 붙는다.
+      expect(find.bySemanticsLabel('내 댓글 더보기'), findsOneWidget);
 
-      await tester.tap(find.byIcon(CupertinoIcons.xmark));
+      await tester.tap(find.bySemanticsLabel('내 댓글 더보기'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('댓글 삭제'));
+      await tester.pumpAndSettle();
+      // 되돌릴 수 없는 일이라 한 번 더 묻는다.
+      await tester.tap(find.widgetWithText(FilledButton, '삭제'));
       await tester.pumpAndSettle();
 
       expect(find.text('댓글 3'), findsOneWidget);

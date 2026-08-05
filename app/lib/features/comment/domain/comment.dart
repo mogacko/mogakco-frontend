@@ -25,6 +25,7 @@ class Comment {
     required this.author,
     required this.body,
     required this.createdAt,
+    this.editedAt,
     this.authorAvatarUrl,
     this.isMine = false,
   });
@@ -41,6 +42,9 @@ class Comment {
   final String body;
   final DateTime createdAt;
 
+  /// 마지막으로 고친 때. 한 번도 안 고쳤으면 null.
+  final DateTime? editedAt;
+
   /// 내가 쓴 댓글인지.
   ///
   /// 지울 수 있는지를 가른다. 서버가 붙으면 로그인한 사람과 견줘 정해진다.
@@ -50,6 +54,20 @@ class Comment {
   CommentThread get thread => (target: target, id: targetId);
 
   /// 글쓴이만 바꾼 새 댓글을 만든다.
+  bool get isEdited => editedAt != null;
+
+  /// 내용만 고친 새 댓글을 만든다.
+  Comment edit(String body, DateTime at) => Comment(
+    id: id,
+    target: target,
+    targetId: targetId,
+    author: author,
+    body: body,
+    createdAt: createdAt,
+    editedAt: at,
+    isMine: isMine,
+  );
+
   Comment withAuthor(String author) => Comment(
     id: id,
     target: target,
@@ -57,6 +75,7 @@ class Comment {
     author: author,
     body: body,
     createdAt: createdAt,
+    editedAt: editedAt,
     isMine: isMine,
   );
 }

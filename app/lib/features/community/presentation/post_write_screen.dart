@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
+import '../../../shared/utils/navigation.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/filter_bar.dart';
 import '../../../shared/widgets/form_field_block.dart';
@@ -21,9 +22,15 @@ import 'post_provider.dart';
 /// 눌렀는데 자유로 열리면 한 번 더 고쳐야 한다. 공지는 운영진만 올리므로
 /// 여기로 올 길이 아예 없다.
 class PostWriteScreen extends ConsumerStatefulWidget {
-  const PostWriteScreen({super.key, required this.board});
+  const PostWriteScreen({super.key, required this.board, this.postId});
 
   final PostBoard board;
+
+  /// 고칠 글의 id. 없으면 새로 쓰는 것이다.
+  ///
+  /// 쓰기와 고치기를 한 화면으로 둔다. 나눠 두면 칸이 하나 늘 때마다 두 곳을
+  /// 맞춰야 하고, 한쪽만 고쳐 두면 고칠 때만 없는 칸이 생긴다.
+  final String? postId;
 
   @override
   ConsumerState<PostWriteScreen> createState() => _PostWriteScreenState();
@@ -36,6 +43,26 @@ class _PostWriteScreenState extends ConsumerState<PostWriteScreen> {
   /// 이야기 게시판에서만 고른다. 다른 게시판은 그 자체로 분류다.
   PostCategory _category = PostCategory.free;
 
+  bool get _isEditing => widget.postId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.postId;
+    if (id == null) return;
+
+    // 지금 값으로 칸을 채워 연다. 빈 폼을 주면 안 고칠 것까지 다시 적어야 한다.
+    final post = ref
+        .read(postFeedProvider)
+        .where((post) => post.id == id)
+        .firstOrNull;
+    if (post == null) return;
+
+    _title.text = post.title;
+    _body.text = post.body;
+    _category = post.category ?? PostCategory.free;
+  }
+
   @override
   void dispose() {
     _title.dispose();
@@ -47,6 +74,21 @@ class _PostWriteScreenState extends ConsumerState<PostWriteScreen> {
       _title.text.trim().isNotEmpty && _body.text.trim().isNotEmpty;
 
   void _submit() {
+    final id = widget.postId;
+    if (id != null) {
+      ref
+          .read(postFeedProvider.notifier)
+          .edit(
+            id,
+            title: _title.text.trim(),
+            body: _body.text.trim(),
+            category: _category,
+          );
+      Haptics.decide();
+      goBack(context);
+      return;
+    }
+
     final now = ref.read(nowProvider);
     final session = ref.read(sessionProvider);
 
@@ -74,10 +116,10 @@ class _PostWriteScreenState extends ConsumerState<PostWriteScreen> {
     final board = widget.board;
 
     return DetailScaffold(
-      title: '${board.label} 글쓰기',
+      title: _isEditing ? '글 고치기' : '${board.label} 글쓰기',
       bottomAction: FilledButton(
         onPressed: _canSubmit ? _submit : null,
-        child: const Text('올리기'),
+        child: Text(_isEditing ? '저장' : '올리기'),
       ),
       children: [
         if (board.hasCategories) ...[

@@ -129,6 +129,14 @@ class SettingsScreen extends ConsumerWidget {
                     tone: SettingsTone.danger,
                     onTap: () => _logout(context, ref),
                   ),
+                  // 탈퇴는 로그아웃 아래에 둔다. 나가려는 사람이 먼저 만나는
+                  // 건 로그아웃이어야 한다 — 대개 그걸 찾아 들어온다.
+                  SettingsTile(
+                    icon: CupertinoIcons.person_badge_minus,
+                    label: '회원 탈퇴',
+                    tone: SettingsTone.danger,
+                    onTap: () => context.push(AppRoute.withdraw),
+                  ),
                 ],
               ),
             ],

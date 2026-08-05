@@ -6,6 +6,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/session_provider.dart';
 import '../../features/community/domain/post.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
+import '../../features/community/presentation/post_edit_screen.dart';
 import '../../features/community/presentation/post_write_screen.dart';
 import '../../features/event/presentation/event_create_screen.dart';
 import '../../features/event/presentation/my_events_screen.dart';
@@ -15,6 +16,7 @@ import '../../features/notification/presentation/notification_screen.dart';
 import '../../features/notification/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
+import '../../features/profile/presentation/withdraw_screen.dart';
 import '../../features/community/presentation/search_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
 import '../../features/meetup/presentation/meetup_create_screen.dart';
@@ -41,6 +43,7 @@ abstract final class AppRoute {
   static const blockedMembers = '/settings/blocked';
   static const settings = '/settings';
   static const profileEdit = '/profile/edit';
+  static const withdraw = '/settings/withdraw';
   static const search = '/search';
 
   /// 남의 프로필. 목업에서는 닉네임이 곧 id 다.
@@ -59,6 +62,9 @@ abstract final class AppRoute {
   /// 어느 게시판에 쓰는지를 주소에 담는다. 새로고침해도 고른 게시판이 남고,
   /// 뒤로 갔다 와도 자유로 되돌아가지 않는다.
   static String postWrite(PostBoard board) => '/post/new/${board.name}';
+
+  /// 글 고치기. 게시판은 원래 글의 것을 그대로 쓴다.
+  static String postEdit(String id) => '/post/$id/edit';
   static String meetup(String id) => '/meetup/$id';
   static const meetupCreate = '/meetup/new';
   static String event(String id) => '/event/$id';
@@ -152,6 +158,7 @@ final detailRoutes = <RouteBase>[
     path: AppRoute.blockedMembers,
     builder: (_, _) => const BlockedMembersScreen(),
   ),
+  GoRoute(path: AppRoute.withdraw, builder: (_, _) => const WithdrawScreen()),
   GoRoute(path: AppRoute.settings, builder: (_, _) => const SettingsScreen()),
   GoRoute(
     path: AppRoute.profileEdit,
@@ -169,6 +176,15 @@ final detailRoutes = <RouteBase>[
     builder: (_, state) => PostWriteScreen(
       board: PostBoard.values.byName(state.pathParameters['board']!),
     ),
+  ),
+  // '/post/:id/edit' 이 먼저 와야 한다. 뒤에 두면 :id 가 'busan-t1' 까지만
+  // 물고 'edit' 을 남겨서 길을 못 찾는다.
+  GoRoute(
+    path: '/post/:id/edit',
+    builder: (_, state) {
+      final id = state.pathParameters['id']!;
+      return PostEditScreen(postId: id);
+    },
   ),
   GoRoute(
     path: '/post/:id',

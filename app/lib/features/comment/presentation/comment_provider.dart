@@ -42,6 +42,31 @@ class CommentList extends Notifier<List<Comment>> {
     ];
   }
 
+  /// 내가 쓴 댓글만 고친다.
+  void edit(String commentId, String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty) return;
+
+    final now = ref.read(nowProvider);
+    state = [
+      for (final comment in state)
+        if (comment.id != commentId || !comment.isMine)
+          comment
+        else
+          comment.edit(trimmed, now),
+    ];
+  }
+
+  /// 글이 지워질 때 거기 달린 댓글도 함께 지운다.
+  ///
+  /// 남겨두면 어디에도 안 붙은 댓글이 개수만 올리며 떠돈다.
+  void removeThread(CommentThread thread) {
+    state = [
+      for (final comment in state)
+        if (comment.thread != thread) comment,
+    ];
+  }
+
   /// 내가 쓴 댓글만 지운다.
   void remove(String commentId) {
     state = [

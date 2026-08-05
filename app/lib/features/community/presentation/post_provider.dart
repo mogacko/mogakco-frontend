@@ -5,6 +5,7 @@ import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
 import '../../comment/presentation/comment_provider.dart';
+import '../../comment/domain/comment.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
 import '../domain/post.dart';
@@ -35,6 +36,37 @@ class PostFeed extends Notifier<List<Post>> {
   /// 맨 앞에 꽂는다. 목록이 최신순이라 방금 쓴 글이 위에 오는 게 규칙과 맞고,
   /// 아래로 내려가 찾게 두면 올라간 게 맞는지 확인할 길이 없다.
   void add(Post post) => state = [post, ...state];
+
+  /// 내가 쓴 글을 고친다.
+  void edit(
+    String postId, {
+    required String title,
+    required String body,
+    PostCategory? category,
+  }) {
+    final now = ref.read(nowProvider);
+    state = [
+      for (final post in state)
+        if (post.id != postId)
+          post
+        else
+          post.edit(title: title, body: body, category: category, at: now),
+    ];
+  }
+
+  /// 내가 쓴 글을 지운다.
+  ///
+  /// 목록에서만 뺀다. 댓글은 그대로 두면 어디에도 안 붙은 채로 남으므로
+  /// 함께 지운다.
+  void remove(String postId) {
+    state = [
+      for (final post in state)
+        if (post.id != postId) post,
+    ];
+    ref.read(commentListProvider.notifier).removeThread(
+      (target: CommentTarget.post, id: postId),
+    );
+  }
 
   /// 글쓴이 이름을 바꾼다.
   ///

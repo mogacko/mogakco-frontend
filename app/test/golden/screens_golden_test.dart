@@ -25,6 +25,7 @@ import 'package:mogacko/features/notification/presentation/notification_settings
 import 'package:mogacko/features/community/presentation/search_screen.dart';
 import 'package:mogacko/features/profile/presentation/profile_edit_screen.dart';
 import 'package:mogacko/features/profile/presentation/settings_screen.dart';
+import 'package:mogacko/features/profile/presentation/withdraw_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_create_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_detail_screen.dart';
@@ -309,6 +310,10 @@ void main() {
         const MeetupDetailScreen(meetupId: 'busan-4'),
         'meetup_cancelled_light',
       );
+    });
+
+    testWidgets('회원 탈퇴', (tester) async {
+      await expectGolden(tester, const WithdrawScreen(), 'withdraw_light');
     });
 
     testWidgets('차단한 사람', (tester) async {
