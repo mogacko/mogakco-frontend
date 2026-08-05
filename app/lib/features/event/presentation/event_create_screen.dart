@@ -16,6 +16,8 @@ import '../../member/presentation/member_provider.dart';
 import '../../place/domain/place.dart';
 import '../../place/presentation/place_picker_field.dart';
 import '../domain/event.dart';
+import '../domain/poster.dart';
+import 'widgets/poster_picker_field.dart';
 import 'event_provider.dart';
 
 /// 행사 올리기.
@@ -35,6 +37,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   EventKind _kind = EventKind.seminar;
   Place? _place;
+  Poster? _poster;
   DateTime? _day;
 
   /// 시작 시각. 저녁 7시가 가장 흔하다.
@@ -106,6 +109,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             capacity: _capacity,
             applicantCount: 0,
             fee: int.tryParse(_fee.text.trim()) ?? 0,
+            poster: _poster,
             status: EventStatus.pending,
             proposedBy: ref.read(myIdProvider),
           ),
@@ -230,6 +234,11 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                     onChanged: (value) => setState(() => _capacity = value),
                   ),
                 ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              PosterPickerField(
+                poster: _poster,
+                onChanged: (poster) => setState(() => _poster = poster),
               ),
               const SizedBox(height: AppSpacing.lg),
               FormFieldBlock(

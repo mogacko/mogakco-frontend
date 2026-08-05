@@ -39,7 +39,7 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final closed = event.isClosed(now);
-    final poster = event.posterUrl;
+    final poster = event.poster;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -99,7 +99,7 @@ class EventCard extends StatelessWidget {
                 // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
                 if (poster != null) ...[
                   const SizedBox(width: AppSpacing.lg),
-                  EventPoster(url: poster),
+                  EventPoster(poster: poster),
                 ],
               ],
             ),

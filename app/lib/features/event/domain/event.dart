@@ -1,4 +1,5 @@
 import '../../../shared/domain/chapter.dart';
+import 'poster.dart';
 
 /// 행사의 종류.
 enum EventKind {
@@ -52,7 +53,7 @@ class Event {
     required this.capacity,
     required this.applicantCount,
     this.fee = 0,
-    this.posterUrl,
+    this.poster,
     this.isApplied = false,
     this.status = EventStatus.approved,
     this.proposedBy,
@@ -89,7 +90,7 @@ class Event {
   ///
   /// 지부가 매번 포스터를 만들지는 않는다. 없을 때 자리가 비지 않도록
   /// 화면에서는 날짜 칸으로 대신한다.
-  final String? posterUrl;
+  final Poster? poster;
 
   /// 내가 신청했는지
   final bool isApplied;
@@ -190,7 +191,7 @@ class Event {
       proposedBy: proposedBy,
       rejectionNote: rejectionNote,
       fee: fee,
-      posterUrl: posterUrl,
+      poster: poster,
       isApplied: isApplied ?? this.isApplied,
     );
   }

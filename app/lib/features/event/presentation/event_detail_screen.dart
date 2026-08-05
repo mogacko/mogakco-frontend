@@ -15,6 +15,7 @@ import '../../comment/presentation/comment_provider.dart';
 import '../../comment/presentation/widgets/comment_section.dart';
 import '../domain/event.dart';
 import 'event_provider.dart';
+import 'widgets/poster_image.dart';
 import 'widgets/event_apply_sheet.dart';
 import 'widgets/event_info_line.dart';
 import 'widgets/event_meta_line.dart';
@@ -54,7 +55,7 @@ class EventDetailScreen extends ConsumerWidget {
       );
     }
 
-    final poster = event.posterUrl;
+    final poster = event.poster;
     final colors = context.colors;
     final comments = ref.watch(commentsOfProvider(_thread));
 
@@ -85,12 +86,7 @@ class EventDetailScreen extends ConsumerWidget {
                 // 목록에서는 정사각으로 잘랐지만 여기서는 포스터를 보러 온
                 // 자리다. 가로로 넓게 둬서 글자가 읽히게 한다.
                 aspectRatio: 4 / 3,
-                child: Image.network(
-                  poster,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, _, _) =>
-                      ColoredBox(color: colors.surfaceAlt),
-                ),
+                child: PosterImage(poster: poster, fit: BoxFit.cover),
               ),
             ),
           ),

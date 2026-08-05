@@ -25,7 +25,7 @@ class UpcomingEventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final poster = event.posterUrl;
+    final poster = event.poster;
 
     return InkWell(
       onTap: onTap,
@@ -65,7 +65,7 @@ class UpcomingEventTile extends StatelessWidget {
             // 없으면 세우지 않는다. 빈 상자를 남기면 무언가 빠진 것처럼 보인다.
             if (poster != null) ...[
               const SizedBox(width: AppSpacing.md),
-              EventPoster(url: poster, size: EventPoster.compactSize),
+              EventPoster(poster: poster, size: EventPoster.compactSize),
             ],
           ],
         ),

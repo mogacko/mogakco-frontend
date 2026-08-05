@@ -1,5 +1,6 @@
 import '../../../shared/domain/chapter.dart';
 import '../domain/event.dart';
+import '../domain/poster.dart';
 
 /// 화면을 채우기 위한 임시 데이터.
 ///
@@ -30,7 +31,7 @@ abstract final class MockEvents {
         startsAt: at(5, 14),
         endsAt: at(5, 17),
         applyBy: at(3, 23),
-        posterUrl: 'https://picsum.photos/seed/seminar-flutter/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/seminar-flutter/240/240'),
         capacity: 40,
         applicantCount: 27,
       ),
@@ -44,7 +45,7 @@ abstract final class MockEvents {
         startsAt: at(2, 19),
         endsAt: at(2, 21),
         applyBy: at(1, 18),
-        posterUrl: 'https://picsum.photos/seed/gwangalli-night/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/gwangalli-night/240/240'),
         capacity: 20,
         applicantCount: 18,
         isApplied: true,
@@ -59,7 +60,7 @@ abstract final class MockEvents {
         startsAt: at(21, 10),
         endsAt: at(22, 16),
         applyBy: at(14, 23),
-        posterUrl: 'https://picsum.photos/seed/summer-hackathon/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/summer-hackathon/240/240'),
         capacity: 60,
         applicantCount: 31,
         fee: 15000,
@@ -87,7 +88,7 @@ abstract final class MockEvents {
         startsAt: at(4, 19),
         endsAt: at(4, 22),
         applyBy: at(2, 23),
-        posterUrl: 'https://picsum.photos/seed/resume-clinic/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/resume-clinic/240/240'),
         capacity: 24,
         applicantCount: 22,
       ),
@@ -101,7 +102,7 @@ abstract final class MockEvents {
         startsAt: at(11, 14),
         endsAt: at(11, 18),
         applyBy: at(9, 23),
-        posterUrl: 'https://picsum.photos/seed/team-building/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/team-building/240/240'),
         capacity: 50,
         applicantCount: 12,
       ),
@@ -115,7 +116,7 @@ abstract final class MockEvents {
         startsAt: at(17, 9),
         endsAt: at(17, 21),
         applyBy: at(12, 23),
-        posterUrl: 'https://picsum.photos/seed/mini-hackathon/240/240',
+        poster: const RemotePoster('https://picsum.photos/seed/mini-hackathon/240/240'),
         capacity: 30,
         applicantCount: 8,
         fee: 10000,
