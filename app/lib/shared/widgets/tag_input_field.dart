@@ -260,6 +260,10 @@ class _SuggestionChip extends StatelessWidget {
         ),
         child: Text(
           label,
+          // 끊을 데가 없는 긴 값을 치면 알약 밖으로 글자가 삐져나간다.
+          // 한 줄로 잘라 둔다 — 방금 친 값은 바로 위 입력칸에 그대로 있다.
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: context.texts.labelMedium?.copyWith(
             color: isCreate ? colors.primary : colors.textSecondary,
           ),
@@ -295,11 +299,17 @@ class _SelectedChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label,
-            style: context.texts.labelMedium?.copyWith(
-              color: colors.primary,
-              fontWeight: FontWeight.w600,
+          // Flexible 이 없으면 Row 가 글자 길이만큼 벌어지려다 Wrap 이 준 폭에
+          // 갇힌다. 테두리는 그 폭에 멈추고 글자만 밖으로 나간다.
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.texts.labelMedium?.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.xs),

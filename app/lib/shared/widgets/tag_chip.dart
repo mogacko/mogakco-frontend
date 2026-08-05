@@ -39,6 +39,9 @@ class TagChip extends StatelessWidget {
       ),
       child: Text(
         label,
+        // 알약은 한 줄이다. 긴 값이 들어오면 늘어나는 게 아니라 잘린다.
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: context.texts.labelMedium?.copyWith(
           color: foreground,
           fontWeight: FontWeight.w500,

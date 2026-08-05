@@ -1,174 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mogacko/shared/widgets/tag_chip.dart';
 import 'package:mogacko/shared/widgets/tag_input_field.dart';
 
 import '../helpers/pump_app.dart';
 
-/// 서버 추천을 흉내내는 테스트용 화면.
-class _Host extends StatefulWidget {
-  const _Host({
-    required this.onSearch,
-    this.debounce = const Duration(seconds: 1),
-  });
+void main() {
+  /// 끊을 데가 없는 긴 값. 하이픈이나 빈칸이 있으면 줄이 알아서 나뉘어
+  /// 넘치지 않는다. 진짜 문제는 한 덩어리로 이어진 이름이다.
+  const long = 'PostgreSQLReplicationAndShardingToolkitLongName';
 
-  final TagSearch onSearch;
-  final Duration debounce;
+  /// 화면 폭. 넘쳤는지 재려면 크기를 고정해야 한다.
+  const width = 390.0;
+  const padding = 24.0;
 
-  @override
-  State<_Host> createState() => _HostState();
-}
+  Future<void> pumpField(
+    WidgetTester tester, {
+    Set<String> selected = const {},
+  }) async {
+    tester.view
+      ..physicalSize = const Size(width, 844)
+      ..devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
 
-class _HostState extends State<_Host> {
-  final _selected = <String>{};
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: TagInputField(
-          key: const Key('tags'),
-          suggestions: const ['Java', 'Spring'],
-          selected: _selected,
-          hintText: '입력',
-          onSearch: widget.onSearch,
-          searchDebounce: widget.debounce,
-          onAdd: (v) => setState(() => _selected.add(v)),
-          onRemove: (v) => setState(() => _selected.remove(v)),
+    await tester.pumpScreen(
+      Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: padding),
+          child: TagInputField(
+            suggestions: const ['Spring'],
+            selected: selected,
+            hintText: '예) Spring',
+            onAdd: (_) {},
+            onRemove: (_) {},
+          ),
         ),
       ),
     );
+    await tester.pumpAndSettle();
   }
-}
 
-void main() {
-  group('TagInputField 서버 추천', () {
-    final input = find.byType(TextField);
-
-    testWidgets('디바운스 시간 전에는 서버를 부르지 않는다', (tester) async {
-      var calls = 0;
-      await tester.pumpScreen(
-        _Host(
-          onSearch: (q) async {
-            calls++;
-            return ['원격-$q'];
-          },
-        ),
+  /// 글자가 놓인 자리가 화면 여백 안에 있는지.
+  void expectInside(WidgetTester tester, Finder finder) {
+    for (final element in finder.evaluate()) {
+      final box = element.renderObject! as RenderBox;
+      final right = box.localToGlobal(Offset.zero).dx + box.size.width;
+      expect(
+        right,
+        lessThanOrEqualTo(width - padding + 1),
+        reason: '알약 밖으로 글자가 나갔다',
       );
+    }
+  }
 
-      await tester.enterText(input, 'Sv');
-      await tester.pump(const Duration(milliseconds: 900));
+  group('태그 입력칸', () {
+    testWidgets('담은 값이 길어도 알약 밖으로 나가지 않는다', (tester) async {
+      await pumpField(tester, selected: const {long});
 
-      expect(calls, 0);
-
-      await tester.pump(const Duration(milliseconds: 200));
-      expect(calls, 1);
+      // Flexible 이 없으면 Row 가 글자 길이만큼 벌어지려다 Wrap 이 준 폭에
+      // 갇힌다. 테두리는 그 폭에 멈추고 글자만 밖으로 나간다.
+      expect(tester.takeException(), isNull);
+      expectInside(tester, find.text(long));
     });
 
-    testWidgets('연속으로 치면 마지막 한 번만 요청한다', (tester) async {
-      var calls = 0;
-      final queries = <String>[];
-      await tester.pumpScreen(
-        _Host(
-          onSearch: (q) async {
-            calls++;
-            queries.add(q);
-            return const [];
-          },
-        ),
-      );
+    testWidgets('치는 값이 길어도 후보 알약 밖으로 나가지 않는다', (tester) async {
+      await pumpField(tester);
 
-      for (final text in ['S', 'Sv', 'Sve', 'Svel']) {
-        await tester.enterText(input, text);
-        await tester.pump(const Duration(milliseconds: 300));
-      }
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(calls, 1);
-      expect(queries, ['Svel']);
-    });
-
-    testWidgets('로컬 추천은 디바운스와 무관하게 즉시 뜬다', (tester) async {
-      await tester.pumpScreen(_Host(onSearch: (q) async => const []));
-
-      await tester.enterText(input, 'Ja');
-      await tester.pump();
-
-      // 서버를 기다리지 않고 내장 목록에서 바로 나와야 한다.
-      expect(find.text('Java'), findsOneWidget);
-    });
-
-    testWidgets('서버 추천이 로컬 목록과 함께 뜬다', (tester) async {
-      await tester.pumpScreen(_Host(onSearch: (q) async => const ['Svelte']));
-
-      await tester.enterText(input, 'S');
-      await tester.pump(const Duration(seconds: 2));
-
-      expect(find.text('Spring'), findsOneWidget);
-      expect(find.text('Svelte'), findsOneWidget);
-    });
-
-    testWidgets('서버가 준 표기로 정규화한다', (tester) async {
-      await tester.pumpScreen(_Host(onSearch: (q) async => const ['Svelte']));
-
-      await tester.enterText(input, 'svelte');
-      await tester.pump(const Duration(seconds: 2));
-      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.enterText(find.byType(TextField), long);
       await tester.pumpAndSettle();
 
-      final field = tester.widget<TagInputField>(find.byKey(const Key('tags')));
-      expect(field.selected, contains('Svelte'));
-      expect(field.selected, isNot(contains('svelte')));
+      expect(tester.takeException(), isNull);
+      expectInside(tester, find.textContaining('추가'));
     });
 
-    testWidgets('서버 응답이 늦어도 최신 입력 결과를 덮지 않는다', (tester) async {
+    testWidgets('넘치는 글자는 말줄임으로 자른다', (tester) async {
+      await pumpField(tester, selected: const {long});
+
+      // 방금 친 값은 바로 위 입력칸에 그대로 있다. 알약에서까지 다 보여주려고
+      // 세 줄로 늘리면 알약이 아니라 문단이 된다.
+      final text = tester.widget<Text>(find.text(long));
+      expect(text.maxLines, 1);
+      expect(text.overflow, TextOverflow.ellipsis);
+    });
+  });
+
+  group('태그 알약', () {
+    testWidgets('프로필의 알약도 한 줄로 자른다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(width, 844)
+        ..devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
       await tester.pumpScreen(
-        _Host(
-          debounce: const Duration(milliseconds: 100),
-          onSearch: (q) async {
-            // 첫 요청만 느리게 응답시켜 순서를 뒤집는다.
-            await Future<void>.delayed(
-              q == 'A' ? const Duration(seconds: 3) : Duration.zero,
-            );
-            return ['결과-$q'];
-          },
+        const Scaffold(
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            child: Wrap(children: [TagChip(label: long)]),
+          ),
         ),
       );
-
-      await tester.enterText(input, 'A');
-      await tester.pump(const Duration(milliseconds: 150));
-      await tester.enterText(input, 'B');
-      await tester.pump(const Duration(milliseconds: 150));
-      await tester.pump(const Duration(seconds: 4));
-
-      // 늦게 도착한 'A' 결과가 'B' 결과를 밀어내면 안 된다.
-      expect(find.text('결과-B'), findsOneWidget);
-      expect(find.text('결과-A'), findsNothing);
-    });
-
-    testWidgets('서버 조회가 실패해도 입력을 막지 않는다', (tester) async {
-      await tester.pumpScreen(
-        _Host(onSearch: (q) async => throw Exception('네트워크 끊김')),
-      );
-
-      await tester.enterText(input, 'Ja');
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Java'), findsOneWidget);
-    });
-
-    testWidgets('입력 도중 화면이 사라져도 타이머가 터지지 않는다', (tester) async {
-      await tester.pumpScreen(_Host(onSearch: (q) async => const ['Svelte']));
-
-      await tester.enterText(input, 'Sv');
-      await tester.pump(const Duration(milliseconds: 200));
-
-      // 디바운스가 끝나기 전에 화면을 걷어낸다.
-      await tester.pumpScreen(const Scaffold(body: Text('다른 화면')));
-      await tester.pump(const Duration(seconds: 2));
-
-      expect(tester.takeException(), isNull);
+      expectInside(tester, find.text(long));
     });
   });
 }

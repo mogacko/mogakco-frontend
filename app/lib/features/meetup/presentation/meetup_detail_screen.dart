@@ -265,18 +265,22 @@ class _Head extends StatelessWidget {
                       size: 32,
                     ),
                     const SizedBox(width: AppSpacing.md),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          meetup.host,
-                          style: context.texts.labelMedium?.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            meetup.host,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.texts.labelMedium?.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        Text('모임장', style: context.texts.labelSmall),
-                      ],
+                          Text('모임장', style: context.texts.labelSmall),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -164,11 +164,15 @@ class _PersonChip extends StatelessWidget {
             children: [
               UserAvatar(name: id, size: 24),
               const SizedBox(width: AppSpacing.sm),
-              Text(
-                id,
-                style: context.texts.labelMedium?.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  id,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.texts.labelMedium?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               // 모임장과 나는 표시해 둔다. 열 명쯤 늘어놓으면 누가 연 자리인지
