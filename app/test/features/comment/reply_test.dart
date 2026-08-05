@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mogacko/core/theme/app_spacing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mogacko/features/comment/domain/comment.dart';
 import 'package:mogacko/features/comment/presentation/comment_provider.dart';
@@ -185,6 +186,48 @@ void main() {
           .firstWhere((node) => node.comment.id == parent.comment.id);
       // 답글 밑에는 아무것도 매달려 있지 않아 자리를 남길 이유가 없다.
       expect(after.replies.map((reply) => reply.id), isNot(contains(other.id)));
+    });
+  });
+
+  group('배치', () {
+    /// 화면 폭. 여기서 오른쪽 여백을 재려면 크기를 고정해야 한다.
+    const width = 390.0;
+
+    testWidgets('더보기는 부모든 답글이든 오른쪽 끝에 선다', (tester) async {
+      tester.view
+        ..physicalSize = const Size(width, 844)
+        ..devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpScreen(const PostDetailScreen(postId: 'busan-q1'));
+      await tester.pumpAndSettle();
+
+      await tester.dragUntilVisible(
+        find.bySemanticsLabel('댓글 신고').first,
+        find.byType(CustomScrollView).first,
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+
+      // Flexible 과 Spacer 를 한 줄에 같이 두면 빈 폭을 반씩 나눠 가져서
+      // '⋯'가 가운데쯤 선다. 들여쓴 답글도 같은 선에 맞아야 한다.
+      final menus = <Finder>[
+        find.bySemanticsLabel('댓글 신고'),
+        find.bySemanticsLabel('내 댓글 더보기'),
+      ];
+
+      for (final menu in menus) {
+        for (final element in menu.evaluate()) {
+          final box = element.renderObject! as RenderBox;
+          final right =
+              box.localToGlobal(Offset.zero).dx + box.size.width;
+          expect(
+            right,
+            closeTo(width - AppSpacing.screenHorizontal, 1),
+            reason: '더보기가 오른쪽 여백에 안 붙었다',
+          );
+        }
+      }
     });
   });
 

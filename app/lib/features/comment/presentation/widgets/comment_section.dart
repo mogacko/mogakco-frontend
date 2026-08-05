@@ -165,29 +165,38 @@ class _CommentTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        comment.author,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.texts.labelMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    // 남는 폭을 왼쪽 묶음이 통째로 가져간다. Flexible 과
+                    // Spacer 를 한 줄에 같이 두면 flex 가 1대1이라 빈 폭을
+                    // 반씩 나눠 갖고, '⋯'가 오른쪽 끝이 아니라 가운데쯤 선다.
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              comment.author,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.texts.labelMedium?.copyWith(
+                                color: colors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            relativeTime(comment.createdAt, now),
+                            style: context.texts.labelSmall,
+                          ),
+                          if (comment.isEdited) ...[
+                            const SizedBox(width: AppSpacing.xs),
+                            // 고친 댓글에는 표를 붙인다. 이어지던 대화가
+                            // 갑자기 어긋나 보일 때 그 이유를 알 수 있어야 한다.
+                            Text('수정됨', style: context.texts.labelSmall),
+                          ],
+                        ],
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(
-                      relativeTime(comment.createdAt, now),
-                      style: context.texts.labelSmall,
-                    ),
-                    if (comment.isEdited) ...[
-                      const SizedBox(width: AppSpacing.xs),
-                      // 고친 댓글에는 표를 붙인다. 이어지던 대화가 갑자기
-                      // 어긋나 보일 때 그 이유를 알 수 있어야 한다.
-                      Text('수정됨', style: context.texts.labelSmall),
-                    ],
-                    const Spacer(),
                     // 내 것에는 고치기·삭제, 남의 것에는 신고. 같은 자리·같은
                     // 모양이라 버튼이 옮겨 다니지 않는다.
                     if (comment.isMine)
