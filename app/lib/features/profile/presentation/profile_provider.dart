@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../auth/presentation/session_provider.dart';
 import '../../comment/presentation/comment_provider.dart';
+import '../../community/domain/post.dart';
 import '../../community/presentation/post_provider.dart';
+import '../../event/domain/event.dart';
+import '../../meetup/domain/meetup.dart';
 import '../../event/presentation/event_provider.dart';
 import '../../meetup/presentation/meetup_provider.dart';
 import '../data/mock_profile.dart';
@@ -50,40 +53,49 @@ final profileProvider = NotifierProvider<ProfileState, Member>(
   ProfileState.new,
 );
 
+/// 내가 참여하기로 한 모각코.
+///
+/// 지역을 걸러내지 않는다. 서울에 갔다가 부산으로 돌아와도 내가 신청한
+/// 자리는 그대로 내 것이다.
+///
+/// 날이 아니라 모임을 센다. 한 모임의 이틀을 다 신청했다고 '참여 중인 모각코
+/// 2'가 되면, 눌러서 들어갔을 때 줄이 하나뿐이라 숫자가 틀린 것처럼 보인다.
+final myMeetupsProvider = Provider<List<Meetup>>((ref) {
+  return ref
+      .watch(meetupListProvider)
+      .where((meetup) => meetup.isJoinedAny)
+      .toList();
+});
+
+/// 내가 신청한 행사.
+final myAppliedEventsProvider = Provider<List<Event>>((ref) {
+  return ref.watch(eventListProvider).where((event) => event.isApplied).toList();
+});
+
+/// 내가 쓴 글.
+final myPostsProvider = Provider<List<Post>>((ref) {
+  final nickname = ref.watch(profileProvider).nickname;
+  return ref
+      .watch(postFeedProvider)
+      .where((post) => post.author == nickname)
+      .toList();
+});
+
 /// 내 활동 요약.
 ///
 /// 숫자를 목업으로 박아두지 않고 실제 상태에서 센다. 홈에서 모임 하나를
 /// 신청하면 이 값이 곧바로 올라가야, 프로필이 박제된 소개 화면이 아니라
 /// 내 기록으로 읽힌다.
-typedef ProfileStats = ({int joinedSessions, int appliedEvents, int posts});
+///
+/// 세는 곳과 보여주는 곳이 같은 목록을 쓴다. 따로 세면 숫자와 목록 길이가
+/// 언젠가 어긋난다.
+typedef ProfileStats = ({int joinedMeetups, int appliedEvents, int posts});
 
 final profileStatsProvider = Provider<ProfileStats>((ref) {
-  final nickname = ref.watch(profileProvider).nickname;
-
-  // 지역을 걸러내지 않는다. 서울에 갔다가 부산으로 돌아와도 내가 신청한
-  // 자리는 그대로 내 것이다.
-  final joinedSessions = ref
-      .watch(meetupListProvider)
-      .fold<int>(
-        0,
-        (sum, meetup) =>
-            sum + meetup.sessions.where((session) => session.isJoined).length,
-      );
-
-  final appliedEvents = ref
-      .watch(eventListProvider)
-      .where((event) => event.isApplied)
-      .length;
-
-  final posts = ref
-      .watch(postFeedProvider)
-      .where((post) => post.author == nickname)
-      .length;
-
   return (
-    joinedSessions: joinedSessions,
-    appliedEvents: appliedEvents,
-    posts: posts,
+    joinedMeetups: ref.watch(myMeetupsProvider).length,
+    appliedEvents: ref.watch(myAppliedEventsProvider).length,
+    posts: ref.watch(myPostsProvider).length,
   );
 });
 

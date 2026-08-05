@@ -15,6 +15,7 @@ import '../../features/safety/presentation/blocked_members_screen.dart';
 import '../../features/notification/presentation/notification_screen.dart';
 import '../../features/notification/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
+import '../../features/profile/presentation/my_activity_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/withdraw_screen.dart';
 import '../../features/community/presentation/search_screen.dart';
@@ -43,6 +44,9 @@ abstract final class AppRoute {
   static const blockedMembers = '/settings/blocked';
   static const settings = '/settings';
   static const profileEdit = '/profile/edit';
+
+  /// 내 활동. 어느 것을 보고 있었는지 주소에 담아 새로고침해도 남는다.
+  static String myActivity(MyActivityKind kind) => '/my/${kind.name}';
   static const withdraw = '/settings/withdraw';
   static const search = '/search';
 
@@ -159,6 +163,12 @@ final detailRoutes = <RouteBase>[
     builder: (_, _) => const BlockedMembersScreen(),
   ),
   GoRoute(path: AppRoute.withdraw, builder: (_, _) => const WithdrawScreen()),
+  GoRoute(
+    path: '/my/:kind',
+    builder: (_, state) => MyActivityScreen(
+      kind: MyActivityKind.parse(state.pathParameters['kind']),
+    ),
+  ),
   GoRoute(path: AppRoute.settings, builder: (_, _) => const SettingsScreen()),
   GoRoute(
     path: AppRoute.profileEdit,

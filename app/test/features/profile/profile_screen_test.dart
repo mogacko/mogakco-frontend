@@ -21,7 +21,7 @@ void main() {
       final stats = makeContainer().read(profileStatsProvider);
 
       // 목업에 미리 신청해 둔 것들.
-      expect(stats.joinedSessions, 2);
+      expect(stats.joinedMeetups, 2);
       expect(stats.appliedEvents, 1);
       // 내 닉네임으로 쓴 글.
       expect(stats.posts, 1);
@@ -29,14 +29,14 @@ void main() {
 
     test('모임을 신청하면 곧바로 올라간다', () {
       final container = makeContainer();
-      final before = container.read(profileStatsProvider).joinedSessions;
+      final before = container.read(profileStatsProvider).joinedMeetups;
 
       container
           .read(meetupListProvider.notifier)
           // busan-4 는 접힌 모임이라 신청이 막힌다. 열려 있는 자리를 쓴다.
           .toggleSession('busan-1', 'busan-1-sun');
 
-      expect(container.read(profileStatsProvider).joinedSessions, before + 1);
+      expect(container.read(profileStatsProvider).joinedMeetups, before + 1);
     });
 
     test('행사를 취소하면 곧바로 내려간다', () {
@@ -50,7 +50,7 @@ void main() {
 
     test('다른 지역에 신청한 것도 내 기록으로 센다', () {
       // 서울 모임 하나가 미리 신청돼 있다. 부산을 보고 있어도 빠지지 않는다.
-      expect(makeContainer().read(profileStatsProvider).joinedSessions, 2);
+      expect(makeContainer().read(profileStatsProvider).joinedMeetups, 2);
     });
   });
 

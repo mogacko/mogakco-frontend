@@ -24,6 +24,7 @@ import 'package:mogacko/features/notification/presentation/notification_screen.d
 import 'package:mogacko/features/notification/presentation/notification_settings_screen.dart';
 import 'package:mogacko/features/community/presentation/search_screen.dart';
 import 'package:mogacko/features/profile/presentation/profile_edit_screen.dart';
+import 'package:mogacko/features/profile/presentation/my_activity_screen.dart';
 import 'package:mogacko/features/profile/presentation/settings_screen.dart';
 import 'package:mogacko/features/profile/presentation/withdraw_screen.dart';
 import 'package:mogacko/features/event/presentation/event_detail_screen.dart';
@@ -317,6 +318,14 @@ void main() {
         tester,
         const MeetupDetailScreen(meetupId: 'busan-4'),
         'meetup_cancelled_light',
+      );
+    });
+
+    testWidgets('내 활동', (tester) async {
+      await expectGolden(
+        tester,
+        const MyActivityScreen(kind: MyActivityKind.meetups),
+        'my_activity_light',
       );
     });
 

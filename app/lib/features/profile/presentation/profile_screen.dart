@@ -12,6 +12,7 @@ import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/tag_chip.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../member/domain/member.dart';
+import 'my_activity_screen.dart';
 import 'profile_provider.dart';
 
 /// 내 정보 탭.
@@ -179,11 +180,25 @@ class _Stats extends ConsumerWidget {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            _StatCell(label: '참여 중인 모각코', value: stats.joinedSessions),
+            // 숫자만 두면 무엇이 세어졌는지 확인할 길이 없다. 눌러서 목록을
+            // 연다.
+            _StatCell(
+              kind: MyActivityKind.meetups,
+              label: '참여 중인 모각코',
+              value: stats.joinedMeetups,
+            ),
             const _StatDivider(),
-            _StatCell(label: '신청한 행사', value: stats.appliedEvents),
+            _StatCell(
+              kind: MyActivityKind.events,
+              label: '신청한 행사',
+              value: stats.appliedEvents,
+            ),
             const _StatDivider(),
-            _StatCell(label: '작성한 글', value: stats.posts),
+            _StatCell(
+              kind: MyActivityKind.posts,
+              label: '작성한 글',
+              value: stats.posts,
+            ),
           ],
         ),
       ),
@@ -192,29 +207,38 @@ class _Stats extends ConsumerWidget {
 }
 
 class _StatCell extends StatelessWidget {
-  const _StatCell({required this.label, required this.value});
+  const _StatCell({
+    required this.kind,
+    required this.label,
+    required this.value,
+  });
 
+  final MyActivityKind kind;
   final String label;
   final int value;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            '$value',
-            style: context.texts.headlineMedium?.copyWith(
-              // 0은 아직 아무것도 안 한 상태다. 다른 숫자와 같은 무게로 두면
-              // 비어 있다는 게 눈에 띄지 않는다.
-              color: value == 0
-                  ? context.colors.textTertiary
-                  : context.colors.textPrimary,
+      child: InkWell(
+        onTap: () => context.push(AppRoute.myActivity(kind)),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Column(
+          children: [
+            Text(
+              '$value',
+              style: context.texts.headlineMedium?.copyWith(
+                // 0은 아직 아무것도 안 한 상태다. 다른 숫자와 같은 무게로 두면
+                // 비어 있다는 게 눈에 띄지 않는다.
+                color: value == 0
+                    ? context.colors.textTertiary
+                    : context.colors.textPrimary,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: context.texts.labelSmall),
-        ],
+            const SizedBox(height: 2),
+            Text(label, style: context.texts.labelSmall),
+          ],
+        ),
       ),
     );
   }
@@ -261,9 +285,7 @@ class _TagSection extends StatelessWidget {
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: [
-              for (final tag in tags) TagChip(label: tag, tone: tone),
-            ],
+            children: [for (final tag in tags) TagChip(label: tag, tone: tone)],
           ),
         ],
       ),
