@@ -37,6 +37,15 @@ import '../helpers/pump_app.dart';
 ///
 /// 골든 이미지는 렌더 엔진 버전에 따라 미세하게 달라질 수 있어 CI 게이트로 쓰기보다
 /// 디자인 확인·리뷰용으로 둔다. 갱신은 `flutter test --update-goldens`.
+/// 골든이 보는 '지금'.
+///
+/// 실제 지금으로 두면 '8/6 (목)' 같은 날짜 글자가 하루만 지나도 달라져서,
+/// 어제 만든 골든이 오늘 아침에 깨진다. 그러면 진짜 회귀와 날짜 흐름을
+/// 가릴 수 없게 되고 결국 골든을 안 믿게 된다.
+///
+/// 목요일로 잡았다. 주중이라 '오늘·내일'과 주말 모임이 함께 보인다.
+final _now = DateTime(2026, 3, 5, 10, 30);
+
 void main() {
   // iPhone 13 / 일반적인 안드로이드 세로 화면에 가까운 크기
   const viewport = Size(390, 844);
@@ -75,7 +84,7 @@ void main() {
       ..devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpScreen(screen, brightness: brightness);
+    await tester.pumpScreen(screen, brightness: brightness, now: _now);
     // 진입 애니메이션을 끝까지 돌려 최종 상태를 담는다.
     await tester.pump(const Duration(milliseconds: 1200));
 
@@ -102,7 +111,11 @@ void main() {
       ..devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpScreen(const AppShell(), brightness: brightness);
+    await tester.pumpScreen(
+      const AppShell(),
+      brightness: brightness,
+      now: _now,
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(
@@ -134,7 +147,11 @@ void main() {
       ..devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpScreen(const SearchScreen(), brightness: brightness);
+    await tester.pumpScreen(
+      const SearchScreen(),
+      brightness: brightness,
+      now: _now,
+    );
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), '모각코');
@@ -163,7 +180,11 @@ void main() {
       ..devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpScreen(const MeetupCreateScreen(), brightness: brightness);
+    await tester.pumpScreen(
+      const MeetupCreateScreen(),
+      brightness: brightness,
+      now: _now,
+    );
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, '모모스');
@@ -328,7 +349,7 @@ void main() {
         ..devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpScreen(const AppShell());
+      await tester.pumpScreen(const AppShell(), now: _now);
       await tester.pumpAndSettle();
       await tester.tap(find.text('참여 신청').first);
       await tester.pumpAndSettle();
@@ -345,7 +366,7 @@ void main() {
         ..devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpScreen(const AppShell());
+      await tester.pumpScreen(const AppShell(), now: _now);
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();

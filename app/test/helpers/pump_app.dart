@@ -6,6 +6,7 @@ import 'package:mogacko/core/router/app_router.dart';
 import 'package:mogacko/core/theme/app_theme.dart';
 import 'package:mogacko/features/auth/presentation/session_provider.dart';
 import 'package:mogacko/shared/domain/chapter.dart';
+import 'package:mogacko/shared/providers/now_provider.dart';
 
 extension PumpApp on WidgetTester {
   /// 화면 하나를 앱 테마와 라우터 컨텍스트 안에서 띄운다.
@@ -19,11 +20,16 @@ extension PumpApp on WidgetTester {
   /// 이 화면들은 로그인해야 닿는 자리다. 세션 없이 띄우면 지역이 정해지지 않아
   /// 어느 지부의 목업을 보는지가 흐려진다. 목업이 가장 두툼한 부산을 기본으로
   /// 둔다 — 지역별 걸러내기를 확인하려면 서울 것과 견줘야 해서다.
+  ///
+  /// [now] 를 넘기면 그 시각을 기준으로 그린다. 골든처럼 화면을 통째로 견주는
+  /// 자리에서 쓴다. 안 넘기면 실제 지금이라, '8/6 (목)' 같은 날짜 글자가
+  /// 하루만 지나도 달라져 어제 만든 골든이 오늘 깨진다.
   Future<ProviderContainer> pumpScreen(
     Widget screen, {
     Brightness brightness = Brightness.light,
     bool animations = false,
     Chapter chapter = Chapter.busan,
+    DateTime? now,
   }) async {
     final router = GoRouter(
       initialLocation: '/',
@@ -63,7 +69,9 @@ extension PumpApp on WidgetTester {
 
     // 위젯을 세우기 전에 로그인시킨다. 나중에 바꾸면 첫 프레임이 다른 지역으로
     // 그려졌다가 갈아엎힌다.
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [if (now != null) nowProvider.overrideWithValue(now)],
+    );
     container.read(sessionProvider.notifier).signIn(chapter: chapter);
     addTearDown(container.dispose);
 
