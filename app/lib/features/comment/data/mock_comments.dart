@@ -19,6 +19,7 @@ abstract final class MockComments {
       String body,
       Duration since, {
       bool isMine = false,
+      String? replyTo,
     }) {
       seq++;
       return Comment(
@@ -28,6 +29,7 @@ abstract final class MockComments {
         author: author,
         body: body,
         createdAt: ago(since),
+        parentId: replyTo,
         isMine: isMine,
       );
     }
@@ -38,7 +40,16 @@ abstract final class MockComments {
       String body,
       Duration since, {
       bool isMine = false,
-    }) => at(CommentTarget.post, postId, author, body, since, isMine: isMine);
+      String? replyTo,
+    }) => at(
+      CommentTarget.post,
+      postId,
+      author,
+      body,
+      since,
+      isMine: isMine,
+      replyTo: replyTo,
+    );
 
     Comment e(
       String eventId,
@@ -46,7 +57,16 @@ abstract final class MockComments {
       String body,
       Duration since, {
       bool isMine = false,
-    }) => at(CommentTarget.event, eventId, author, body, since, isMine: isMine);
+      String? replyTo,
+    }) => at(
+      CommentTarget.event,
+      eventId,
+      author,
+      body,
+      since,
+      isMine: isMine,
+      replyTo: replyTo,
+    );
 
     Comment m(
       String meetupId,
@@ -54,8 +74,16 @@ abstract final class MockComments {
       String body,
       Duration since, {
       bool isMine = false,
-    }) =>
-        at(CommentTarget.meetup, meetupId, author, body, since, isMine: isMine);
+      String? replyTo,
+    }) => at(
+      CommentTarget.meetup,
+      meetupId,
+      author,
+      body,
+      since,
+      isMine: isMine,
+      replyTo: replyTo,
+    );
 
     return [
       // 공지 — 반응이 적다
@@ -82,6 +110,22 @@ abstract final class MockComments {
             'viewport-fit=cover 를 같이 안 쓰면 env() 도 0 이 나옵니다.',
         const Duration(minutes: 12),
         isMine: true,
+      ),
+      // c4 = evan 의 답변. 여기에 되묻는 답글이 붙는다.
+      c(
+        'busan-q1',
+        '지훈',
+        'viewport-fit=cover 는 index.html 의 meta 에 넣으면 되나요?',
+        const Duration(minutes: 8),
+        replyTo: 'c4',
+      ),
+      c(
+        'busan-q1',
+        'evan',
+        '네, meta viewport 에 붙이시면 됩니다. 그다음 env(safe-area-inset-bottom).',
+        const Duration(minutes: 7),
+        isMine: true,
+        replyTo: 'c4',
       ),
       c('busan-q1', '지훈', '저도 이거 때문에 반나절 날렸네요.', const Duration(minutes: 6)),
       c(

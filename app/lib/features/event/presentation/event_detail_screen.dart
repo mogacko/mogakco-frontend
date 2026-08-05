@@ -154,11 +154,15 @@ class EventDetailScreen extends ConsumerWidget {
         Divider(height: 1, color: colors.border),
         const SizedBox(height: AppSpacing.xl),
         CommentSection(
-          comments: comments,
+          nodes: ref.watch(commentTreeProvider((target: CommentTarget.event, id: event.id))),
+          count: comments.length,
           now: now,
           onDelete: (comment) =>
               ref.read(commentListProvider.notifier).remove(comment.id),
           onEdit: (comment) => _editComment(context, ref, comment),
+          onReply: (parent, body) => ref
+              .read(commentListProvider.notifier)
+              .add(parent.thread, body, parentId: parent.id),
         ),
         const SizedBox(height: AppSpacing.lg),
         Padding(

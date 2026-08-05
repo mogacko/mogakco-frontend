@@ -23,13 +23,14 @@ class CommentList extends Notifier<List<Comment>> {
   /// 댓글을 단다. 빈 글은 받지 않는다.
   ///
   /// 목록 맨 뒤에 붙는다. 댓글은 대화라 위에서 아래로 읽는 게 자연스럽다.
-  void add(CommentThread thread, String body) {
+  void add(CommentThread thread, String body, {String? parentId}) {
     final trimmed = body.trim();
     if (trimmed.isEmpty) return;
 
     state = [
       ...state,
       Comment(
+        parentId: parentId,
         // 서버가 붙으면 서버가 정한 id 가 온다. 그때까지는 겹치지 않을 만큼만.
         id: '$_localPrefix${state.length}-${trimmed.hashCode}',
         target: thread.target,
@@ -68,10 +69,18 @@ class CommentList extends Notifier<List<Comment>> {
   }
 
   /// 내가 쓴 댓글만 지운다.
+  ///
+  /// 답글이 달려 있으면 통째로 빼지 않고 자리만 남긴다. 없애 버리면 밑에
+  /// 달린 답글이 무슨 말에 대한 것인지 알 수 없게 된다.
   void remove(String commentId) {
+    final hasReplies = state.any((comment) => comment.parentId == commentId);
+
     state = [
       for (final comment in state)
-        if (!(comment.id == commentId && comment.isMine)) comment,
+        if (comment.id != commentId || !comment.isMine)
+          comment
+        else if (hasReplies)
+          comment.delete(),
     ];
   }
 
@@ -116,9 +125,10 @@ final commentListProvider = NotifierProvider<CommentList, List<Comment>>(
 );
 
 /// 한 대상의 댓글. 단 순서대로.
-/// 한 대상의 댓글.
+/// 한 대상의 댓글. 답글까지 다 들어 있고 시간순이다.
 ///
-/// 차단한 사람의 댓글과 내가 신고한 댓글은 여기서 빠진다.
+/// 차단한 사람의 댓글과 내가 신고한 댓글은 여기서 빠진다. 다만 답글이 달린
+/// 것은 [commentTreeProvider] 가 자리만 남긴다.
 final commentsOfProvider = Provider.family<List<Comment>, CommentThread>((
   ref,
   thread,
@@ -129,10 +139,63 @@ final commentsOfProvider = Provider.family<List<Comment>, CommentThread>((
   return ref
       .watch(commentListProvider)
       .where((comment) => comment.thread == thread)
+      // 지워진 자리는 세지 않는다. 목록에 '3'이라 적고 열었더니 내용이
+      // 둘뿐이면 하나가 사라진 것처럼 보인다.
+      .where((comment) => !comment.isDeleted)
       .where((comment) => !hidden.contains(comment.id))
       .where((comment) => comment.isMine || !blocked.contains(comment.author))
       .toList()
     ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+});
+
+/// 화면에 세울 댓글 한 덩어리.
+typedef CommentNode = ({
+  Comment comment,
+  /// 내용을 가리고 자리만 남길지. 지워졌거나 차단·신고한 사람의 것이다.
+  bool masked,
+  List<Comment> replies,
+});
+
+/// 부모는 시간순, 답글은 그 밑에 시간순.
+///
+/// 답글이 달린 부모는 가려져도 자리를 남긴다. 없애 버리면 밑에 달린 답글이
+/// 무슨 말에 대한 것인지 알 수 없게 된다. 반대로 답글은 가려지면 그냥 빠진다
+/// — 아무것도 그 밑에 매달려 있지 않다.
+final commentTreeProvider = Provider.family<List<CommentNode>, CommentThread>((
+  ref,
+  thread,
+) {
+  final visible = ref.watch(commentsOfProvider(thread)).toList();
+  final visibleIds = {for (final comment in visible) comment.id};
+
+  // 부모가 가려졌더라도 답글은 그 밑에 붙어야 한다. 원본에서 부모를 찾는다.
+  final all = ref
+      .watch(commentListProvider)
+      .where((comment) => comment.thread == thread)
+      .toList();
+
+  final repliesOf = <String, List<Comment>>{};
+  for (final comment in visible) {
+    final parentId = comment.parentId;
+    if (parentId == null) continue;
+    (repliesOf[parentId] ??= []).add(comment);
+  }
+
+  final nodes = <CommentNode>[];
+  for (final comment in all) {
+    if (comment.isReply) continue;
+
+    final replies = repliesOf[comment.id] ?? const <Comment>[];
+    final shown = visibleIds.contains(comment.id);
+
+    // 가려진 부모는 답글이 있을 때만 자리를 남긴다.
+    if (!shown && replies.isEmpty) continue;
+
+    nodes.add((comment: comment, masked: !shown, replies: replies));
+  }
+
+  nodes.sort((a, b) => a.comment.createdAt.compareTo(b.comment.createdAt));
+  return nodes;
 });
 
 /// 가려진 댓글 id.
@@ -159,6 +222,7 @@ final postCommentCountsProvider = Provider<Map<String, int>>((ref) {
     // 목록에 '3'이라 적혀 있는데 열어보니 두 개면 하나가 사라진 것처럼 보인다.
     // 세는 규칙이 보여주는 규칙과 같아야 한다.
     if (hidden.contains(comment.id)) continue;
+    if (comment.isDeleted) continue;
     if (!comment.isMine && blocked.contains(comment.author)) continue;
     counts[comment.targetId] = (counts[comment.targetId] ?? 0) + 1;
   }

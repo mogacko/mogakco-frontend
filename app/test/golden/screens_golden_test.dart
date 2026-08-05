@@ -236,6 +236,14 @@ void main() {
       );
     });
 
+    testWidgets('답글 달린 질문', (tester) async {
+      await expectGolden(
+        tester,
+        const PostDetailScreen(postId: 'busan-q1'),
+        'post_replies_light',
+      );
+    });
+
     testWidgets('모각코 상세', (tester) async {
       await expectGolden(
         tester,

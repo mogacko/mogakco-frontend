@@ -26,6 +26,8 @@ class Comment {
     required this.body,
     required this.createdAt,
     this.editedAt,
+    this.parentId,
+    this.isDeleted = false,
     this.authorAvatarUrl,
     this.isMine = false,
   });
@@ -45,6 +47,18 @@ class Comment {
   /// 마지막으로 고친 때. 한 번도 안 고쳤으면 null.
   final DateTime? editedAt;
 
+  /// 답글이면 부모 댓글의 id. 아니면 null.
+  ///
+  /// 한 단계만 둔다. 답글에 답글을 달면 같은 스레드 맨 아래에 붙는다. 모바일
+  /// 폭에서 3단계째는 한 줄에 몇 글자 못 들어간다.
+  final String? parentId;
+
+  /// 답글이 달린 채로 지워진 자리.
+  ///
+  /// 통째로 빼지 않는다. 밑에 달린 답글이 무슨 말에 대한 것인지 알 수 없게
+  /// 된다. 답글이 없으면 그냥 사라지므로 이 값이 true 가 되지 않는다.
+  final bool isDeleted;
+
   /// 내가 쓴 댓글인지.
   ///
   /// 지울 수 있는지를 가른다. 서버가 붙으면 로그인한 사람과 견줘 정해진다.
@@ -56,6 +70,21 @@ class Comment {
   /// 글쓴이만 바꾼 새 댓글을 만든다.
   bool get isEdited => editedAt != null;
 
+  bool get isReply => parentId != null;
+
+  /// 내용을 지우고 자리만 남긴다.
+  Comment delete() => Comment(
+    id: id,
+    target: target,
+    targetId: targetId,
+    author: author,
+    body: '',
+    createdAt: createdAt,
+    parentId: parentId,
+    isDeleted: true,
+    isMine: isMine,
+  );
+
   /// 내용만 고친 새 댓글을 만든다.
   Comment edit(String body, DateTime at) => Comment(
     id: id,
@@ -65,6 +94,7 @@ class Comment {
     body: body,
     createdAt: createdAt,
     editedAt: at,
+    parentId: parentId,
     isMine: isMine,
   );
 
@@ -76,6 +106,8 @@ class Comment {
     body: body,
     createdAt: createdAt,
     editedAt: editedAt,
+    parentId: parentId,
+    isDeleted: isDeleted,
     isMine: isMine,
   );
 }

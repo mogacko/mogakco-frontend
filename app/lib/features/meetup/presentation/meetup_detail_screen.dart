@@ -190,11 +190,15 @@ class MeetupDetailScreen extends ConsumerWidget {
         Divider(height: 1, color: context.colors.border),
         const SizedBox(height: AppSpacing.xl),
         CommentSection(
-          comments: comments,
+          nodes: ref.watch(commentTreeProvider((target: CommentTarget.meetup, id: meetup.id))),
+          count: comments.length,
           now: now,
           onDelete: (comment) =>
               ref.read(commentListProvider.notifier).remove(comment.id),
           onEdit: (comment) => _editComment(context, ref, comment),
+          onReply: (parent, body) => ref
+              .read(commentListProvider.notifier)
+              .add(parent.thread, body, parentId: parent.id),
         ),
       ],
     );
