@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,8 @@ import '../../../../shared/widgets/user_avatar.dart';
 import '../../../member/presentation/member_provider.dart';
 import '../../../safety/presentation/safety_provider.dart';
 import '../../domain/meetup.dart';
+import '../meetup_provider.dart';
+import 'kick_sheet.dart';
 
 /// 이 모임에 오는 사람들.
 ///
@@ -22,6 +25,31 @@ class ParticipantRoster extends ConsumerWidget {
 
   final Meetup meetup;
   final DateTime now;
+
+  Future<void> _kick(BuildContext context, WidgetRef ref, String id) async {
+    final days = meetup.sessions
+        .where((session) => session.participants.contains(id))
+        .length;
+
+    final choice = await showKickSheet(context, name: id, dayCount: days);
+    if (choice == null || !context.mounted) return;
+
+    ref.read(meetupListProvider.notifier).kick(meetup.id, id);
+    if (choice.alsoBlock) {
+      ref.read(blockedProvider.notifier).block(id);
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            choice.alsoBlock ? '$id님을 내보내고 차단했어요' : '$id님을 내보냈어요',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,6 +65,8 @@ class ParticipantRoster extends ConsumerWidget {
     final me = ref.watch(myIdProvider);
     final blocked = ref.watch(blockedProvider);
     final single = upcoming.length == 1;
+    // 접힌 모임에서는 내보낼 것이 없다. 이미 아무도 안 온다.
+    final isHost = meetup.host == me && !meetup.isCancelled;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,10 +105,14 @@ class ParticipantRoster extends ConsumerWidget {
                 for (final id in session.participants)
                   if (!blocked.contains(id))
                     _PersonChip(
-                    id: id,
+                      id: id,
                       isMe: id == me,
                       isHost: id == meetup.host,
                       onTap: () => context.push(AppRoute.member(id)),
+                      // 모임장에게만 X 가 붙는다. 자기 자신은 뺄 수 없다.
+                      onKick: isHost && meetup.canKick(id)
+                          ? () => _kick(context, ref, id)
+                          : null,
                     ),
               ],
             ),
@@ -96,12 +130,16 @@ class _PersonChip extends StatelessWidget {
     required this.isMe,
     required this.isHost,
     required this.onTap,
+    this.onKick,
   });
 
   final String id;
   final bool isMe;
   final bool isHost;
   final VoidCallback onTap;
+
+  /// 모임장에게만 붙는 내보내기. 없으면 X 가 안 보인다.
+  final VoidCallback? onKick;
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +152,11 @@ class _PersonChip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             AppSpacing.xs,
             AppSpacing.xs,
-            AppSpacing.md,
+            // X 가 붙으면 그 자체로 여백을 갖는다.
+            onKick == null ? AppSpacing.md : AppSpacing.xs,
             AppSpacing.xs,
           ),
           child: Row(
@@ -140,6 +179,25 @@ class _PersonChip extends StatelessWidget {
                   isHost ? '모임장' : '나',
                   style: context.texts.labelSmall?.copyWith(
                     color: colors.textTertiary,
+                  ),
+                ),
+              ],
+              if (onKick != null) ...[
+                const SizedBox(width: AppSpacing.xs),
+                Semantics(
+                  button: true,
+                  label: '$id 내보내기',
+                  child: InkWell(
+                    onTap: onKick,
+                    customBorder: const CircleBorder(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        size: 12,
+                        color: colors.textTertiary,
+                      ),
+                    ),
                   ),
                 ),
               ],

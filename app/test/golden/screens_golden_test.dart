@@ -295,6 +295,14 @@ void main() {
       );
     });
 
+    testWidgets('내가 연 모각코', (tester) async {
+      await expectGolden(
+        tester,
+        const MeetupDetailScreen(meetupId: 'busan-3'),
+        'meetup_host_light',
+      );
+    });
+
     testWidgets('접힌 모각코', (tester) async {
       await expectGolden(
         tester,

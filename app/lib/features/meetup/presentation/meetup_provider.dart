@@ -71,6 +71,14 @@ class MeetupList extends Notifier<List<Meetup>> {
     ];
   }
 
+  /// 모임장이 한 사람을 내보낸다.
+  void kick(String meetupId, String memberId) {
+    state = [
+      for (final meetup in state)
+        if (meetup.id != meetupId) meetup else meetup.kick(memberId),
+    ];
+  }
+
   void add(Meetup meetup) {
     state = [...state, meetup]
       ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));

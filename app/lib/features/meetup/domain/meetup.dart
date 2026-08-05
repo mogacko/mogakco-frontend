@@ -150,6 +150,7 @@ class Meetup {
     this.latitude,
     this.longitude,
     this.cancellation,
+    this.banned = const [],
   });
 
   final String id;
@@ -196,6 +197,15 @@ class Meetup {
   final Cancellation? cancellation;
 
   bool get isCancelled => cancellation != null;
+
+  /// 모임장이 내보낸 사람들.
+  ///
+  /// 내보내기만 하고 끝내면 그 사람이 곧바로 다시 신청한다. 내보낸 자리에
+  /// 다시 들어오는 걸 막지 못하면 모임장이 할 수 있는 게 없다.
+  ///
+  /// 모임 안에서만 막는다. 앱 전체에서 안 보이게 하는 건 차단이고, 그건
+  /// 내보내는 사람이 따로 고를 일이다.
+  final List<String> banned;
 
   /// 지도를 그릴 수 있는지
   bool get hasLocation => latitude != null && longitude != null;
@@ -275,6 +285,8 @@ class Meetup {
   Meetup toggleSession(String sessionId, String me) {
     // 접힌 모임에는 신청할 것이 없다.
     if (isCancelled) return this;
+    // 내보낸 사람은 다시 들어올 수 없다.
+    if (banned.contains(me)) return this;
 
     return copyWith(
       sessions: [
@@ -303,6 +315,7 @@ class Meetup {
   /// 모임장 이름만 바꾼 새 모임을 만든다.
   Meetup withHost(String host) => Meetup(
     cancellation: cancellation,
+    banned: banned,
     id: id,
     chapter: chapter,
     placeName: placeName,
@@ -320,7 +333,39 @@ class Meetup {
   Meetup cancel(Cancellation cancellation) =>
       copyWith(cancellation: cancellation);
 
-  Meetup copyWith({List<MeetupSession>? sessions, Cancellation? cancellation}) {
+  /// 한 사람을 모든 날짜에서 빼고 다시 못 들어오게 한다.
+  ///
+  /// 날짜별로 빼지 않는다. 이틀 다 오기로 한 사람을 내보내려고 두 번 눌러야
+  /// 하면, 한 번만 누르고 끝난 줄 알았다가 다음 날 마주친다.
+  Meetup kick(String memberId) {
+    return copyWith(
+      banned: [...banned, memberId],
+      sessions: [
+        for (final session in sessions)
+          if (!session.participants.contains(memberId))
+            session
+          else
+            session.copyWith(
+              // 내보내는 건 남이다. 내 참여 여부는 그대로 둔다.
+              participants: session.participants
+                  .where((name) => name != memberId)
+                  .toList(),
+            ),
+      ],
+    );
+  }
+
+  /// 이 사람을 내보낼 수 있는지.
+  ///
+  /// 모임장 자신은 뺄 수 없다. 연 사람이 없는 모임은 모임이 아니고, 접으려면
+  /// 접기가 따로 있다.
+  bool canKick(String memberId) => memberId != host && !banned.contains(memberId);
+
+  Meetup copyWith({
+    List<MeetupSession>? sessions,
+    Cancellation? cancellation,
+    List<String>? banned,
+  }) {
     return Meetup(
       id: id,
       chapter: chapter,
@@ -334,6 +379,7 @@ class Meetup {
       latitude: latitude,
       longitude: longitude,
       cancellation: cancellation ?? this.cancellation,
+      banned: banned ?? this.banned,
     );
   }
 }
