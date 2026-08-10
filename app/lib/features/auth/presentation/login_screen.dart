@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,15 +12,14 @@ import 'widgets/social_login_button.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  /// 애플 로그인도 함께 세운다.
+  /// 애플 로그인은 iOS 에서만 세운다.
   ///
-  /// iOS 가 아직 PWA 라도 안드로이드·웹에서 쓸 수 있다. 애플은 이때 앱 안에서
-  /// 바로 뜨지 않고 Services ID 로 애플 사이트를 거쳐 돌아오는데, 그 돌아올
-  /// 주소가 서버에 있어야 한다.
-  ///
-  /// 나중에 iOS 를 네이티브로 돌릴 때는 선택이 아니다 — 다른 소셜 로그인을
-  /// 두고 애플만 빼면 앱스토어 심사에서 걸린다.
-  static const _showAppleLogin = true;
+  /// iOS 는 다른 소셜 로그인을 두고 애플만 빼면 앱스토어 심사에서 걸린다.
+  /// 반대로 안드로이드에는 애플 SDK 가 없어서, 애플 사이트를 거쳐 돌아오는
+  /// 웹 플로를 써야 하고 그 돌아올 주소를 서버가 열어야 한다. 안드로이드
+  /// 사용자는 카카오·구글로 충분해서 그 품을 들이지 않는다.
+  static bool get _showAppleLogin =>
+      defaultTargetPlatform == TargetPlatform.iOS;
 
   void _onSocialTap(BuildContext context, SocialProvider provider) {
     // 실제 OAuth 연동은 다음 스프린트 범위다.

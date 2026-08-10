@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -413,7 +414,14 @@ void main() {
     });
 
     testWidgets('로그인', (tester) async {
-      await expectGolden(tester, const LoginScreen(), 'login_light');
+      // 애플이 서는 쪽을 담는다. 안드로이드 화면은 여기서 애플 한 줄이 빠진
+      // 모습이고, 그건 테스트로 따로 본다.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await expectGolden(tester, const LoginScreen(), 'login_light');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     testWidgets('약관 동의', (tester) async {
@@ -564,12 +572,17 @@ void main() {
     });
 
     testWidgets('로그인', (tester) async {
-      await expectGolden(
-        tester,
-        const LoginScreen(),
-        'login_dark',
-        brightness: Brightness.dark,
-      );
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await expectGolden(
+          tester,
+          const LoginScreen(),
+          'login_dark',
+          brightness: Brightness.dark,
+        );
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     testWidgets('약관 동의', (tester) async {
