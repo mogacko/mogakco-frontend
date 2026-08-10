@@ -11,9 +11,15 @@ import 'widgets/social_login_button.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  /// 애플 로그인은 화면과 버튼만 준비하고 노출은 막아둔 상태다.
-  /// iOS를 네이티브로 전환할 때 true로 바꾸면 그대로 살아난다.
-  static const _showAppleLogin = false;
+  /// 애플 로그인도 함께 세운다.
+  ///
+  /// iOS 가 아직 PWA 라도 안드로이드·웹에서 쓸 수 있다. 애플은 이때 앱 안에서
+  /// 바로 뜨지 않고 Services ID 로 애플 사이트를 거쳐 돌아오는데, 그 돌아올
+  /// 주소가 서버에 있어야 한다.
+  ///
+  /// 나중에 iOS 를 네이티브로 돌릴 때는 선택이 아니다 — 다른 소셜 로그인을
+  /// 두고 애플만 빼면 앱스토어 심사에서 걸린다.
+  static const _showAppleLogin = true;
 
   void _onSocialTap(BuildContext context, SocialProvider provider) {
     // 실제 OAuth 연동은 다음 스프린트 범위다.

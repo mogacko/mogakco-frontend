@@ -13,10 +13,14 @@ void main() {
       expect(find.text('Google로 시작하기'), findsOneWidget);
     });
 
-    testWidgets('애플 버튼은 연동 전까지 감춰둔다', (tester) async {
+    testWidgets('셋을 나란히 세운다', (tester) async {
       await tester.pumpScreen(const LoginScreen());
 
-      expect(find.text('Apple로 시작하기'), findsNothing);
+      // iOS 를 네이티브로 돌릴 때 다른 소셜 로그인을 두고 애플만 빼면
+      // 앱스토어 심사에서 걸린다.
+      expect(find.text('Apple로 시작하기'), findsOneWidget);
+      expect(find.text('카카오로 시작하기'), findsOneWidget);
+      expect(find.text('Google로 시작하기'), findsOneWidget);
     });
 
     testWidgets('약관 안내 문구를 보여준다', (tester) async {
