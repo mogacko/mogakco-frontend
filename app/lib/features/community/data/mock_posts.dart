@@ -119,6 +119,110 @@ abstract final class MockPosts {
 
       // ── 서울 ──────────────────────────────────────────────
       Post(
+        id: 'busan-t5',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.retrospective,
+        title: '반년 나와보니 달라진 것',
+        body:
+            '집에서 하면 두 시간 앉아 있어도 실제로 한 건 삼십 분이었는데, '
+            '여기 오면 그 반대가 됩니다. 옆 사람이 키보드 치는 소리가 생각보다 크게 작용하네요.',
+        author: '서연',
+        createdAt: ago(const Duration(days: 1, hours: 2)),
+        likeCount: 31,
+      ),
+      Post(
+        id: 'busan-t6',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.free,
+        title: '노트북 스탠드 뭐 쓰세요',
+        body:
+            '목이 아파서 하나 사려는데 카페마다 들고 다녀야 해서 접히는 게 좋겠더라고요. '
+            '가벼운 거 쓰시는 분 추천 부탁드립니다.',
+        author: '태오',
+        createdAt: ago(const Duration(days: 1, hours: 8)),
+        likeCount: 6,
+      ),
+      Post(
+        id: 'busan-t7',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.recruit,
+        title: '사이드 프로젝트 디자이너 구합니다',
+        body:
+            '동네 기반 중고거래를 만들어보려고 합니다. 기획은 어느 정도 잡혀 있고 '
+            '화면이 열 개 남짓이에요. 포트폴리오 목적으로 같이 하실 분 찾습니다.',
+        author: '준서',
+        createdAt: ago(const Duration(days: 2)),
+        likeCount: 18,
+      ),
+      Post(
+        id: 'busan-t8',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.free,
+        title: '광안리 쪽 콘센트 있는 카페 정리',
+        body:
+            '주말마다 자리 찾느라 헤매서 몇 군데 다녀본 걸 적어둡니다. '
+            '창가 자리 콘센트 여부랑 몇 시쯤 붐비는지 위주로요.',
+        author: '나윤',
+        createdAt: ago(const Duration(days: 2, hours: 6)),
+        likeCount: 24,
+      ),
+      Post(
+        id: 'busan-t9',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.retrospective,
+        title: '첫 이직 끝냈습니다',
+        body:
+            '작년 이맘때 여기서 이력서 봐주신 분들 감사합니다. '
+            '결국 세 번째 회사에서 됐고 다음 주부터 출근해요.',
+        author: '하람',
+        createdAt: ago(const Duration(days: 3)),
+        likeCount: 52,
+      ),
+      Post(
+        id: 'busan-t10',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.free,
+        title: '모각코 끝나고 저녁 같이 드실 분',
+        body:
+            '토요일마다 여섯 시쯤 끝나는데 혼자 먹기 애매해서요. '
+            '부담 없이 국밥이나 먹으러 갑니다.',
+        author: '지훈',
+        createdAt: ago(const Duration(days: 3, hours: 5)),
+        likeCount: 11,
+      ),
+      Post(
+        id: 'busan-t11',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.free,
+        title: '아이패드로 코딩하시는 분 계신가요',
+        body:
+            '가볍게 들고 다니고 싶은데 실제로 쓸 만한지 궁금합니다. '
+            '원격으로 붙어서 쓰는 방식으로 해보신 분 있으면 어떤지 알려주세요.',
+        author: '민서',
+        createdAt: ago(const Duration(days: 4)),
+        likeCount: 8,
+      ),
+      Post(
+        id: 'busan-t12',
+        chapter: Chapter.busan,
+        board: PostBoard.talk,
+        category: PostCategory.recruit,
+        title: '주중 저녁 CS 스터디 모집',
+        body:
+            '운영체제부터 시작해서 한 챕터씩 읽고 이야기하는 모임입니다. '
+            '수요일 여덟 시, 온라인으로 합니다.',
+        author: '도윤',
+        createdAt: ago(const Duration(days: 5)),
+        likeCount: 15,
+      ),
+      Post(
         id: 'seoul-n1',
         chapter: Chapter.seoul,
         board: PostBoard.notice,

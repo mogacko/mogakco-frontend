@@ -10,6 +10,7 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/paged.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/title_menu.dart';
@@ -35,7 +36,8 @@ class CommunityScreen extends ConsumerWidget {
     final colors = context.colors;
     final now = ref.watch(nowProvider);
     final board = ref.watch(postBoardProvider);
-    final posts = ref.watch(visiblePostsProvider);
+    final paged = ref.watch(pagedPostsProvider);
+    final posts = paged.items;
     final selected = ref.watch(postFilterProvider);
     final counts = ref.watch(postCountsProvider);
     final popular = ref.watch(popularPostIdsProvider);
@@ -95,52 +97,74 @@ class CommunityScreen extends ConsumerWidget {
             Expanded(
               child: ColoredBox(
                 color: colors.surface,
-                child: PullToRefresh(
-                  onRefresh: () =>
-                      ref.read(postFeedProvider.notifier).refresh(),
-                  slivers: [
-                    if (posts.isEmpty)
-                      // 남는 자리를 다 차지해 가운데 세운다. 글자를 키운
-                      // 기기에서 넘치면 그때는 스크롤된다.
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(
-                          child: _Empty(board: board, category: selected),
-                        ),
-                      )
-                    else
-                      SliverPadding(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              AppBottomNav.contentInset(context) +
-                              AppSpacing.xl,
-                        ),
-                        sliver: SliverList.separated(
-                          itemCount: posts.length,
-                          separatorBuilder: (context, _) => Divider(
-                            height: 1,
-                            // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
-                            indent: AppSpacing.screenHorizontal,
-                            endIndent: AppSpacing.screenHorizontal,
-                            color: colors.border,
+                child: LoadMoreOnScroll(
+                  canLoadMore:
+                      paged.hasMore &&
+                      !paged.isLoadingMore &&
+                      paged.error == null,
+                  onLoadMore: () =>
+                      ref.read(postPagingProvider.notifier).loadMore(),
+                  child: PullToRefresh(
+                    onRefresh: () async {
+                      // 새로 받아오면 페이지도 처음으로. 안 되돌리면 스무 개를
+                      // 받아 둔 채로 새 목록의 앞 다섯 개만 갈리고 나머지는
+                      // 옛것이 남는다.
+                      ref.read(postPagingProvider.notifier).reset();
+                      await ref.read(postFeedProvider.notifier).refresh();
+                    },
+                    slivers: [
+                      if (posts.isEmpty)
+                        // 남는 자리를 다 차지해 가운데 세운다. 글자를 키운
+                        // 기기에서 넘치면 그때는 스크롤된다.
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(
+                            child: _Empty(board: board, category: selected),
                           ),
-                          itemBuilder: (context, index) {
-                            final post = posts[index];
-                            return PostCard(
-                              post: post,
-                              now: now,
-                              commentCount: commentCounts[post.id] ?? 0,
-                              isPopular: popular.contains(post.id),
-                              onToggleLike: () => ref
-                                  .read(postFeedProvider.notifier)
-                                  .toggleLike(post.id),
-                              onTap: () =>
-                                  context.push(AppRoute.post(post.id)),
-                            );
-                          },
+                        )
+                      else
+                        SliverPadding(
+                          padding: EdgeInsets.only(
+                            bottom:
+                                AppBottomNav.contentInset(context) +
+                                AppSpacing.xl,
+                          ),
+                          sliver: SliverList.separated(
+                            itemCount: posts.length,
+                            separatorBuilder: (context, _) => Divider(
+                              height: 1,
+                              // 선을 화면 끝까지 긋지 않고 본문 여백에 맞춘다.
+                              indent: AppSpacing.screenHorizontal,
+                              endIndent: AppSpacing.screenHorizontal,
+                              color: colors.border,
+                            ),
+                            itemBuilder: (context, index) {
+                              final post = posts[index];
+                              return PostCard(
+                                post: post,
+                                now: now,
+                                commentCount: commentCounts[post.id] ?? 0,
+                                isPopular: popular.contains(post.id),
+                                onToggleLike: () => ref
+                                    .read(postFeedProvider.notifier)
+                                    .toggleLike(post.id),
+                                onTap: () =>
+                                    context.push(AppRoute.post(post.id)),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                  ],
+                      if (posts.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: PagedFooter(
+                            state: paged,
+                            onRetry: () => ref
+                                .read(postPagingProvider.notifier)
+                                .loadMore(),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
