@@ -283,21 +283,37 @@ class _DayButton extends StatelessWidget {
 
     return Row(
       children: [
+        // 적어 넣는 칸들과 나란히 서는 자리라 같은 밑줄로 맞춘다. 혼자
+        // 상자를 두르면 고르는 칸이 아니라 버튼처럼 읽힌다.
         Expanded(
-          child: OutlinedButton(
-            onPressed: onTap,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, AppSize.inputHeight),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              foregroundColor: day == null
-                  ? colors.textTertiary
-                  : colors.textPrimary,
-            ),
-            child: Text(
-              day == null
-                  ? '날짜 고르기'
-                  : '${day.year}. ${day.month}. ${day.day}.',
+          child: InkWell(
+            onTap: onTap,
+            child: Container(
+              height: AppSize.inputHeight,
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: colors.border)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      day == null
+                          ? '날짜 고르기'
+                          : '${day.year}. ${day.month}. ${day.day}.',
+                      style: context.texts.bodyLarge?.copyWith(
+                        color: day == null
+                            ? colors.textTertiary
+                            : colors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: AppSize.iconSm,
+                    color: colors.textTertiary,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

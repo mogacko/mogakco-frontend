@@ -59,13 +59,15 @@ abstract final class AppTheme {
           textStyle: AppTypography.labelMedium,
         ),
       ),
+      // 칸마다 상자를 두르지 않고 밑줄만 긋는다. 등록 화면처럼 칸이 여럿
+      // 이어지는 곳에서 상자를 쌓으면 화면이 격자로 덮여, 정작 읽어야 할
+      // 라벨과 적어 넣은 글이 테두리에 묻힌다.
+      //
+      // 가로 여백도 없앤다. 밑줄 방식에서는 글자가 위 라벨과 같은 선에서
+      // 시작해야 한 덩어리로 읽힌다.
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: c.surface,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.lg,
-        ),
+        filled: false,
+        contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         hintStyle: AppTypography.bodyLarge.copyWith(color: c.textTertiary),
         border: _inputBorder(c.border),
         enabledBorder: _inputBorder(c.border),
@@ -100,9 +102,8 @@ abstract final class AppTheme {
     );
   }
 
-  static OutlineInputBorder _inputBorder(Color color, {double width = 1}) {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppRadius.md),
+  static UnderlineInputBorder _inputBorder(Color color, {double width = 1}) {
+    return UnderlineInputBorder(
       borderSide: BorderSide(color: color, width: width),
     );
   }
@@ -122,6 +123,18 @@ abstract final class AppTheme {
       labelSmall: AppTypography.caption.copyWith(color: c.textTertiary),
     );
   }
+}
+
+extension BorderlessInput on InputDecoration {
+  /// 여러 줄을 길게 받는 칸에서 밑줄을 걷어낸다.
+  ///
+  /// 여덟 줄짜리 본문 칸에 밑줄을 그으면 선이 저 아래 홀로 떠서 무엇에
+  /// 붙은 선인지 읽히지 않는다. 라벨이 이미 자리를 알려주므로 없어도 된다.
+  InputDecoration get borderless => copyWith(
+    border: InputBorder.none,
+    enabledBorder: InputBorder.none,
+    focusedBorder: InputBorder.none,
+  );
 }
 
 extension AppThemeContext on BuildContext {

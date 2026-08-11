@@ -186,7 +186,7 @@ class _PostWriteScreenState extends ConsumerState<PostWriteScreen> {
                         '무엇을 해봤고 어디서 막혔는지 적으면 답이 빨리 옵니다',
                       _ => '편하게 적어주세요',
                     },
-                  ),
+                  ).borderless,
                 ),
               ),
             ],
