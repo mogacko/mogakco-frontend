@@ -11,6 +11,7 @@ class Paged<T> {
   const Paged({
     this.items = const [],
     this.hasMore = true,
+    this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
   });
@@ -20,15 +21,28 @@ class Paged<T> {
   /// 더 받을 게 남았는지. 서버가 빈 쪽을 주면 false 가 된다.
   final bool hasMore;
 
+  /// 첫 쪽을 받는 중. 아직 보여줄 게 아무것도 없다.
+  final bool isLoading;
+
   final bool isLoadingMore;
 
   /// 다음 쪽을 받다 실패한 것. 이미 받아 둔 [items] 는 그대로 둔다 —
   /// 뒤가 실패했다고 앞까지 지우면 읽던 것이 통째로 사라진다.
   final Object? error;
 
-  bool get isEmpty => items.isEmpty && !hasMore;
+  /// 처음 받는 중이라 화면이 텅 빈 상태.
+  bool get isFirstLoad => isLoading && items.isEmpty;
 
-  Paged<T> loading() => Paged(items: items, hasMore: hasMore, isLoadingMore: true);
+  /// 처음부터 실패해서 보여줄 게 없는 상태.
+  ///
+  /// 뒤쪽을 받다 실패한 것과 다르다. 그쪽은 이미 읽던 게 남아 있어 목록
+  /// 아래에 '다시 시도'만 붙이면 되지만, 여기는 화면 전체가 비어 있다.
+  bool get failedFirst => error != null && items.isEmpty;
+
+  bool get isEmpty => items.isEmpty && !hasMore && !isLoading && error == null;
+
+  Paged<T> loading() =>
+      Paged(items: items, hasMore: hasMore, isLoadingMore: true);
 
   Paged<T> failed(Object error) =>
       Paged(items: items, hasMore: hasMore, error: error);

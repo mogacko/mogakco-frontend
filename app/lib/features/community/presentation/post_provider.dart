@@ -6,6 +6,7 @@ import '../../../shared/providers/now_provider.dart';
 import '../data/mock_posts.dart';
 import '../../comment/presentation/comment_provider.dart';
 import '../../comment/domain/comment.dart';
+import '../../../shared/data/paging_notifier.dart';
 import '../../../shared/widgets/paged.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
@@ -190,56 +191,24 @@ final postCountsProvider = Provider<Map<PostCategory, int>>((ref) {
   return counts;
 });
 
-/// 지금까지 몇 개를 받아 뒀는지.
-///
-/// 받아 둔 글 자체를 들고 있지 않고 개수만 센다. 목록을 통째로 들고 있으면
-/// 좋아요를 누를 때마다 원본이 바뀌어 페이지가 처음으로 되돌아간다 — 읽던
-/// 자리를 잃는다.
-typedef PostPage = ({int loaded, bool isLoadingMore, Object? error});
-
-class PostPaging extends Notifier<PostPage> {
-  /// 한 번에 받아오는 개수.
-  static const pageSize = 5;
+/// Post 목록을 나눠 받는다.
+class PostPaging extends Notifier<PageState> with PagingNotifier {
+  @override
+  int get total => ref.read(visiblePostsProvider).length;
 
   @override
-  PostPage build() {
-    // 게시판이나 분류를 바꾸면 처음부터 다시 센다. 이야기 20번째까지 보다
-    // 질문으로 옮겼는데 20개가 이미 차 있으면 아래가 텅 빈 것처럼 보인다.
+  PageState build() {
+    // 필터를 바꾸면 처음부터 다시 받는다. 스무 개까지 보다 옮겼는데 스무
+    // 개가 차 있으면 아래가 텅 빈 것처럼 보인다.
     ref.watch(postBoardProvider);
     ref.watch(postFilterProvider);
-    return (loaded: pageSize, isLoadingMore: false, error: null);
+    return begin();
   }
-
-  Future<void> loadMore() async {
-    if (state.isLoadingMore) return;
-    final total = ref.read(visiblePostsProvider).length;
-    if (state.loaded >= total) return;
-
-    state = (loaded: state.loaded, isLoadingMore: true, error: null);
-    try {
-      await Future<void>.delayed(mockNetworkDelay);
-      state = (
-        loaded: state.loaded + pageSize,
-        isLoadingMore: false,
-        error: null,
-      );
-    } catch (error) {
-      // 이미 받아 둔 것은 그대로 둔다. 뒤가 실패했다고 앞까지 지우면
-      // 읽던 것이 통째로 사라진다.
-      state = (loaded: state.loaded, isLoadingMore: false, error: error);
-    }
-  }
-
-  /// 처음부터 다시. 당겨서 새로고침할 때 함께 부른다.
-  void reset() =>
-      state = (loaded: pageSize, isLoadingMore: false, error: null);
 }
 
-final postPagingProvider = NotifierProvider<PostPaging, PostPage>(
-  PostPaging.new,
-);
+final postPagingProvider = NotifierProvider<PostPaging, PageState>(PostPaging.new);
 
-/// 커뮤니티 목록에 실제로 뿌릴 것.
+/// 화면에 실제로 뿌릴 것.
 final pagedPostsProvider = Provider<Paged<Post>>((ref) {
   final all = ref.watch(visiblePostsProvider);
   final page = ref.watch(postPagingProvider);
@@ -247,6 +216,7 @@ final pagedPostsProvider = Provider<Paged<Post>>((ref) {
   return Paged(
     items: all.take(page.loaded).toList(),
     hasMore: page.loaded < all.length,
+    isLoading: page.isLoading,
     isLoadingMore: page.isLoadingMore,
     error: page.error,
   );

@@ -10,6 +10,8 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/korean_particle.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/list_skeleton.dart';
+import '../../../shared/widgets/load_failure.dart';
 import '../../../shared/widgets/paged.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
@@ -74,11 +76,24 @@ class EventScreen extends ConsumerWidget {
                 child: PullToRefresh(
                   onRefresh: () async {
                     // 새로 받아오면 페이지도 처음으로 되돌린다.
-                    ref.read(eventPagingProvider.notifier).reset();
+                    ref.read(eventPagingProvider.notifier).reload();
                     await ref.read(eventListProvider.notifier).refresh();
                   },
                   slivers: [
-                    if (events.isEmpty)
+                    if (paged.isFirstLoad)
+                      SliverToBoxAdapter(child: ListSkeleton(height: 150.0))
+                    else if (paged.failedFirst)
+                      // 빈 상태와 다른 화면이다. 저쪽은 '아직 아무 일도 없었다'라
+                      // 무엇을 하면 채워지는지 알려주지만, 여기는 '있는데 못 가져왔다'라
+                      // 할 일이 다시 시도하는 것 하나다.
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: LoadFailure(
+                          onRetry: () =>
+                              ref.read(eventPagingProvider.notifier).reload(),
+                        ),
+                      )
+                    else if (events.isEmpty)
                       // 남는 자리를 다 차지해 가운데 세운다.
                       SliverFillRemaining(
                         hasScrollBody: false,

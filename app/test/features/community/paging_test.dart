@@ -9,6 +9,7 @@ import 'package:mogacko/features/event/presentation/event_screen.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_provider.dart';
 import 'package:mogacko/features/meetup/presentation/meetup_screen.dart';
 import 'package:mogacko/shared/data/mock_delay.dart';
+import 'package:mogacko/shared/data/paging_notifier.dart';
 
 import '../../helpers/pump_app.dart';
 
@@ -19,10 +20,10 @@ void main() {
       await tester.pumpAndSettle();
 
       final all = container.read(visiblePostsProvider).length;
-      expect(all, greaterThan(PostPaging.pageSize));
+      expect(all, greaterThan(pageSize));
 
       final paged = container.read(pagedPostsProvider);
-      expect(paged.items, hasLength(PostPaging.pageSize));
+      expect(paged.items, hasLength(pageSize));
       expect(paged.hasMore, isTrue);
     });
 
@@ -37,7 +38,7 @@ void main() {
       await loading;
 
       final after = container.read(pagedPostsProvider).items;
-      expect(after.length, first.length + PostPaging.pageSize);
+      expect(after.length, first.length + pageSize);
       // 앞부분은 그대로여야 읽던 자리를 잃지 않는다.
       expect(after.take(first.length).map((p) => p.id), first.map((p) => p.id));
     });
@@ -85,17 +86,17 @@ void main() {
       await loading;
       expect(
         container.read(pagedPostsProvider).items.length,
-        greaterThan(PostPaging.pageSize),
+        greaterThan(pageSize),
       );
 
       // 이야기 스무 개까지 보다 질문으로 옮겼는데 스무 개가 차 있으면
       // 아래가 텅 빈 것처럼 보인다.
       container.read(postBoardProvider.notifier).select(PostBoard.question);
-      await tester.pumpAndSettle();
+      await tester.settleLoad();
 
       expect(
         container.read(pagedPostsProvider).items.length,
-        lessThanOrEqualTo(PostPaging.pageSize),
+        lessThanOrEqualTo(pageSize),
       );
     });
 
@@ -107,12 +108,12 @@ void main() {
       await tester.pump(mockNetworkDelay);
       await loading;
 
-      container.read(postPagingProvider.notifier).reset();
-      await tester.pumpAndSettle();
+      container.read(postPagingProvider.notifier).reload();
+      await tester.settleLoad();
 
       expect(
         container.read(pagedPostsProvider).items,
-        hasLength(PostPaging.pageSize),
+        hasLength(pageSize),
       );
     });
 
@@ -123,7 +124,7 @@ void main() {
       // 슬리버가 화면 밖까지 미리 짓기 때문에 실제로 지어진 카드 수로 센다.
       expect(
         find.byType(PostCard).evaluate().length,
-        lessThanOrEqualTo(PostPaging.pageSize),
+        lessThanOrEqualTo(pageSize),
       );
     });
   });
@@ -134,10 +135,10 @@ void main() {
 
       expect(
         container.read(filteredMeetupsProvider).length,
-        greaterThan(MeetupPaging.pageSize),
+        greaterThan(pageSize),
       );
       final first = container.read(pagedMeetupsProvider);
-      expect(first.items, hasLength(MeetupPaging.pageSize));
+      expect(first.items, hasLength(pageSize));
       expect(first.hasMore, isTrue);
 
       final loading = container.read(meetupPagingProvider.notifier).loadMore();
@@ -179,11 +180,11 @@ void main() {
       await loading;
 
       container.read(meetupFilterProvider.notifier).select(MeetupFilter.joined);
-      await tester.pumpAndSettle();
+      await tester.settleLoad();
 
       expect(
         container.read(pagedMeetupsProvider).items.length,
-        lessThanOrEqualTo(MeetupPaging.pageSize),
+        lessThanOrEqualTo(pageSize),
       );
     });
   });
@@ -195,10 +196,10 @@ void main() {
 
       expect(
         container.read(visibleEventsProvider).length,
-        greaterThan(EventPaging.pageSize),
+        greaterThan(pageSize),
       );
       final first = container.read(pagedEventsProvider);
-      expect(first.items, hasLength(EventPaging.pageSize));
+      expect(first.items, hasLength(pageSize));
 
       final loading = container.read(eventPagingProvider.notifier).loadMore();
       await tester.pump(mockNetworkDelay);
@@ -221,11 +222,11 @@ void main() {
       await loading;
 
       container.read(eventFilterProvider.notifier).select(EventKind.seminar);
-      await tester.pumpAndSettle();
+      await tester.settleLoad();
 
       expect(
         container.read(pagedEventsProvider).items.length,
-        lessThanOrEqualTo(EventPaging.pageSize),
+        lessThanOrEqualTo(pageSize),
       );
     });
   });

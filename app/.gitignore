@@ -75,3 +75,6 @@ app.*.map.json
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+
+# 골든이 어긋났을 때 남는 비교 이미지 — 결과물이 아니다
+test/golden/failures/

@@ -10,6 +10,8 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/list_skeleton.dart';
+import '../../../shared/widgets/load_failure.dart';
 import '../../../shared/widgets/paged.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
@@ -109,11 +111,24 @@ class CommunityScreen extends ConsumerWidget {
                       // 새로 받아오면 페이지도 처음으로. 안 되돌리면 스무 개를
                       // 받아 둔 채로 새 목록의 앞 다섯 개만 갈리고 나머지는
                       // 옛것이 남는다.
-                      ref.read(postPagingProvider.notifier).reset();
+                      ref.read(postPagingProvider.notifier).reload();
                       await ref.read(postFeedProvider.notifier).refresh();
                     },
                     slivers: [
-                      if (posts.isEmpty)
+                      if (paged.isFirstLoad)
+                        SliverToBoxAdapter(child: ListSkeleton(height: 92.0))
+                      else if (paged.failedFirst)
+                        // 빈 상태와 다른 화면이다. 저쪽은 '아직 아무 일도 없었다'라
+                        // 무엇을 하면 채워지는지 알려주지만, 여기는 '있는데 못 가져왔다'라
+                        // 할 일이 다시 시도하는 것 하나다.
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: LoadFailure(
+                            onRetry: () =>
+                                ref.read(postPagingProvider.notifier).reload(),
+                          ),
+                        )
+                      else if (posts.isEmpty)
                         // 남는 자리를 다 차지해 가운데 세운다. 글자를 키운
                         // 기기에서 넘치면 그때는 스크롤된다.
                         SliverFillRemaining(

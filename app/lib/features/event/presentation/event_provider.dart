@@ -4,6 +4,7 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_events.dart';
+import '../../../shared/data/paging_notifier.dart';
 import '../../../shared/widgets/paged.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
@@ -162,45 +163,23 @@ final upcomingEventsProvider = Provider<List<Event>>((ref) {
   return ref.watch(chapterEventsProvider).take(_homeEventCount).toList();
 });
 
-/// 지금까지 몇 개를 받아 뒀는지.
-typedef EventPage = ({int loaded, bool isLoadingMore, Object? error});
-
-class EventPaging extends Notifier<EventPage> {
-  static const pageSize = 5;
+/// Event 목록을 나눠 받는다.
+class EventPaging extends Notifier<PageState> with PagingNotifier {
+  @override
+  int get total => ref.read(visibleEventsProvider).length;
 
   @override
-  EventPage build() {
-    // 종류를 바꾸면 처음부터 다시 센다.
+  PageState build() {
+    // 필터를 바꾸면 처음부터 다시 받는다. 스무 개까지 보다 옮겼는데 스무
+    // 개가 차 있으면 아래가 텅 빈 것처럼 보인다.
     ref.watch(eventFilterProvider);
-    return (loaded: pageSize, isLoadingMore: false, error: null);
+    return begin();
   }
-
-  Future<void> loadMore() async {
-    if (state.isLoadingMore) return;
-    if (state.loaded >= ref.read(visibleEventsProvider).length) return;
-
-    state = (loaded: state.loaded, isLoadingMore: true, error: null);
-    try {
-      await Future<void>.delayed(mockNetworkDelay);
-      state = (
-        loaded: state.loaded + pageSize,
-        isLoadingMore: false,
-        error: null,
-      );
-    } catch (error) {
-      state = (loaded: state.loaded, isLoadingMore: false, error: error);
-    }
-  }
-
-  void reset() =>
-      state = (loaded: pageSize, isLoadingMore: false, error: null);
 }
 
-final eventPagingProvider = NotifierProvider<EventPaging, EventPage>(
-  EventPaging.new,
-);
+final eventPagingProvider = NotifierProvider<EventPaging, PageState>(EventPaging.new);
 
-/// 행사 탭에 실제로 뿌릴 것.
+/// 화면에 실제로 뿌릴 것.
 final pagedEventsProvider = Provider<Paged<Event>>((ref) {
   final all = ref.watch(visibleEventsProvider);
   final page = ref.watch(eventPagingProvider);
@@ -208,6 +187,7 @@ final pagedEventsProvider = Provider<Paged<Event>>((ref) {
   return Paged(
     items: all.take(page.loaded).toList(),
     hasMore: page.loaded < all.length,
+    isLoading: page.isLoading,
     isLoadingMore: page.isLoadingMore,
     error: page.error,
   );
