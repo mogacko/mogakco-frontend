@@ -63,6 +63,14 @@ flutter:
     - assets/logos/
     - assets/logos/chapters/
 
+  # 폰트는 KS X 1001(2,350자) + 앱이 직접 쓰는 글자로 잘라 둔 것이다.
+  # 원본 Pretendard 는 한글 11,172자를 다 담아 굵기당 1.5MB, 넷이면 6MB 였다.
+  #
+  # KS X 1001 밖의 드문 음절('뷁' 같은)은 기기 기본 한글 글꼴로 떨어진다.
+  # 글자가 깨지지는 않고 획만 조금 달라진다. 앱이 직접 쓰는 문구는 전부
+  # 담아 뒀으니 UI 에서는 이 일이 없고, 사용자가 친 글에서만 드물게 보인다.
+  #
+  # 되돌리려면 Pretendard 원본 otf 를 assets/fonts 에 다시 넣으면 된다.
   fonts:
     - family: Pretendard
       fonts:
