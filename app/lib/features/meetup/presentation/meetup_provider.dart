@@ -4,6 +4,7 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../auth/presentation/session_provider.dart';
+import '../../member/presentation/member_provider.dart';
 import '../../profile/data/mock_profile.dart';
 import '../data/mock_meetups.dart';
 import '../../safety/domain/report.dart';
@@ -197,15 +198,21 @@ final heroIsTodayProvider = Provider<bool>((ref) {
 enum MeetupFilter {
   all('전체'),
   joined('참여 중'),
+  hosting('내가 연'),
   recurring('정기');
 
   const MeetupFilter(this.label);
 
   final String label;
 
-  bool matches(Meetup meetup) => switch (this) {
+  /// [me] 는 지금 로그인한 사람. '내가 연' 에서만 쓴다.
+  ///
+  /// 목록 순서는 건드리지 않는다. 내가 연 모임을 맨 위로 올리면 '가까운
+  /// 날부터'가 깨져서 나머지 순서를 못 믿게 된다. 대신 걸러서 모아 본다.
+  bool matches(Meetup meetup, String me) => switch (this) {
     MeetupFilter.all => true,
     MeetupFilter.joined => meetup.isJoinedAny,
+    MeetupFilter.hosting => meetup.host == me,
     MeetupFilter.recurring => meetup.isRecurring,
   };
 }
@@ -225,17 +232,19 @@ final meetupFilterProvider =
 /// 모임 탭에 뿌릴 모임
 final filteredMeetupsProvider = Provider<List<Meetup>>((ref) {
   final filter = ref.watch(meetupFilterProvider);
+  final me = ref.watch(myIdProvider);
   return ref
       .watch(visibleMeetupsProvider)
-      .where(filter.matches)
+      .where((meetup) => filter.matches(meetup, me))
       .toList();
 });
 
 /// 기준별 모임 개수. 필터 알약에 붙인다.
 final meetupCountsProvider = Provider<Map<MeetupFilter, int>>((ref) {
   final meetups = ref.watch(visibleMeetupsProvider);
+  final me = ref.watch(myIdProvider);
   return {
     for (final filter in MeetupFilter.values)
-      filter: meetups.where(filter.matches).length,
+      filter: meetups.where((meetup) => filter.matches(meetup, me)).length,
   };
 });

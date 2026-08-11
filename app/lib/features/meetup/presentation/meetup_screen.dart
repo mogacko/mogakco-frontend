@@ -116,6 +116,13 @@ class _Empty extends StatelessWidget {
         title: '아직 신청한 자리가 없어요',
         description: '전체에서 이번 주에 열리는 모각코를 볼 수 있어요',
       ),
+      MeetupFilter.hosting => EmptyState(
+        icon: CupertinoIcons.plus_circle,
+        title: '아직 연 모각코가 없어요',
+        description: '자리를 잡고 시간을 정하면 사람이 모입니다',
+        actionLabel: '모각코 만들기',
+        onAction: () => context.push(AppRoute.meetupCreate),
+      ),
       MeetupFilter.recurring => const EmptyState(
         icon: CupertinoIcons.repeat,
         title: '정기 모각코가 아직 없어요',

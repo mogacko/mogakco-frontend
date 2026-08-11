@@ -160,7 +160,9 @@ abstract final class MockMeetups {
       ),
       Meetup(
         id: 'seoul-3',
-        host: '민준',
+        // 서울에도 내가 연 자리를 하나 둔다. 부산에만 있으면 서울로 가입한
+        // 사람은 모임장 기능(접기·내보내기)을 볼 데가 없다.
+        host: 'evan',
         chapter: Chapter.seoul,
         placeName: '언플러그드 성수',
         address: '서울특별시 성동구 성수동',
@@ -170,7 +172,7 @@ abstract final class MockMeetups {
           MeetupSession(
             id: 'seoul-3-sun',
             startsAt: day(3, 13),
-            participants: ['민준', '하늘', '지우', '예린', '시우', '유진', '다인', '건우', '나윤'],
+            participants: ['evan', '하늘', '지우', '예린', '시우', '유진', '다인', '건우', '나윤'],
             capacity: 9,
           ),
         ],

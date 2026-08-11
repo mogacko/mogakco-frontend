@@ -18,11 +18,18 @@ class EventCard extends StatelessWidget {
     required this.now,
     required this.onToggleApply,
     this.onTap,
+    this.showChapter = false,
   });
 
   final Event event;
   final DateTime now;
   final VoidCallback onToggleApply;
+
+  /// 장소 앞에 지역을 붙일지.
+  ///
+  /// 지역을 넘나드는 목록('내 활동')에서 켠다. 행사 장소는 '센텀 스페이스'
+  /// 처럼 이름만 있어 어느 지역인지 드러나지 않는다.
+  final bool showChapter;
 
   /// 카드 위쪽(포스터·제목·장소)을 누르면 상세로 간다.
   ///
@@ -76,7 +83,9 @@ class EventCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        event.venue,
+                        showChapter
+                            ? '${event.chapter.label} · ${event.venue}'
+                            : event.venue,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.texts.bodyMedium?.copyWith(

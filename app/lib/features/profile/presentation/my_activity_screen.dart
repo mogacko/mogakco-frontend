@@ -106,6 +106,8 @@ class _Meetups extends ConsumerWidget {
           MeetupListCard(
             meetup: meetup,
             now: now,
+            // 지역을 걸러내지 않는 목록이라 어디 자리인지 붙여준다.
+            showChapter: true,
             onTap: () => context.push(AppRoute.meetup(meetup.id)),
             onToggleSession: (sessionId) => ref
                 .read(meetupListProvider.notifier)
@@ -141,6 +143,7 @@ class _Events extends ConsumerWidget {
           EventCard(
             event: event,
             now: now,
+            showChapter: true,
             onTap: () => context.push(AppRoute.event(event.id)),
             onToggleApply: () =>
                 ref.read(eventListProvider.notifier).toggleApply(event.id),

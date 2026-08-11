@@ -20,11 +20,19 @@ class MeetupListCard extends StatelessWidget {
     required this.now,
     required this.onToggleSession,
     this.onTap,
+    this.showChapter = false,
   });
 
   final Meetup meetup;
   final DateTime now;
   final void Function(String sessionId) onToggleSession;
+
+  /// 시·도를 떼지 않고 그대로 둘지.
+  ///
+  /// 지역을 넘나드는 목록('내 활동')에서 켠다. 모각코 탭은 한 지역만 보고
+  /// 있어서 '부산광역시'가 열 줄 내리 반복되면 정작 다른 부분인 구·동이
+  /// 뒤로 밀린다.
+  final bool showChapter;
 
   /// 카드 위쪽(장소·모임장)을 누르면 상세로 간다.
   ///
@@ -65,7 +73,7 @@ class MeetupListCard extends StatelessWidget {
                   AppSpacing.lg,
                   AppSpacing.md,
                 ),
-                child: _Header(meetup: meetup),
+                child: _Header(meetup: meetup, showChapter: showChapter),
               ),
             ),
             MeetupSessionList(
@@ -82,9 +90,10 @@ class MeetupListCard extends StatelessWidget {
 
 /// 어디서 누가 여는지
 class _Header extends StatelessWidget {
-  const _Header({required this.meetup});
+  const _Header({required this.meetup, required this.showChapter});
 
   final Meetup meetup;
+  final bool showChapter;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +125,7 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 2),
         ],
         Text(
-          meetup.shortAddress,
+          showChapter ? meetup.address : meetup.shortAddress,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: context.texts.bodyMedium?.copyWith(
