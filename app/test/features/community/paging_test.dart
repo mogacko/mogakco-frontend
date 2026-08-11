@@ -3,6 +3,11 @@ import 'package:mogacko/features/community/domain/post.dart';
 import 'package:mogacko/features/community/presentation/community_screen.dart';
 import 'package:mogacko/features/community/presentation/post_provider.dart';
 import 'package:mogacko/features/community/presentation/widgets/post_card.dart';
+import 'package:mogacko/features/event/domain/event.dart';
+import 'package:mogacko/features/event/presentation/event_provider.dart';
+import 'package:mogacko/features/event/presentation/event_screen.dart';
+import 'package:mogacko/features/meetup/presentation/meetup_provider.dart';
+import 'package:mogacko/features/meetup/presentation/meetup_screen.dart';
 import 'package:mogacko/shared/data/mock_delay.dart';
 
 import '../../helpers/pump_app.dart';
@@ -119,6 +124,108 @@ void main() {
       expect(
         find.byType(PostCard).evaluate().length,
         lessThanOrEqualTo(PostPaging.pageSize),
+      );
+    });
+  });
+  group('모각코 목록 페이징', () {
+    testWidgets('처음엔 한 쪽만, 더 받으면 뒤에 붙는다', (tester) async {
+      final container = await tester.pumpScreen(const MeetupScreen());
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(filteredMeetupsProvider).length,
+        greaterThan(MeetupPaging.pageSize),
+      );
+      final first = container.read(pagedMeetupsProvider);
+      expect(first.items, hasLength(MeetupPaging.pageSize));
+      expect(first.hasMore, isTrue);
+
+      final loading = container.read(meetupPagingProvider.notifier).loadMore();
+      await tester.pump(mockNetworkDelay);
+      await loading;
+
+      final after = container.read(pagedMeetupsProvider);
+      expect(after.items.length, greaterThan(first.items.length));
+      expect(
+        after.items.take(first.items.length).map((m) => m.id),
+        first.items.map((m) => m.id),
+      );
+    });
+
+    testWidgets('참여를 눌러도 받아 둔 쪽이 줄지 않는다', (tester) async {
+      final container = await tester.pumpScreen(const MeetupScreen());
+      await tester.pumpAndSettle();
+
+      final loading = container.read(meetupPagingProvider.notifier).loadMore();
+      await tester.pump(mockNetworkDelay);
+      await loading;
+      final before = container.read(pagedMeetupsProvider).items.length;
+
+      final target = container.read(pagedMeetupsProvider).items.first;
+      container
+          .read(meetupListProvider.notifier)
+          .toggleSession(target.id, target.sessions.first.id);
+      await tester.pumpAndSettle();
+
+      expect(container.read(pagedMeetupsProvider).items, hasLength(before));
+    });
+
+    testWidgets('필터를 바꾸면 처음부터 다시 받는다', (tester) async {
+      final container = await tester.pumpScreen(const MeetupScreen());
+      await tester.pumpAndSettle();
+
+      final loading = container.read(meetupPagingProvider.notifier).loadMore();
+      await tester.pump(mockNetworkDelay);
+      await loading;
+
+      container.read(meetupFilterProvider.notifier).select(MeetupFilter.joined);
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(pagedMeetupsProvider).items.length,
+        lessThanOrEqualTo(MeetupPaging.pageSize),
+      );
+    });
+  });
+
+  group('행사 목록 페이징', () {
+    testWidgets('처음엔 한 쪽만, 더 받으면 뒤에 붙는다', (tester) async {
+      final container = await tester.pumpScreen(const EventScreen());
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(visibleEventsProvider).length,
+        greaterThan(EventPaging.pageSize),
+      );
+      final first = container.read(pagedEventsProvider);
+      expect(first.items, hasLength(EventPaging.pageSize));
+
+      final loading = container.read(eventPagingProvider.notifier).loadMore();
+      await tester.pump(mockNetworkDelay);
+      await loading;
+
+      final after = container.read(pagedEventsProvider);
+      expect(after.items.length, greaterThan(first.items.length));
+      expect(
+        after.items.take(first.items.length).map((e) => e.id),
+        first.items.map((e) => e.id),
+      );
+    });
+
+    testWidgets('종류를 바꾸면 처음부터 다시 받는다', (tester) async {
+      final container = await tester.pumpScreen(const EventScreen());
+      await tester.pumpAndSettle();
+
+      final loading = container.read(eventPagingProvider.notifier).loadMore();
+      await tester.pump(mockNetworkDelay);
+      await loading;
+
+      container.read(eventFilterProvider.notifier).select(EventKind.seminar);
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(pagedEventsProvider).items.length,
+        lessThanOrEqualTo(EventPaging.pageSize),
       );
     });
   });

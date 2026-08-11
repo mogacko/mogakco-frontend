@@ -7,6 +7,7 @@ import '../../auth/presentation/session_provider.dart';
 import '../../member/presentation/member_provider.dart';
 import '../../profile/data/mock_profile.dart';
 import '../data/mock_meetups.dart';
+import '../../../shared/widgets/paged.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
 import '../domain/meetup.dart';
@@ -237,6 +238,60 @@ final filteredMeetupsProvider = Provider<List<Meetup>>((ref) {
       .watch(visibleMeetupsProvider)
       .where((meetup) => filter.matches(meetup, me))
       .toList();
+});
+
+/// 지금까지 몇 개를 받아 뒀는지.
+///
+/// 받아 둔 모임을 들고 있지 않고 개수만 센다. 목록을 통째로 들고 있으면
+/// 참여를 누를 때마다 원본이 바뀌어 페이지가 처음으로 되돌아간다.
+typedef MeetupPage = ({int loaded, bool isLoadingMore, Object? error});
+
+class MeetupPaging extends Notifier<MeetupPage> {
+  static const pageSize = 5;
+
+  @override
+  MeetupPage build() {
+    // 필터를 바꾸면 처음부터 다시 센다.
+    ref.watch(meetupFilterProvider);
+    return (loaded: pageSize, isLoadingMore: false, error: null);
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore) return;
+    if (state.loaded >= ref.read(filteredMeetupsProvider).length) return;
+
+    state = (loaded: state.loaded, isLoadingMore: true, error: null);
+    try {
+      await Future<void>.delayed(mockNetworkDelay);
+      state = (
+        loaded: state.loaded + pageSize,
+        isLoadingMore: false,
+        error: null,
+      );
+    } catch (error) {
+      state = (loaded: state.loaded, isLoadingMore: false, error: error);
+    }
+  }
+
+  void reset() =>
+      state = (loaded: pageSize, isLoadingMore: false, error: null);
+}
+
+final meetupPagingProvider = NotifierProvider<MeetupPaging, MeetupPage>(
+  MeetupPaging.new,
+);
+
+/// 모임 탭에 실제로 뿌릴 것.
+final pagedMeetupsProvider = Provider<Paged<Meetup>>((ref) {
+  final all = ref.watch(filteredMeetupsProvider);
+  final page = ref.watch(meetupPagingProvider);
+
+  return Paged(
+    items: all.take(page.loaded).toList(),
+    hasMore: page.loaded < all.length,
+    isLoadingMore: page.isLoadingMore,
+    error: page.error,
+  );
 });
 
 /// 기준별 모임 개수. 필터 알약에 붙인다.

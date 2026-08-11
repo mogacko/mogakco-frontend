@@ -10,6 +10,7 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/korean_particle.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/paged.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/title_menu.dart';
@@ -31,7 +32,8 @@ class EventScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final now = ref.watch(nowProvider);
-    final events = ref.watch(visibleEventsProvider);
+    final paged = ref.watch(pagedEventsProvider);
+    final events = paged.items;
     final kind = ref.watch(eventFilterProvider);
 
     return Scaffold(
@@ -62,39 +64,61 @@ class EventScreen extends ConsumerWidget {
               ],
             ),
             Expanded(
-              child: PullToRefresh(
-                onRefresh: () => ref.read(eventListProvider.notifier).refresh(),
-                slivers: [
-                  if (events.isEmpty)
-                    // 남는 자리를 다 차지해 가운데 세운다.
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(child: _Empty(kind: kind)),
-                    )
-                  else
-                    SliverPadding(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppBottomNav.contentInset(context) + AppSpacing.xl,
+              child: LoadMoreOnScroll(
+                canLoadMore:
+                    paged.hasMore &&
+                    !paged.isLoadingMore &&
+                    paged.error == null,
+                onLoadMore: () =>
+                    ref.read(eventPagingProvider.notifier).loadMore(),
+                child: PullToRefresh(
+                  onRefresh: () async {
+                    // 새로 받아오면 페이지도 처음으로 되돌린다.
+                    ref.read(eventPagingProvider.notifier).reset();
+                    await ref.read(eventListProvider.notifier).refresh();
+                  },
+                  slivers: [
+                    if (events.isEmpty)
+                      // 남는 자리를 다 차지해 가운데 세운다.
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(child: _Empty(kind: kind)),
+                      )
+                    else
+                      SliverPadding(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        sliver: SliverList.separated(
+                          itemCount: events.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: AppSpacing.md),
+                          itemBuilder: (context, index) {
+                            final event = events[index];
+                            return EventCard(
+                              event: event,
+                              now: now,
+                              onToggleApply: () => ref
+                                  .read(eventListProvider.notifier)
+                                  .toggleApply(event.id),
+                              onTap: () =>
+                                  context.push(AppRoute.event(event.id)),
+                            );
+                          },
+                        ),
                       ),
-                      sliver: SliverList.separated(
-                        itemCount: events.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(height: AppSpacing.md),
-                        itemBuilder: (context, index) {
-                          final event = events[index];
-                          return EventCard(
-                            event: event,
-                            now: now,
-                            onToggleApply: () => ref
-                                .read(eventListProvider.notifier)
-                                .toggleApply(event.id),
-                            onTap: () => context.push(AppRoute.event(event.id)),
-                          );
-                        },
+                    if (events.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: PagedFooter(
+                          state: paged,
+                          onRetry: () =>
+                              ref.read(eventPagingProvider.notifier).loadMore(),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

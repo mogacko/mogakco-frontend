@@ -4,6 +4,7 @@ import '../../../shared/data/mock_delay.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../data/mock_events.dart';
+import '../../../shared/widgets/paged.dart';
 import '../../safety/domain/report.dart';
 import '../../safety/presentation/safety_provider.dart';
 import '../../member/presentation/member_provider.dart';
@@ -159,6 +160,57 @@ const _homeEventCount = 2;
 /// 각 줄의 D-day 가 말해 준다.
 final upcomingEventsProvider = Provider<List<Event>>((ref) {
   return ref.watch(chapterEventsProvider).take(_homeEventCount).toList();
+});
+
+/// 지금까지 몇 개를 받아 뒀는지.
+typedef EventPage = ({int loaded, bool isLoadingMore, Object? error});
+
+class EventPaging extends Notifier<EventPage> {
+  static const pageSize = 5;
+
+  @override
+  EventPage build() {
+    // 종류를 바꾸면 처음부터 다시 센다.
+    ref.watch(eventFilterProvider);
+    return (loaded: pageSize, isLoadingMore: false, error: null);
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore) return;
+    if (state.loaded >= ref.read(visibleEventsProvider).length) return;
+
+    state = (loaded: state.loaded, isLoadingMore: true, error: null);
+    try {
+      await Future<void>.delayed(mockNetworkDelay);
+      state = (
+        loaded: state.loaded + pageSize,
+        isLoadingMore: false,
+        error: null,
+      );
+    } catch (error) {
+      state = (loaded: state.loaded, isLoadingMore: false, error: error);
+    }
+  }
+
+  void reset() =>
+      state = (loaded: pageSize, isLoadingMore: false, error: null);
+}
+
+final eventPagingProvider = NotifierProvider<EventPaging, EventPage>(
+  EventPaging.new,
+);
+
+/// 행사 탭에 실제로 뿌릴 것.
+final pagedEventsProvider = Provider<Paged<Event>>((ref) {
+  final all = ref.watch(visibleEventsProvider);
+  final page = ref.watch(eventPagingProvider);
+
+  return Paged(
+    items: all.take(page.loaded).toList(),
+    hasMore: page.loaded < all.length,
+    isLoadingMore: page.isLoadingMore,
+    error: page.error,
+  );
 });
 
 /// 종류별 행사 개수. 필터 알약에 붙인다.

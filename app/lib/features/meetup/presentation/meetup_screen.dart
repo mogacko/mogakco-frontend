@@ -10,6 +10,7 @@ import '../../../shared/providers/now_provider.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/filter_bar.dart';
+import '../../../shared/widgets/paged.dart';
 import '../../../shared/widgets/pull_to_refresh.dart';
 import '../../../shared/widgets/screen_header.dart';
 import 'meetup_provider.dart';
@@ -26,7 +27,8 @@ class MeetupScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final now = ref.watch(nowProvider);
-    final meetups = ref.watch(filteredMeetupsProvider);
+    final paged = ref.watch(pagedMeetupsProvider);
+    final meetups = paged.items;
     final filter = ref.watch(meetupFilterProvider);
     final counts = ref.watch(meetupCountsProvider);
 
@@ -58,40 +60,62 @@ class MeetupScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Expanded(
-              child: PullToRefresh(
-                onRefresh: () =>
-                    ref.read(meetupListProvider.notifier).refresh(),
-                slivers: [
-                  if (meetups.isEmpty)
-                    // 남는 자리를 다 차지해 가운데 세운다.
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(child: _Empty(filter: filter)),
-                    )
-                  else
-                    SliverPadding(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppBottomNav.contentInset(context) + AppSpacing.xl,
+              child: LoadMoreOnScroll(
+                canLoadMore:
+                    paged.hasMore &&
+                    !paged.isLoadingMore &&
+                    paged.error == null,
+                onLoadMore: () =>
+                    ref.read(meetupPagingProvider.notifier).loadMore(),
+                child: PullToRefresh(
+                  onRefresh: () async {
+                    // 새로 받아오면 페이지도 처음으로 되돌린다.
+                    ref.read(meetupPagingProvider.notifier).reset();
+                    await ref.read(meetupListProvider.notifier).refresh();
+                  },
+                  slivers: [
+                    if (meetups.isEmpty)
+                      // 남는 자리를 다 차지해 가운데 세운다.
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(child: _Empty(filter: filter)),
+                      )
+                    else
+                      SliverPadding(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              AppBottomNav.contentInset(context) +
+                              AppSpacing.xl,
+                        ),
+                        sliver: SliverList.separated(
+                          itemCount: meetups.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: AppSpacing.md),
+                          itemBuilder: (context, index) {
+                            final meetup = meetups[index];
+                            return MeetupListCard(
+                              meetup: meetup,
+                              now: now,
+                              onToggleSession: (sessionId) => ref
+                                  .read(meetupListProvider.notifier)
+                                  .toggleSession(meetup.id, sessionId),
+                              onTap: () =>
+                                  context.push(AppRoute.meetup(meetup.id)),
+                            );
+                          },
+                        ),
                       ),
-                      sliver: SliverList.separated(
-                        itemCount: meetups.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(height: AppSpacing.md),
-                        itemBuilder: (context, index) {
-                          final meetup = meetups[index];
-                          return MeetupListCard(
-                            meetup: meetup,
-                            now: now,
-                            onToggleSession: (sessionId) => ref
-                                .read(meetupListProvider.notifier)
-                                .toggleSession(meetup.id, sessionId),
-                            onTap: () => context.push(AppRoute.meetup(meetup.id)),
-                          );
-                        },
+                    if (meetups.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: PagedFooter(
+                          state: paged,
+                          onRetry: () => ref
+                              .read(meetupPagingProvider.notifier)
+                              .loadMore(),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
