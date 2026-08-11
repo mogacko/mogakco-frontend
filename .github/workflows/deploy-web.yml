@@ -37,7 +37,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           # 로컬과 같은 버전으로 묶어 둔다. 올릴 때는 여기도 함께 고친다.
-          flutter-version: 3.38.7
+          #
+          # 어긋나면 배포되는 것과 손에서 시험한 것이 다른 SDK 로 만들어진다.
+          # 실제로 3.38.7 로 두고 로컬만 올라간 적이 있는데, 셰이더가 안 맞아
+          # 테스트가 무더기로 깨지고 나서야 알았다.
+          flutter-version: 3.44.9
           channel: stable
           cache: true
 
