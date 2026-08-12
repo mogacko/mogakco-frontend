@@ -507,15 +507,13 @@ class _RecurringToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
+    // 카드를 두르지 않는다. 묶을 줄도 고를 선택지도 없는 한 줄짜리 옵션인데
+    // 요일 묶음과 같은 상자를 쓰면 같은 무게로 읽혀, 정작 골라야 할 요일이
+    // 받을 시선을 나눠 갖는다. 위에 선 하나만 긋고 배경에 눕힌다.
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
-      ),
+      padding: const EdgeInsets.only(top: AppSpacing.lg),
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.cardBorder),
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: Row(
         children: [
