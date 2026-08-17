@@ -22,6 +22,7 @@ import '../../features/community/presentation/search_screen.dart';
 import '../../features/event/presentation/event_detail_screen.dart';
 import '../../features/meetup/presentation/meetup_create_screen.dart';
 import '../../features/meetup/presentation/meetup_detail_screen.dart';
+import '../../features/meetup/presentation/meetup_edit_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/signup/domain/term.dart';
 import '../../features/signup/presentation/term_detail_screen.dart';
@@ -71,6 +72,7 @@ abstract final class AppRoute {
   static String postEdit(String id) => '/post/$id/edit';
   static String meetup(String id) => '/meetup/$id';
   static const meetupCreate = '/meetup/new';
+  static String meetupEdit(String id) => '/meetup/$id/edit';
   static String event(String id) => '/event/$id';
   static const eventCreate = '/event/new';
   static const myEvents = '/event/mine';
@@ -206,6 +208,13 @@ final detailRoutes = <RouteBase>[
   GoRoute(
     path: AppRoute.meetupCreate,
     builder: (_, _) => const MeetupCreateScreen(),
+  ),
+  // '/meetup/:id/edit' 가 먼저 와야 한다. 뒤에 두면 :id 가 먼저 물어 'edit'
+  // 까지 id 로 삼는다.
+  GoRoute(
+    path: '/meetup/:id/edit',
+    builder: (_, state) =>
+        MeetupEditScreen(meetupId: state.pathParameters['id']!),
   ),
   GoRoute(
     path: '/meetup/:id',

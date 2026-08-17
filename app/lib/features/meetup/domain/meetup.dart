@@ -85,12 +85,17 @@ class MeetupSession {
     };
   }
 
-  MeetupSession copyWith({bool? isJoined, List<String>? participants}) {
+  MeetupSession copyWith({
+    bool? isJoined,
+    List<String>? participants,
+    DateTime? startsAt,
+    int? capacity,
+  }) {
     return MeetupSession(
       id: id,
-      startsAt: startsAt,
+      startsAt: startsAt ?? this.startsAt,
       participants: participants ?? this.participants,
-      capacity: capacity,
+      capacity: capacity ?? this.capacity,
       isJoined: isJoined ?? this.isJoined,
     );
   }
@@ -309,6 +314,79 @@ class Meetup {
           else
             session,
       ],
+    );
+  }
+
+  /// 고친 모임을 만든다.
+  ///
+  /// 살아남은 날의 참여자는 그대로 둔다. 시각을 옮겼다고 오기로 한 사람을 다
+  /// 풀어버리면 모임장이 오타 하나 고쳤을 때도 자리가 텅 빈다. 바뀐 것은
+  /// 알려주고, 못 오게 된 사람이 스스로 뺀다.
+  ///
+  /// 이미 지난 날은 건드리지 않는다. 고칠 수 있는 것은 앞으로 열릴 자리뿐이고,
+  /// 지난 날을 지우면 그날 왔던 사람의 기록까지 사라진다.
+  Meetup edit({
+    required DateTime now,
+    required String placeName,
+    required String address,
+    required bool isRecurring,
+    required Map<DateTime, ({int hour, int minute, int capacity})> days,
+    double? latitude,
+    double? longitude,
+    String? description,
+  }) {
+    // 날짜만 남긴 열쇠로 견준다. 시각이 바뀌어도 '같은 날'이면 그날 오기로 한
+    // 사람은 그대로다.
+    final byDay = {
+      for (final session in sessions)
+        DateTime(
+          session.startsAt.year,
+          session.startsAt.month,
+          session.startsAt.day,
+        ): session,
+    };
+
+    final past = sessions.where((session) => session.daysFrom(now) < 0);
+
+    final next = [
+      for (final day in days.keys.toList()..sort())
+        if (byDay[day] case final kept?)
+          kept.copyWith(
+            startsAt: day.copyWith(
+              hour: days[day]!.hour,
+              minute: days[day]!.minute,
+            ),
+            capacity: days[day]!.capacity,
+          )
+        else
+          MeetupSession(
+            id: '$id-${day.day}',
+            startsAt: day.copyWith(
+              hour: days[day]!.hour,
+              minute: days[day]!.minute,
+            ),
+            // 연 사람은 가는 사람이다. 새로 더한 날도 만들 때와 같다.
+            participants: [host],
+            capacity: days[day]!.capacity,
+            isJoined: true,
+          ),
+    ];
+
+    return Meetup(
+      id: id,
+      chapter: chapter,
+      placeName: placeName,
+      address: address,
+      host: host,
+      hostAvatarUrl: hostAvatarUrl,
+      sessions: [...past, ...next]
+        ..sort((a, b) => a.startsAt.compareTo(b.startsAt)),
+      isRecurring: isRecurring,
+      description: description,
+      latitude: latitude,
+      longitude: longitude,
+      cancellation: cancellation,
+      banned: banned,
     );
   }
 

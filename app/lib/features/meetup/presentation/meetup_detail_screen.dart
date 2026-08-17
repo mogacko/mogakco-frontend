@@ -12,6 +12,7 @@ import '../../../shared/utils/haptics.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../member/presentation/member_provider.dart';
 import '../../safety/domain/report.dart';
+import '../../../shared/widgets/owner_menu.dart';
 import '../../safety/presentation/widgets/safety_menu.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/static_map.dart';
@@ -84,7 +85,7 @@ class MeetupDetailScreen extends ConsumerWidget {
       actions: [
         // 내가 연 자리에는 신고가 아니라 접기가 붙는다.
         if (meetup.host == ref.watch(myIdProvider) && !meetup.isCancelled)
-          _CancelMenuButton(meetup: meetup, now: now)
+          _HostMenuButton(meetup: meetup, now: now)
         else
           SafetyMenuButton(
             target: ReportTarget.meetup,
@@ -293,9 +294,9 @@ class _Head extends StatelessWidget {
   }
 }
 
-/// 모임장에게만 붙는 '⋯'. 지금은 접기 하나뿐이다.
-class _CancelMenuButton extends ConsumerWidget {
-  const _CancelMenuButton({required this.meetup, required this.now});
+/// 모임장에게만 붙는 '⋯'. 고치기와 접기를 고른다.
+class _HostMenuButton extends ConsumerWidget {
+  const _HostMenuButton({required this.meetup, required this.now});
 
   final Meetup meetup;
   final DateTime now;
@@ -319,24 +320,26 @@ class _CancelMenuButton extends ConsumerWidget {
       );
   }
 
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    // 접기는 여기서 되묻지 않는다. 사유를 받는 시트가 곧 확인이다.
+    final action = await showOwnerSheet(
+      context,
+      what: '모각코',
+      deleteLabel: '접기',
+    );
+    if (action == null || !context.mounted) return;
+
+    switch (action) {
+      case OwnerAction.edit:
+        context.push(AppRoute.meetupEdit(meetup.id));
+      case OwnerAction.delete:
+        await _cancel(context, ref);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Semantics(
-      button: true,
-      label: '모각코 접기',
-      child: InkWell(
-        onTap: () => _cancel(context, ref),
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: Icon(
-            CupertinoIcons.ellipsis,
-            size: AppSize.iconMd,
-            color: context.colors.textSecondary,
-          ),
-        ),
-      ),
-    );
+    return OwnerMenuButton(onTap: () => _open(context, ref));
   }
 }
 

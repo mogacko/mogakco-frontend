@@ -15,19 +15,24 @@ enum OwnerAction { edit, delete }
 ///
 /// 삭제는 여기서 바로 하지 않고 한 번 더 묻는다. 되돌릴 수 없는 일이고,
 /// 수정 바로 아래 있어서 손이 미끄러지기 쉽다.
+///
+/// [deleteTitle] 이 없으면 되묻지 않고 그대로 돌려준다. 부르는 쪽에 이미
+/// 되묻는 시트가 있을 때 쓴다 — 모각코 접기는 사유까지 받으므로 그 시트가
+/// 곧 확인이고, 여기서 한 번 더 물으면 두 번 확인하게 된다.
 Future<OwnerAction?> showOwnerSheet(
   BuildContext context, {
   required String what,
-  required String deleteTitle,
+  String deleteLabel = '삭제',
+  String? deleteTitle,
   String? deleteDescription,
 }) async {
   final picked = await showModalBottomSheet<OwnerAction>(
     context: context,
     backgroundColor: Colors.transparent,
-    builder: (context) => _OwnerSheet(what: what),
+    builder: (context) => _OwnerSheet(what: what, deleteLabel: deleteLabel),
   );
 
-  if (picked != OwnerAction.delete) return picked;
+  if (picked != OwnerAction.delete || deleteTitle == null) return picked;
   if (!context.mounted) return null;
 
   final ok = await showConfirmSheet(
@@ -76,9 +81,10 @@ class OwnerMenuButton extends StatelessWidget {
 }
 
 class _OwnerSheet extends StatelessWidget {
-  const _OwnerSheet({required this.what});
+  const _OwnerSheet({required this.what, required this.deleteLabel});
 
   final String what;
+  final String deleteLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +110,7 @@ class _OwnerSheet extends StatelessWidget {
             Divider(height: 1, color: colors.border),
             _Row(
               icon: CupertinoIcons.trash,
-              label: '$what 삭제',
+              label: '$what $deleteLabel',
               danger: true,
               onTap: () => Navigator.of(context).pop(OwnerAction.delete),
             ),

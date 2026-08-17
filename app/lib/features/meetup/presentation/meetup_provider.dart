@@ -87,6 +87,17 @@ class MeetupList extends Notifier<List<Meetup>> {
       ..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
   }
 
+  /// 고친 모임으로 갈아 끼운다.
+  ///
+  /// 날짜가 바뀌면 목록에서 설 자리도 바뀌므로 다시 세운다. 이 목록은
+  /// '가까운 날부터'가 규칙이라 한 줄만 어긋나도 나머지 순서를 못 믿게 된다.
+  void replace(Meetup meetup) {
+    state = [
+      for (final it in state)
+        if (it.id != meetup.id) it else meetup,
+    ]..sort((a, b) => a.firstStartsAt.compareTo(b.firstStartsAt));
+  }
+
   /// 당겨서 새로고침.
   ///
   /// 서버가 붙으면 여기서 다시 받아온다. 그때는 내가 신청한 날도 응답에

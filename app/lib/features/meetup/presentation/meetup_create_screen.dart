@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,13 +11,16 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/current_chapter_provider.dart';
 import '../../../shared/providers/now_provider.dart';
 import '../../../shared/utils/haptics.dart';
+import '../../../shared/utils/navigation.dart';
 import '../../../shared/widgets/detail_scaffold.dart';
 import '../../../shared/widgets/form_field_block.dart';
 import '../../auth/presentation/session_provider.dart';
 import '../../place/domain/place.dart';
 import '../../place/presentation/place_picker_field.dart';
+import '../domain/edit_scope.dart';
 import '../domain/meetup.dart';
 import 'meetup_provider.dart';
+import 'widgets/edit_scope_sheet.dart';
 
 /// 한 주치 모각코를 연다.
 ///
@@ -26,7 +30,13 @@ import 'meetup_provider.dart';
 /// 고른 날마다 시각과 정원을 따로 둔다. 토요일 오전과 일요일 저녁이 한 모임인
 /// 경우가 흔해서, 하나로 묶으면 둘 중 하나가 거짓이 된다.
 class MeetupCreateScreen extends ConsumerStatefulWidget {
-  const MeetupCreateScreen({super.key});
+  const MeetupCreateScreen({super.key, this.meetupId});
+
+  /// 고칠 모임의 id. 없으면 새로 여는 것이다.
+  ///
+  /// 열기와 고치기를 한 화면으로 둔다. 나눠 두면 칸이 하나 늘 때마다 두 곳을
+  /// 맞춰야 하고, 한쪽만 고쳐 두면 고칠 때만 없는 칸이 생긴다.
+  final String? meetupId;
 
   @override
   ConsumerState<MeetupCreateScreen> createState() => _MeetupCreateScreenState();
@@ -45,6 +55,51 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
   final _days = <DateTime, _Day>{};
 
   bool _recurring = false;
+
+  bool get _isEditing => widget.meetupId != null;
+
+  /// 고치기 전의 모임. 무엇이 바뀌었는지 견주는 데 쓴다.
+  Meetup? _original;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.meetupId;
+    if (id == null) return;
+
+    // 지금 값으로 칸을 채워 연다. 빈 폼을 주면 안 고칠 것까지 다시 적어야 한다.
+    final meetup = ref
+        .read(meetupListProvider)
+        .where((meetup) => meetup.id == id)
+        .firstOrNull;
+    if (meetup == null) return;
+
+    _original = meetup;
+    _description.text = meetup.description ?? '';
+    _recurring = meetup.isRecurring;
+    _place = Place(
+      // 장소를 다시 고르지 않으면 그대로 쓴다. 검색으로 고른 것이 아니라
+      // id 가 없으므로 모임 id 를 빌린다.
+      id: meetup.id,
+      name: meetup.placeName,
+      address: meetup.address,
+      latitude: meetup.latitude ?? 0,
+      longitude: meetup.longitude ?? 0,
+    );
+
+    final now = ref.read(nowProvider);
+    for (final session in meetup.sessions) {
+      // 이미 지난 날은 고를 수 있는 이레 밖이라 칸에 세우지 않는다.
+      // 도메인의 edit 이 손대지 않고 그대로 남긴다.
+      if (session.daysFrom(now) < 0) continue;
+      final start = session.startsAt;
+      _days[DateTime(start.year, start.month, start.day)] = (
+        hour: start.hour,
+        minute: start.minute,
+        capacity: session.capacity,
+      );
+    }
+  }
 
   /// 처음 고르는 날에 채워 넣을 값.
   ///
@@ -101,7 +156,94 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
     setState(() => _days[day] = picked);
   }
 
-  void _submit() {
+  /// 다음 주에도 이어질 값이 바뀌었는지.
+  ///
+  /// 정기 모임은 요일·시각·정원·장소를 규칙으로 삼아 매주 새로 생긴다. 그
+  /// 넷 중 하나라도 달라지면 다음 주까지 미칠지 물어야 한다. 소개글만 고쳤을
+  /// 때는 묻지 않는다 — 이번 주만 다른 소개를 쓸 이유가 없고, 고칠 때마다
+  /// 뜨면 안 읽고 누르게 된다.
+  bool _propagates(Meetup original) {
+    if (original.placeName != _place!.name) return true;
+    if (original.address != _place!.address) return true;
+
+    // 날짜가 아니라 '요일'로 견준다. 다음 주에 넘어가는 것은 이번 주 8월
+    // 15일이 아니라 '토요일 19시 8명'이다.
+    String shape(int weekday, int hour, int minute, int capacity) =>
+        '$weekday $hour:$minute x$capacity';
+
+    final now = ref.read(nowProvider);
+    final before = {
+      for (final session in original.sessions)
+        if (session.daysFrom(now) >= 0)
+          shape(
+            session.startsAt.weekday,
+            session.startsAt.hour,
+            session.startsAt.minute,
+            session.capacity,
+          ),
+    };
+    final after = {
+      for (final entry in _days.entries)
+        shape(
+          entry.key.weekday,
+          entry.value.hour,
+          entry.value.minute,
+          entry.value.capacity,
+        ),
+    };
+
+    return !setEquals(before, after);
+  }
+
+  Future<void> _save(Meetup original) async {
+    // 정기 모임에서 다음 주까지 이어질 값이 바뀌었을 때만 묻는다.
+    EditScope? scope;
+    if (original.isRecurring && _recurring && _propagates(original)) {
+      scope = await showEditScopeSheet(context, what: '바꾼 내용을 어디까지 적용할까요?');
+      if (scope == null) return;
+    }
+    if (!mounted) return;
+
+    final place = _place!;
+    ref
+        .read(meetupListProvider.notifier)
+        .replace(
+          original.edit(
+            now: ref.read(nowProvider),
+            placeName: place.name,
+            address: place.address,
+            isRecurring: _recurring,
+            days: _days,
+            latitude: place.latitude == 0 ? null : place.latitude,
+            longitude: place.longitude == 0 ? null : place.longitude,
+            description: _description.text.trim().isEmpty
+                ? null
+                : _description.text.trim(),
+          ),
+        );
+
+    Haptics.decide();
+    if (!mounted) return;
+
+    // 고른 범위는 서버가 붙으면 규칙을 함께 고칠지 가르는 값이 된다. 목업에는
+    // 규칙이 없어 지금은 무엇을 골랐는지 알려주는 데까지만 쓴다.
+    final message = switch (scope) {
+      EditScope.forward => '앞으로 열릴 모각코도 함께 바꿨어요',
+      EditScope.thisWeek => '이번 주 모각코만 바꿨어요',
+      null => '고쳤어요',
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+      );
+    goBack(context);
+  }
+
+  Future<void> _submit() async {
+    final original = _original;
+    if (original != null) return _save(original);
+
     final now = ref.read(nowProvider);
     final session = ref.read(sessionProvider);
     final chapter = ref.read(currentChapterProvider);
@@ -157,10 +299,10 @@ class _MeetupCreateScreenState extends ConsumerState<MeetupCreateScreen> {
     final days = _days.keys.toList()..sort();
 
     return DetailScaffold(
-      title: '모각코 만들기',
+      title: _isEditing ? '모각코 고치기' : '모각코 만들기',
       bottomAction: FilledButton(
         onPressed: _canSubmit ? _submit : null,
-        child: const Text('만들기'),
+        child: Text(_isEditing ? '저장' : '만들기'),
       ),
       children: [
         Padding(
